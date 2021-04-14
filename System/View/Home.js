@@ -12,13 +12,15 @@ import { PricingCard } from "react-native-elements";
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
 
-const ServiceCard = (data) => {
+const ServiceCard = (data,navi) => {
   return (
     <View style={styles.ServiceCard}>
-      <Image source={data.image} style={styles.ServiceImage}/>
-      <Text style={styles.ServiceHeading}>{data.name}</Text>
-      <Text style={styles.ServiceDescription}>{data.description}</Text>
-    </View>
+      <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider')}}>
+        <Image source={data.image} style={styles.ServiceImage}/>
+        <Text style={styles.ServiceHeading}>{data.name}</Text>
+        <Text style={styles.ServiceDescription}>{data.description}</Text>
+      </TouchableOpacity>
+      </View>
   )
 }
 
@@ -78,6 +80,7 @@ export default class Home extends React.Component {
 
 
   render() {
+    const { navigation } = this.props;
     let data = {
       image:require("../Public/Images/banner-example.jpg"),
       name:'Wash & Fold',
@@ -103,11 +106,11 @@ export default class Home extends React.Component {
 
         <View style={styles.ServiceCardContainer}>
 
-          {ServiceCard(data)}
-          {ServiceCard(data)}
-          {ServiceCard(data)}
-          {ServiceCard(data)}
-          {ServiceCard(data)}
+          {ServiceCard(data,navigation)}
+          {ServiceCard(data,navigation)}
+          {ServiceCard(data,navigation)}
+          {ServiceCard(data,navigation)}
+          {ServiceCard(data,navigation)}
 
         </View>
       </ScrollView>

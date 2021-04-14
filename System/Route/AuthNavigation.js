@@ -24,6 +24,10 @@ import AddressList from "../View/Address/AddressList";
 import CreateAddress from "../View/Address/Create";
 import TestPage from "../View/TestPage";
 import Faq from "../View/Faq/Faq";
+import ServicesSlider from "../View/Services/ServicesSlider";
+import Cart from "../View/Cart";
+import TimeBar from "../View/TimeSlot/TimeBar";
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -38,13 +42,10 @@ const NavigationDrawerStructure = (props) => {
   return (
     <View style={{flexDirection: 'row'}}>
       <TouchableOpacity onPress={() => props.navigationProps.toggleDrawer()}>
-        {/*Donute Button Image */}
         <Image
           source={require('../Public/Images/menu.png')}
           style={{width: 28, height: 28, marginLeft: 18}}
         />
-        {/*<FontAwesome5 name={'question-circle'} size={24} color={'black'} style={{marginRight:-20,marginLeft:4}} />*/}
-
 
       </TouchableOpacity>
     </View>
@@ -177,7 +178,84 @@ const HomeScreenStack = ({navigation}) => {
           title: 'Order Details',
         }}
       />
+      <Stack.Screen
+        name="ServicesSlider"
+        component={ServicesSlider}
 
+        options={({route}) => ({
+
+          title: 'Service Details',
+
+        })}
+
+
+      />
+
+      <Stack.Screen
+        name="ViewCart"
+        component={Cart}
+
+        options={({route}) => ({
+          title: 'Cart',
+        })}
+
+
+      />
+      <Stack.Screen
+        name="SelectAddress"
+        component={AddressList}
+
+        options={({route}) => ({
+          title: 'Select Address',
+
+        })}
+
+
+      />
+      <Stack.Screen
+        name="CreateAddress"
+        component={CreateAddress}
+
+        options={({route}) => ({
+          title: 'Add Address',
+        })}
+
+
+      />
+
+      <Stack.Screen
+        name="newOrderDetails"
+        component={OrderDetails}
+
+        options={({route}) => ({
+          title: 'Order Detail',
+          headerShown: false,
+        })}
+
+
+      />
+
+      <Stack.Screen
+        name="Offers"
+        component={Offers}
+
+        options={({route}) => ({
+          title: 'Apply Coupons',
+
+        })}
+
+
+      />
+      <Stack.Screen
+        name="TimeBar"
+        component={TimeBar}
+
+        options={({route}) => ({
+          title: 'Time Slot',
+        })}
+
+
+      />
     </Stack.Navigator>
   );
 };

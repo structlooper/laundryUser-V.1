@@ -46,7 +46,7 @@ const AddressCard = (addressNumber,lat,lng,addressDesc,) => {
                 <View >
 
                     <TouchableOpacity onPress={() => { console.log('Delete')}}>
-                        <Text style={styles.actionBtn}>{(routeName === 'ViewCart') ? 'Select' : 'Delete'}</Text>
+                        <Text style={styles.actionBtn}>{(routeName === 'ServicesSlider') ? 'Select' : 'Delete'}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -59,7 +59,7 @@ const AddressList =  ({navigation}) => {
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
     const addAddress = () => {
-        if (routeName === 'ViewCart'){
+        if (routeName === 'ServicesSlider'){
             return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'CreateAddress'})},'Add address',styles.bottomView,'map-marker')
         }else{
             return MyButton(() => {navigation.navigate('AddressScreenStack',{screen:'CreateAddress'})},'Add address',styles.bottomView,'map-marker')

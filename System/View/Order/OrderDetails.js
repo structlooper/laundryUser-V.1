@@ -48,8 +48,8 @@ const product = (name,qty,price) => {
 const homeBtn = (navigation) => {
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
-    if (routeName === 'TimeBar'){
-        return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'Services'})},'Go Home',{marginTop:10},'home')
+    if (routeName === 'ViewCart'){
+        return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'Home'})},'Go Home',{marginTop:10},'home')
     }else{
         return (
             <View></View>
@@ -98,10 +98,10 @@ const OrderDetails = ({navigation}) => {
                 <View style={styles.orderProductContainer}>
                     <ScrollView style={{maxHeight:100}}>
 
-                        {product('Blazer (Dry Cleaning)','2x','$ 4')}
-                        {product('Jens (Dry Cleaning)','3x','$ 3')}
-                        {product('Shirt (Dry Cleaning)','5x','$ 8')}
-                        {product('Mens Kurta (Dry Cleaning)','1x','$ 10')}
+                        {product('Blazer (Dry Cleaning)','2x','₹ 4')}
+                        {product('Jens (Dry Cleaning)','3x','₹ 3')}
+                        {product('Shirt (Dry Cleaning)','5x','₹ 8')}
+                        {product('Mens Kurta (Dry Cleaning)','1x','₹ 10')}
 
 
                     </ScrollView>
@@ -109,9 +109,9 @@ const OrderDetails = ({navigation}) => {
                 </View>
             </View>
             <View style={styles.bottomContainer}>
-                {bill('Subtotal','$ 10.0',styles.priceLabel)}
-                {bill('Discount','$ 01.3',styles.priceLabel)}
-                {bill('Total','$ 09.0',styles.priceLabelFinal)}
+                {bill('Subtotal','₹ 10.0',styles.priceLabel)}
+                {bill('Discount','₹ 01.3',styles.priceLabel)}
+                {bill('Total','₹ 09.0',styles.priceLabelFinal)}
             </View>
             {homeBtn(navigation)}
         </View>
