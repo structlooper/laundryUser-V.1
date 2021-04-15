@@ -28,7 +28,7 @@ const offerCard = (offer,heading,desc,navigation) => {
     }
   }
   return (
-    <View style={{flex:1, marginVertical:10,padding:20 , backgroundColor:'#fff'}}>
+    <View style={{flex:1, marginTop:5,padding:20 , backgroundColor:'#fff'}}>
       <View style={{flexDirection:'row',marginBottom:10}}>
         <View style={{}}>
           <View style={styles.offerCode}>

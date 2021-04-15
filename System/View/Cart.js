@@ -47,6 +47,7 @@ const product = (name,qty,price) => {
 
 const Cart = ({navigation}) => {
   return (
+
     <View style={Styles.mainView}>
       <View style={Styles.headingView}>
         <Text style={Styles.heading}>
@@ -54,6 +55,7 @@ const Cart = ({navigation}) => {
         </Text>
 
       </View>
+
       <View>
         <ScrollView style={{ minHeight:230}}>
 
@@ -122,7 +124,9 @@ const Cart = ({navigation}) => {
 
 const Styles = StyleSheet.create({
   mainView:{
-    flex:1,
+    // flex:1,
+    borderTopColor:'#eee',
+    borderTopWidth:5,
     padding:5,
     height:'100%',
     backgroundColor:'#ffffff'
@@ -130,7 +134,7 @@ const Styles = StyleSheet.create({
   headingView:{
     alignItems:'center',
     borderBottomColor:'gray',
-    borderBottomWidth:.5,
+    borderBottomWidth:.1,
     // padding:5
   },
   heading:{

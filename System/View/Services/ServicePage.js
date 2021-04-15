@@ -74,7 +74,7 @@ const ServicePage = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1,width: '100%',backgroundColor:'#fff'}}>
+    <View style={{flex: 1,width: '100%',backgroundColor:'#eee'}}>
       <Modal isVisible={isModalVisible} >
         <View style={{flex: .7,borderWidth:.2,backgroundColor:'#eee',}}>
           <View style={{borderBottomWidth:.5,paddingBottom:10,padding:10}}>
@@ -103,7 +103,7 @@ const ServicePage = ({navigation}) => {
 
       </Modal>
 
-      <ScrollView>
+      <ScrollView style={{marginTop:5}}>
 
         {productCard(require('../../Public/Images/blazer.png'),'Blazer',2,3,toggleModal)}
         {productCard(require('../../Public/Images/jeans.png'),'Jeans',3,5,toggleModal)}
@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
   },
   ItemMain :{
     width:'100%',
-    backgroundColor:'#eee',
+    backgroundColor:'#fff',
     flexDirection:'row',
-    marginTop:10,
+    marginVertical:1,
     padding:5,
 
   },

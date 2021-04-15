@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Image,
   Text,
+  TouchableOpacity
 } from 'react-native';
 import {logo} from '../Utility/Images'
 import {
@@ -43,11 +44,14 @@ const CustomSidebarMenu = (props) => {
         borderTopColor: 'grey',
         borderTopWidth: .3
       }}>
+        <TouchableOpacity
+          {...props}
+          onPress={() => {
+            props.navigation.navigate('Login')
+          }}
+        >
 
-        <Text {...props}
-              onPress={() => {
-                props.navigation.navigate('Login')
-              }}
+        <Text
               style={{
                 fontSize: 15,
                 // textAlign: 'center',
@@ -56,6 +60,8 @@ const CustomSidebarMenu = (props) => {
               }}>
           <FontAwesome5 name={'sign-out-alt'} size={18} color={'grey'}   />  Logout
         </Text>
+        </TouchableOpacity>
+
       </View>
 
     </SafeAreaView>

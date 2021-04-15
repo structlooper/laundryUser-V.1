@@ -7,7 +7,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const faqCard = (toggleModal,question) => {
     return (
-        <TouchableOpacity style={{padding:10,paddingHorizontal:20,borderBottomWidth:.5,backgroundColor:'#fff'}}
+        <TouchableOpacity style={{padding:10,marginVertical:1,paddingHorizontal:20,backgroundColor:'#fff'}}
                           onPress={toggleModal}
         >
             <View style={{flexDirection:'row'}}>
@@ -30,10 +30,7 @@ function Faqs() {
     };
 
     return (
-        <View style={{flex: 1,paddingVertical:10}}>
-            {/*<Button title="Show modal" onPress={toggleModal} />*/}
-
-
+        <View style={{flex: 1,paddingVertical:5}}>
             <ScrollView style={{backgroundColor:'#eee'}}>
                 {faqCard(toggleModal,'How do i book my pickup?')}
                 {faqCard(toggleModal,'How will I know that my laundry has been picked-up?')}

@@ -27,7 +27,9 @@ import Faq from "../View/Faq/Faq";
 import ServicesSlider from "../View/Services/ServicesSlider";
 import Cart from "../View/Cart";
 import TimeBar from "../View/TimeSlot/TimeBar";
-
+import AboutUs from "../View/AboutUs";
+import Contact from "../View/Contact";
+import TermsAndConditions from "../View/TermsAndConditions";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -274,8 +276,6 @@ const AddressScreenStack = ({navigation}) => {
           backgroundColor: '#fff',
         },
         headerTintColor: '#000',
-
-
       }}>
       <Stack.Screen
         name="AddressList"
@@ -333,6 +333,103 @@ const FaqScreenStack = ({navigation}) => {
     </Stack.Navigator>
   );
 };
+
+const AboutScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="AboutUs"
+      screenOptions={{
+        headerRight: () => (
+          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+          </TouchableOpacity>
+        ),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="AboutUs"
+        component={AboutUs}
+        options={{
+          title: 'About us',
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
+const ContactScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="Contact"
+      screenOptions={{
+        headerRight: () => (
+          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+          </TouchableOpacity>
+        ),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="Contact"
+        component={Contact}
+        options={{
+          title: 'Contact us',
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
+const TermsAndConditionsScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="TermsAndCondition"
+      screenOptions={{
+        headerRight: () => (
+          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+          </TouchableOpacity>
+        ),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="TermsAndCondition"
+        component={TermsAndConditions}
+        options={{
+          title: 'Contact us',
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
 const MainNavigator = () => {
   return (
     // <NavigationContainer>
@@ -379,7 +476,7 @@ const MainNavigator = () => {
           )
 
         }}
-        component={TestPage}
+        component={AboutScreenStack}
       />
       <Drawer.Screen
         name="contactUs"
@@ -390,10 +487,10 @@ const MainNavigator = () => {
           )
 
         }}
-        component={TestPage}
+        component={ContactScreenStack}
       />
       <Drawer.Screen
-        name="SettingScreenStack"
+        name="TermsAndConditions"
         options={{
           drawerLabel: 'Terms & Conditions',
           drawerIcon:({color , size}) => (
@@ -401,7 +498,7 @@ const MainNavigator = () => {
           )
 
         }}
-        component={TestPage}
+        component={TermsAndConditionsScreenStack}
       />
       <Drawer.Screen
         name="FaqScreenStack"

@@ -8,7 +8,7 @@ import {mainColor, MyButton, MyTextInput} from "../../Utility/MyLib";
 function getAddressFromCoordinates({ latitude, longitude }) {
     const HERE_API_KEY = 'AIzaSyAhJW0BL0uuVzXfhkhiQb3ZXF8f4pQ0vYQ';
     return new Promise((resolve) => {
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude   }&key=${HERE_API_KEY}`
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${HERE_API_KEY}`
         fetch(url)
             .then(res => res.json())
             .then((resJson) => {

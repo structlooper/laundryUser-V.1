@@ -85,3 +85,4 @@ export const MyOptField = (name,onChangeFunction,placeHolder,style) => {
 }
 
 export const mainColor = '#5414b3';
+export const AppName = 'KRYCHE';
