@@ -5,12 +5,13 @@ import {
   SafeAreaView , Image , StyleSheet,ScrollView,TouchableOpacity,Dimensions } from 'react-native';
 
 import Carousel from 'react-native-snap-carousel';
-import {mainColor} from '../Utility/MyLib';
+import { mainColor, MyButton } from "../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { PricingCard } from "react-native-elements";
 
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
+const iconSize = 18;
 
 const ServiceCard = (data,navi) => {
   return (
@@ -24,7 +25,25 @@ const ServiceCard = (data,navi) => {
   )
 }
 
-const iconSize = 18;
+const MemberShipCard = () => {
+  return (
+    <View style={[styles.pricingCardContainer,{alignItems: 'center'}]}>
+
+      <Text style={styles.pricingCardHeader}>Stater</Text>
+      <Text style={styles.pricingCardPrice}>$30</Text>
+      <Text style={styles.pricingCardDetails}>50 User</Text>
+      <Text style={styles.pricingCardDetails}>stater user Support</Text>
+      <Text style={styles.pricingCardDetails}>Get all features</Text>
+
+
+      <TouchableOpacity onPress={() => {console.log('started')}}>
+        <Text style={styles.PriceButton}><FontAwesome5 name={'lightbulb'} size={iconSize-2} color={'#fff'}  />  GET STARTED</Text>
+      </TouchableOpacity>
+
+    </View>
+  )
+}
+
 
 
 export default class Home extends React.Component {
@@ -38,14 +57,17 @@ export default class Home extends React.Component {
         {
           title:"Flat 50% off on first order",
           text: "View all offers",
+          image:require('../Public/Images/banner-example.jpg')
         },
         {
           title:"Item 2",
           text: "Text 2",
+          image:require('../Public/Images/banner-example.jpg')
         },
         {
           title:"Item 3",
           text: "Text 3",
+          // image:require('../Public/Images/banner-example.jpg')
         },
 
       ]
@@ -60,7 +82,7 @@ export default class Home extends React.Component {
         padding:10,
         paddingTop:20,
         marginVertical:5,
-        height:height-800,
+        height:180,
         }}>
         <View style={{ flexDirection:'row'}}>
           <View style={{ flex:.9 }}>
@@ -68,7 +90,7 @@ export default class Home extends React.Component {
             <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>
           </View>
           <View style={{ alignItems:'center' }}>
-            <Image source={require('../Public/Images/banner-example.jpg')} style={{ width:150,height:150 }} />
+            <Image source={item.image} style={{ width:150,height:150 }} />
           </View>
 
         </View>
@@ -87,9 +109,11 @@ export default class Home extends React.Component {
       description:'Min 12 Hours'
     }
     return (
-      <ScrollView>
+      <View style={{ flex: 1,width: '100%',backgroundColor:'#eee'}} >
 
-      <SafeAreaView style={{flex: 1, backgroundColor:'#eee', }}>
+      <ScrollView style={{marginBottom:50}}>
+
+      <SafeAreaView style={{flex: 1, backgroundColor:'#eee' }}>
 
         <View style={{ flexDirection:'row', justifyContent: 'center', }}>
           <Carousel
@@ -114,53 +138,33 @@ export default class Home extends React.Component {
 
         </View>
       </ScrollView>
-        <Text style={[styles.Heading,{flex:1}]}>Membership Offers</Text>
+        <Text style={styles.Heading}>Membership Offers</Text>
         <View style={{flexDirection:'row'}}>
           <ScrollView horizontal={true} >
-
-
-            <PricingCard
-              color="#4f9deb"
-              title="Free"
-              price="₹0"
-              info={['1 User', 'Basic Support', 'All Core Features']}
-              button={{ title: ' GET STARTED', icon: 'flight-takeoff' }}
-              containerStyle={{marginHorizontal:2,height:'87%'}}
-            />
-            <PricingCard
-              color={mainColor}
-              title="Stater"
-              price="₹10"
-              info={['1 User', 'Basic Support', 'All Core Features']}
-              button={{ title: ' GET STARTED', icon: 'flight-takeoff' }}
-              containerStyle={{marginHorizontal:2,height:'87%'}}
-            />
-            <PricingCard
-              color="#4f9deb"
-              title="Free"
-              price="₹0"
-              info={['1 User', 'Basic Support', 'All Core Features']}
-              button={{ title: ' GET STARTED', icon: 'flight-takeoff' }}
-              containerStyle={{marginHorizontal:2,height:'87%'}}
-            />
+              {MemberShipCard()}
+              {MemberShipCard()}
+              {MemberShipCard()}
           </ScrollView>
 
         </View>
 
-<View style={{ alignItems:"center" }}>
 
-        <View style={styles.PrimeMemberBannerContainer}>
-          <TouchableOpacity>
-            <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'} style={{marginRight:15}} />  Call (Toll Free)</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{textAlign:'right'}}>
-            <Text style={[styles.CallButton]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'} style={{marginRight:15}} />  Whatsapp</Text>
-          </TouchableOpacity>
-        </View>
-</View>
+
 
       </SafeAreaView>
+
       </ScrollView>
+        <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
+          <View style={[styles.PrimeMemberBannerContainer,{marginLeft:35}]}>
+            <TouchableOpacity>
+              <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'} style={{marginRight:10}} />  Call </Text>
+            </TouchableOpacity>
+            <TouchableOpacity >
+              <Text style={[styles.CallButton]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'} style={{marginRight:10}} />  Whatsapp</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+       </View>
 
     );
   }
@@ -171,16 +175,19 @@ const styles = StyleSheet.create({
     margin:5,
   },
   ServiceCard:{
+    height:150,
+    width:'20%',
     alignContent:'center',
     marginHorizontal: 5,
     backgroundColor:'#fff',
-    paddingHorizontal:20,
-    paddingVertical:5,
+    paddingHorizontal:10,
+    paddingVertical:2,
     borderRadius:40/2,
   },
   ServiceImage:{
     width:90,
-    height:90,
+    height:70,
+    resizeMode:'contain'
   },
   Heading:{
     marginHorizontal:10,
@@ -197,9 +204,10 @@ const styles = StyleSheet.create({
     textAlign:'center'
   },
   PrimeMemberBannerContainer:{
+    // marginBottom:8,
     padding:5,
     borderRadius: 40/2,
-    flexDirection:'row'
+    flexDirection:'row',
   },
   OrderCardContainer:{
     marginHorizontal:10,
@@ -250,13 +258,42 @@ const styles = StyleSheet.create({
   CallButton:{
     textAlign:'center',
     backgroundColor:mainColor,
-    width:180,
-    fontSize:17,
+    width:140,
+    fontSize:15,
     marginHorizontal:5,
     color:'#fff',
     paddingHorizontal:18,
     paddingVertical: 12,
     borderRadius:100/2
+  },
+  pricingCardContainer:{
+    marginVertical:5,
+    marginLeft:5,
+    height:210,
+    width:140,
+    backgroundColor:'#fff',
+    padding:5,
+  },
+  pricingCardHeader:{
+    fontSize:20,
+    color:'#4f9deb',
+    fontWeight:'bold'
+  },
+  pricingCardPrice:{
+    marginVertical:5,
+    fontSize:25,
+    fontWeight:'bold'
+  },
+  pricingCardDetails:{
+    marginVertical:3,
+    color:'gray'
+  },
+  PriceButton:{
+    marginTop: 5,
+    padding:6,
+    backgroundColor:'#4f9deb',
+    color:'#fff',
+    borderRadius:10/2,
   }
 })
 

@@ -7,7 +7,6 @@ const offerCard = (offer,heading,desc,navigation) => {
   const state = useNavigationState(state => state);
   const routeName = (state.routeNames[state.index]);
   const btn = (navigation) => {
-    console.log(routeName)
     if (routeName === 'ServicesSlider'){
       return (
         <View style={{flex:1}}>
