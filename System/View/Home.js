@@ -13,9 +13,9 @@ const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
 const iconSize = 18;
 
-const ServiceCard = (data,navi) => {
+const ServiceCard = (data,navi,index) => {
   return (
-    <View style={styles.ServiceCard}>
+    <View style={styles.ServiceCard} key={index}>
       <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider')}}>
         <Image source={data.image} style={styles.ServiceImage}/>
         <Text style={styles.ServiceHeading}>{data.name}</Text>
@@ -25,15 +25,15 @@ const ServiceCard = (data,navi) => {
   )
 }
 
-const MemberShipCard = () => {
+const MemberShipCard = (data,index) => {
   return (
-    <View style={[styles.pricingCardContainer,{alignItems: 'center'}]}>
+    <View style={[styles.pricingCardContainer,{alignItems: 'center'}]} key={index}>
 
-      <Text style={styles.pricingCardHeader}>Stater</Text>
-      <Text style={styles.pricingCardPrice}>$30</Text>
-      <Text style={styles.pricingCardDetails}>50 User</Text>
-      <Text style={styles.pricingCardDetails}>stater user Support</Text>
-      <Text style={styles.pricingCardDetails}>Get all features</Text>
+      <Text style={styles.pricingCardHeader}>{data.header}</Text>
+      <Text style={styles.pricingCardPrice}>{data.amount}</Text>
+      <Text style={styles.pricingCardDetails}>{data.text1}</Text>
+      <Text style={styles.pricingCardDetails}>{data.text2}</Text>
+      <Text style={styles.pricingCardDetails}>{data.text3}</Text>
 
 
       <TouchableOpacity onPress={() => {console.log('started')}}>
@@ -57,17 +57,17 @@ export default class Home extends React.Component {
         {
           title:"Flat 50% off on first order",
           text: "View all offers",
-          image:require('../Public/Images/banner-example.jpg')
+          image:require('../Public/Images/50_off.jpg')
         },
         {
-          title:"Item 2",
-          text: "Text 2",
-          image:require('../Public/Images/banner-example.jpg')
+          title:"Up to 250 rupee off on monday sell",
+          text: "More offers",
+          image:require('../Public/Images/20_peercent.jpg')
         },
         {
-          title:"Item 3",
-          text: "Text 3",
-          // image:require('../Public/Images/banner-example.jpg')
+          title:"Invite friend and earn 50% off on order",
+          text: "View all offers",
+          image:require('../Public/Images/refer_earn.jpg')
         },
 
       ]
@@ -103,11 +103,51 @@ export default class Home extends React.Component {
 
   render() {
     const { navigation } = this.props;
-    let data = {
-      image:require("../Public/Images/banner-example.jpg"),
-      name:'Wash & Fold',
-      description:'Min 12 Hours'
-    }
+    let dates = [
+      {
+        image: require("../Public/Images/services/washAndFold1.jpg"),
+        name: 'Wash & Fold',
+        description: 'Min 12 Hours'
+      },
+      {
+        image: require("../Public/Images/services/HomeCleaning.jpg"),
+        name: 'Home Clean',
+        description: 'Min 2 Hours'
+      },
+      {
+        image: require("../Public/Images/services/carWash.jpg"),
+        name: 'Car Cleaning',
+        description: 'Min 24 Hours'
+      },
+
+      {
+        image: require("../Public/Images/services/dryCleaning.jpg"),
+        name: 'Dry Cleaning',
+        description: 'Min 12 Hours'
+      },
+    ];
+    let members = [
+      {
+        header:'Basic',
+        amount:'$10',
+        text1:"1 users",
+        text2:"basic plan for user",
+        text3:"get free access"
+      },{
+        header:'Stater',
+        amount:'$20',
+        text1:"20 users",
+        text2:"Stater plan for user",
+        text3:"get 50 access"
+      },{
+        header:'Pro',
+        amount:'$50',
+        text1:"unlimited users",
+        text2:"Pro plan for user",
+        text3:"get all access"
+      }
+    ];
+
     return (
       <View style={{ flex: 1,width: '100%',backgroundColor:'#eee'}} >
 
@@ -129,21 +169,18 @@ export default class Home extends React.Component {
         <ScrollView horizontal={true} style={{ maxHeight: "50%"}}>
 
         <View style={styles.ServiceCardContainer}>
-
-          {ServiceCard(data,navigation)}
-          {ServiceCard(data,navigation)}
-          {ServiceCard(data,navigation)}
-          {ServiceCard(data,navigation)}
-          {ServiceCard(data,navigation)}
-
+          {dates.map((data,index) =>
+            ServiceCard(data,navigation,index)
+          )}
         </View>
       </ScrollView>
         <Text style={styles.Heading}>Membership Offers</Text>
         <View style={{flexDirection:'row'}}>
           <ScrollView horizontal={true} >
-              {MemberShipCard()}
-              {MemberShipCard()}
-              {MemberShipCard()}
+              {members.map((mem,index) =>
+                  MemberShipCard(mem,index)
+                )}
+
           </ScrollView>
 
         </View>
@@ -176,12 +213,12 @@ const styles = StyleSheet.create({
   },
   ServiceCard:{
     height:150,
-    width:'20%',
+    width:130,
     alignContent:'center',
     marginHorizontal: 5,
-    backgroundColor:'#fff',
-    paddingHorizontal:10,
-    paddingVertical:2,
+    backgroundColor:'#fff',padding:20,
+    // paddingHorizontal:10,
+    // paddingVertical:2,
     borderRadius:40/2,
   },
   ServiceImage:{
@@ -194,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize:18
   },
   ServiceHeading:{
-    marginTop:20,
+    marginTop:5,
     fontSize: 15,
     fontWeight:'bold',
     textAlign: 'center'

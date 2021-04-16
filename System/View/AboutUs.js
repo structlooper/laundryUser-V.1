@@ -3,15 +3,38 @@ import { View, Text ,StyleSheet,Image,ScrollView} from "react-native";
 import {logo} from '../Utility/Images'
 import {AppName} from '../Utility/MyLib'
 
-const ServiceCard = () => {
+const ServiceCard = (data,index) => {
   return (
-    <View style={styles.ServiceCard}>
-      <Image source={require('../Public/Images/banner-example.jpg')} style={styles.ServiceImage}/>
+    <View style={styles.ServiceCard} key={index}>
+      <Image source={data.image} style={styles.ServiceImage}/>
       <Text>Wash & Fold</Text>
     </View>
   )
 }
 const AboutUs = () => {
+  let dates = [
+    {
+      image: require("../Public/Images/services/washAndFold1.jpg"),
+      name: 'Wash & Fold',
+      description: 'Min 12 Hours'
+    },
+    {
+      image: require("../Public/Images/services/HomeCleaning.jpg"),
+      name: 'Home Clean',
+      description: 'Min 2 Hours'
+    },
+    {
+      image: require("../Public/Images/services/carWash.jpg"),
+      name: 'Car Cleaning',
+      description: 'Min 24 Hours'
+    },
+
+    {
+      image: require("../Public/Images/services/dryCleaning.jpg"),
+      name: 'Dry Cleaning',
+      description: 'Min 12 Hours'
+    },
+  ];
   return (
     <View style={styles.mainContainer}>
       <View style={styles.AppDetailsContainer}>
@@ -35,9 +58,9 @@ const AboutUs = () => {
         </Text>
         <View style={styles.ServiceCardContainer}>
           <ScrollView horizontal={true}>
-            {ServiceCard()}
-            {ServiceCard()}
-            {ServiceCard()}
+            {dates.map((data,index) =>
+              ServiceCard(data,index)
+            )}
 
 
 

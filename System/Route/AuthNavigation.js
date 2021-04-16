@@ -141,22 +141,22 @@ const BottomStack = () => {
 const HomeScreenStack = ({navigation}) => {
   return (
     <Stack.Navigator initialRouteName="Home"
-                     screenOptions={({route}) => ({
-                       headerTitle: getHeaderTitle(route),
+     screenOptions={({route}) => ({
+      headerTitle: getHeaderTitle(route),
 
-                       headerRight: () => (
-                         <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-                           <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-                         </TouchableOpacity>
-                       ),
-                       headerStyle: {
-                         backgroundColor: '#fff',
-                       },
-                       headerTintColor: '#000',
-                       headerTitleStyle: {
-                         // fontWeight: 'bold',
-                       },
-                     })}
+      headerRight: () => (
+        <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+          <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+        </TouchableOpacity>
+      ),
+      headerStyle: {
+        backgroundColor: '#fff',
+      },
+      headerTintColor: '#000',
+      headerTitleStyle: {
+        // fontWeight: 'bold',
+      },
+    })}               
     >
       <Stack.Screen
         name="Home"
