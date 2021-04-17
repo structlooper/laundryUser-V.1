@@ -20,15 +20,13 @@ const AboutUs = () => {
     },
     {
       image: require("../Public/Images/services/HomeCleaning.jpg"),
-      name: 'Home Clean',
+      name: 'Wash only',
+      description: 'Min 2 Hours'
+    }, {
+      image: require("../Public/Images/services/shirt_iron_5.jpg"),
+      name: 'Wash & Iron',
       description: 'Min 2 Hours'
     },
-    {
-      image: require("../Public/Images/services/carWash.jpg"),
-      name: 'Car Cleaning',
-      description: 'Min 24 Hours'
-    },
-
     {
       image: require("../Public/Images/services/dryCleaning.jpg"),
       name: 'Dry Cleaning',
