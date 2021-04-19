@@ -20,7 +20,7 @@ export const MyTextInput = (name,onChangeFunction,placeHolder,style,icon) => {
 
   )
 }
-export const MyNumericInput = (name,onChangeFunction,placeHolder,style,icon) => {
+export const MyNumericInput = (name,onChangeFunction,placeHolder,style,icon,autofocus) => {
   return (
     <View>
 
@@ -33,6 +33,7 @@ export const MyNumericInput = (name,onChangeFunction,placeHolder,style,icon) => 
         value={name}
         placeholder={placeHolder}
       keyboardType='numeric'
+      autoFocus={autofocus ? autofocus :false}
       />
     </View>
 
@@ -92,4 +93,26 @@ export const MyToast = (message) => {
 
 export const mainColor = '#5414b3';
 export const AppName = 'KRYCHE';
-export const BaseUrl = 'http://192.168.43.108:8000/api/';
+export const BaseUrl = 'http://192.168.1.14:8000/api/';
+
+export const fetchPostFunction = async (route,dom) => {
+  let res;
+  await fetch(BaseUrl + route, {
+    method: 'post',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dom),
+  })
+    .then(response => response.json())
+    .then(json => {
+      res = json;
+    })
+    .catch(error => {
+      ToastAndroid.show('Server connection error', ToastAndroid.SHORT);
+      console.error(error);
+      res = error;
+    });
+  return res;
+}

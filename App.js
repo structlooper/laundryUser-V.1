@@ -4,6 +4,8 @@ import Splash from "./System/Utility/Splash";
 import GuestNavigation from "./System/Route/GuestNavigation";
 import {NavigationContainer} from "@react-navigation/native";
 import AuthNavigation from "./System/Route/AuthNavigation";
+import CheckStack from "./CheckStack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default class App extends Component
 {
   constructor(){
@@ -13,17 +15,19 @@ export default class App extends Component
       navigationVar : false,
     }
   }
+
   Hide_Splash_Screen=()=>{
     this.setState({
       isVisible : false
     });
   }
-  componentDidMount = async () =>{
+  componentDidMount =  () =>{
     const that = this;
     setTimeout(function(){
       that.Hide_Splash_Screen();
     }, 2000);
   }
+
   render()
   {
     if (this.state.isVisible === true){
@@ -34,15 +38,12 @@ export default class App extends Component
       )
     }else{
       return (
-        <NavigationContainer>
-          <GuestNavigation />
-          {/*<AuthNavigation/>*/}
-        </NavigationContainer>
-
+          <CheckStack/>
       )
     }
   }
 }
+
 const styles = StyleSheet.create({
   MainContainer:
     {

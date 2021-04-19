@@ -1,44 +1,35 @@
 import React from 'react';
 import { View, StyleSheet, Text, ToastAndroid } from "react-native";
-import TopLogo from "../../Utility/TopLogo";
-import { BaseUrl, MyButton, MyNumericInput, MyTextInput, MyToast } from "../../Utility/MyLib";
+import {  MyButton, MyNumericInput,  MyToast,fetchPostFunction } from "../../Utility/MyLib";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {AuthContext} from "../../Utility/AuthContext";
 
+const submitOtpFrom =  async (number,pin,navi) => {
+  // const {logIn} = React.useContext(AuthContext)
 
-
-const submitOtpFrom =  (number,pin,navi) => {
   let dom = {}
   dom.phone_number = number
   dom.otp = pin
 
-  fetch(BaseUrl+'customer/otp',{
-    method:"post",
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(dom)
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json.status == 0){
-        MyToast(json.message)
-      }else if(json.status == 1){
-        MyToast(json.message)
-        navi.navigate('AuthNavigation',{mobile:number})
-      }else{
-        ToastAndroid.show('Server error', ToastAndroid.SHORT);
-        console.log(json);
-      }
-    })
-    .catch((error) => {
-      ToastAndroid.show('Server connection error', ToastAndroid.SHORT);
-      console.error(error);
-    });
+  let result = await fetchPostFunction('customer/otp',dom)
+  if (result.status == 0){
+    MyToast(result.message)
+  }else if(result.status == 1){
+    MyToast(result.message)
+    await AsyncStorage.setItem('token',JSON.stringify(result.token))
+    console.log('storage data',await AsyncStorage.getItem('token'))
+    // navi.navigate('AuthNavigation',{mobile:number})
+
+  }else{
+    ToastAndroid.show('Server error', ToastAndroid.SHORT);
+    console.log(result);
+  }
 }
 
 
-const Otp =   ({ route, navigation }) => {
 
+const Otp =   ({ route, navigation }) => {
+  const {logIn} = React.useContext(AuthContext)
   const {mobile} = route.params;
   const [pin, onChangePin] = React.useState(null);
 
@@ -57,11 +48,14 @@ const Otp =   ({ route, navigation }) => {
           We have sent you OTP on your entered mobile number
         </Text>
         <View style={{}}>
-          { MyNumericInput(pin,onChangePin,'',Styles.otpInput) }
+          { MyNumericInput(pin,onChangePin,'',Styles.otpInput,'',true) }
 
         </View>
         <View style={Styles.buttons}>
-          { MyButton( () => {submitOtpFrom(mobile,pin,navigation)}
+          { MyButton( async ()  => {
+            await submitOtpFrom(mobile,pin,navigation)
+              logIn()
+            }
             ,'Submit','',)  }
         </View>
       </View>

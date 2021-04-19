@@ -14,8 +14,12 @@ import {
 } from '@react-navigation/drawer';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { mainColor } from "../Utility/MyLib";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import RNRestart from 'react-native-restart';
+import { AuthContext } from "../Utility/AuthContext";
 
 const CustomSidebarMenu = (props) => {
+  const {logOut} = React.useContext(AuthContext)
   return (
     <SafeAreaView style={{flex: 1, }}>
       {/*Top Large Image */}
@@ -46,8 +50,10 @@ const CustomSidebarMenu = (props) => {
       }}>
         <TouchableOpacity
           {...props}
-          onPress={() => {
-            props.navigation.navigate('Login')
+          onPress={ async () => {
+            await AsyncStorage.removeItem('token');
+            const logout = () => {logOut()}
+            logout()
           }}
         >
 
