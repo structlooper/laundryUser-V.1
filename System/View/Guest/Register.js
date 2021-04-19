@@ -1,34 +1,54 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Button,
   Text,
   View,
   ToastAndroid,
   SafeAreaView,
-  TextInput,
   StyleSheet,
-  Alert,
-  Image,
 } from "react-native";
-import TopLogo from "../../Utility/TopLogo";
-import {MyButton,MyTextInput} from "../../Utility/MyLib";
+import { MyButton, MyTextInput, BaseUrl, MyToast,MyNumericInput } from "../../Utility/MyLib";
 import { logo } from "../../Utility/Images";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
+
+
+const submitSignupFrom =  (username,email,number,navi) => {
+  let dom = {}
+  dom.customer_name = username
+  dom.email = email
+  dom.phone_number = number
+
+  fetch(BaseUrl+'customer',{
+    method:"post",
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dom)
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      if (json.status == 0){
+        MyToast(json.message)
+      }else if(json.status == 1){
+        MyToast(json.message)
+        navi.navigate('Otp',{mobile:number})
+      }else{
+        ToastAndroid.show('Server error', ToastAndroid.SHORT);
+        console.log(json);
+      }
+    })
+    .catch((error) => {
+      ToastAndroid.show('Server connection error', ToastAndroid.SHORT);
+      console.error(error);
+    });
+}
 
 const Register = ({ navigation }) => {
   const [username, onChangeUsername] = React.useState(null);
   const [number, onChangeNumber] = React.useState(null);
   const [email, onChangeEmail] = React.useState(null);
-
-  let submitSignupFrom = async () => {
-    let dom = {}
-    dom.customer_name = username
-    dom.email = email
-    dom.phone_number = number
-
-  }
   return (
     <View style={{ flex:1, backgroundColor:'#fff',}}>
       <View style={{alignItems:'center',borderBottomWidth:.5,padding:10}}><Text
@@ -51,13 +71,13 @@ const Register = ({ navigation }) => {
       <View style={{ marginTop:25 }}>
         <SafeAreaView style={styles.signupForm}>
           {MyTextInput(username,onChangeUsername,'Enter Full Name',styles.input,'account') }
-          {MyTextInput(number,onChangeNumber,'Email Address',styles.input,'email') }
-          {MyTextInput(number,onChangeNumber,'Phone Number',styles.input,'cellphone') }
+          {MyTextInput(email,onChangeEmail,'Email Address',styles.input,'email') }
+          {MyNumericInput(number,onChangeNumber,'Phone Number',styles.input,'cellphone') }
 
         </SafeAreaView>
         <View style={styles.buttons}>
           {/*{ MyButton(signupController(navigation),'Register') }*/}
-          { MyButton(() => navigation.navigate('Otp') ,'Register Now','',) }
+          { MyButton(()=>{submitSignupFrom(username,email,number,navigation)} ,'Register Now','',) }
         </View>
         <View style={{ alignItems:'center' ,marginTop:3}}>
           <TouchableOpacity

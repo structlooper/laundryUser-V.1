@@ -1,13 +1,46 @@
 import React from 'react';
-import {View , StyleSheet,Text} from "react-native";
+import { View, StyleSheet, Text, ToastAndroid } from "react-native";
 import TopLogo from "../../Utility/TopLogo";
-import { MyButton, MyNumericInput, MyTextInput } from "../../Utility/MyLib";
+import { BaseUrl, MyButton, MyNumericInput, MyTextInput, MyToast } from "../../Utility/MyLib";
 
 
-const Otp =   ({ navigation }) => {
 
+const submitOtpFrom =  (number,pin,navi) => {
+  let dom = {}
+  dom.phone_number = number
+  dom.otp = pin
+
+  fetch(BaseUrl+'customer/otp',{
+    method:"post",
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dom)
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      if (json.status == 0){
+        MyToast(json.message)
+      }else if(json.status == 1){
+        MyToast(json.message)
+        navi.navigate('AuthNavigation',{mobile:number})
+      }else{
+        ToastAndroid.show('Server error', ToastAndroid.SHORT);
+        console.log(json);
+      }
+    })
+    .catch((error) => {
+      ToastAndroid.show('Server connection error', ToastAndroid.SHORT);
+      console.error(error);
+    });
+}
+
+
+const Otp =   ({ route, navigation }) => {
+
+  const {mobile} = route.params;
   const [pin, onChangePin] = React.useState(null);
-
 
   return (
     <View style={{ flex:1, backgroundColor:'#fff' }}>
@@ -16,7 +49,6 @@ const Otp =   ({ navigation }) => {
       >
         Enter OTP
       </Text></View>
-      {/*<TopLogo />*/}
 
       <View style={{ padding:50  }}>
 
@@ -29,7 +61,7 @@ const Otp =   ({ navigation }) => {
 
         </View>
         <View style={Styles.buttons}>
-          { MyButton( () => navigation.navigate('AuthNavigation')
+          { MyButton( () => {submitOtpFrom(mobile,pin,navigation)}
             ,'Submit','',)  }
         </View>
       </View>

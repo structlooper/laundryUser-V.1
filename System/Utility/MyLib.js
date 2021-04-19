@@ -1,6 +1,7 @@
 import React from "react";
 import { TextInput,Button } from 'react-native-paper';
-import {View,TouchableOpacity,Text} from 'react-native'
+import {View,TouchableOpacity,Text,  ToastAndroid,
+} from 'react-native'
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 export const MyTextInput = (name,onChangeFunction,placeHolder,style,icon) => {
   return (
@@ -84,5 +85,11 @@ export const MyOptField = (name,onChangeFunction,placeHolder,style) => {
   )
 }
 
+export const MyToast = (message) => {
+  return ToastAndroid.showWithGravityAndOffset(message, ToastAndroid.LONG,ToastAndroid.TOP,150,100);
+
+}
+
 export const mainColor = '#5414b3';
 export const AppName = 'KRYCHE';
+export const BaseUrl = 'http://192.168.43.108:8000/api/';
