@@ -2,7 +2,17 @@ import React from "react";
 import { TextInput,Button } from 'react-native-paper';
 import {View,TouchableOpacity,Text,  ToastAndroid,
 } from 'react-native'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+
+
+
+export const mainColor = '#5414b3';
+export const AppName = 'KRYCHE';
+export const BaseUrl = 'http://192.168.43.39:8000/api/';
+export const ImageUrl = 'http://192.168.43.39:8000/';
+
 export const MyTextInput = (name,onChangeFunction,placeHolder,style,icon) => {
   return (
     <View>
@@ -98,10 +108,6 @@ export const MyToast = (message) => {
 
 }
 
-export const mainColor = '#5414b3';
-export const AppName = 'KRYCHE';
-export const BaseUrl = 'http://192.168.43.39:8000/api/';
-
 export const fetchPostFunction = async (route,dom) => {
   let res;
   await fetch(BaseUrl + route, {
@@ -123,3 +129,28 @@ export const fetchPostFunction = async (route,dom) => {
     });
   return res;
 }
+
+export const fetchGetFunction = async (route) => {
+  let res;
+  let token = await AsyncStorage.getItem('token')
+   await fetch(BaseUrl + route, {
+    method: 'get',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization':'Bearer '+token
+    },
+  })
+    .then(response => response.json())
+    .then(json => {
+      res = json;
+    })
+    .catch(error => {
+      ToastAndroid.show('Server connection error', ToastAndroid.SHORT);
+      console.error(error);
+      res = error;
+    });
+  return res;
+}
+
+

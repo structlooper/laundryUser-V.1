@@ -3,12 +3,9 @@ import {
   Text,
   View,
   SafeAreaView , Image , StyleSheet,ScrollView,TouchableOpacity,Dimensions } from 'react-native';
-
 import Carousel from 'react-native-snap-carousel';
-import { mainColor, MyButton } from "../Utility/MyLib";
+import { mainColor, MyButton,fetchGetFunction,ImageUrl } from "../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { PricingCard } from "react-native-elements";
-
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
 const iconSize = 18;
@@ -28,14 +25,11 @@ const ServiceCard = (data,navi,index) => {
 const MemberShipCard = (data,index) => {
   return (
     <View style={[styles.pricingCardContainer,{alignItems: 'center'}]} key={index}>
-
       <Text style={styles.pricingCardHeader}>{data.header}</Text>
       <Text style={styles.pricingCardPrice}>{data.amount}</Text>
       <Text style={styles.pricingCardDetails}>{data.text1}</Text>
       <Text style={styles.pricingCardDetails}>{data.text2}</Text>
       <Text style={styles.pricingCardDetails}>{data.text3}</Text>
-
-
       <TouchableOpacity onPress={() => {console.log('started')}}>
         <Text style={styles.PriceButton}><FontAwesome5 name={'lightbulb'} size={iconSize-2} color={'#fff'}  />  GET STARTED</Text>
       </TouchableOpacity>
@@ -53,25 +47,45 @@ export default class Home extends React.Component {
     super(props);
     this.state = {
       activeIndex:0,
-      carouselItems: [
+      carouselItems: [],
+      services : [
         {
-          title:"Flat 50% off on first order",
-          text: "View all offers",
-          image:require('../Public/Images/50_off.jpg')
+          image: require("../Public/Images/services/washAndFold1.jpg"),
+          name: 'Wash & Fold',
+          description: 'Min 12 Hours'
         },
         {
-          title:"Up to 250 rupee off on monday sell",
-          text: "More offers",
-          image:require('../Public/Images/20_peercent.jpg')
+          image: require("../Public/Images/services/HomeCleaning.jpg"),
+          name: 'Wash only',
+          description: 'Min 2 Hours'
+        }, {
+          image: require("../Public/Images/services/shirt_iron_5.jpg"),
+          name: 'Wash & Iron',
+          description: 'Min 2 Hours'
         },
         {
-          title:"Invite friend and earn 50% off on order",
-          text: "View all offers",
-          image:require('../Public/Images/refer_earn.jpg')
+          image: require("../Public/Images/services/dryCleaning.jpg"),
+          name: 'Dry Cleaning',
+          description: 'Min 12 Hours'
         },
-
-      ]
+      ],
     }
+  }
+
+  componentDidMount =  () =>{
+     this.getHomeBanners()
+  }
+  getHomeBanners =   () => {
+     fetchGetFunction('servicesBanners').then(result => {
+      let final = [];
+      result.forEach(element => {
+        element.banner_image =  ImageUrl + 'uploads/'+ element.banner_image
+        final.push(element)
+      });
+      this.setState({
+        carouselItems: final
+      })
+    })
   }
 
   _renderItem({item,index}){
@@ -83,14 +97,15 @@ export default class Home extends React.Component {
         paddingTop:20,
         marginVertical:5,
         height:180,
-        }}>
+        }} key={index}>
         <View style={{ flexDirection:'row'}}>
           <View style={{ flex:.9 }}>
             <Text style={{fontSize: 20}}>{item.title}</Text>
             <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>
           </View>
           <View style={{ alignItems:'center' }}>
-            <Image source={item.image} style={{ width:150,height:150 }} />
+            <Image source={{ uri:item.banner_image }} style={{ width:150,height:150,resizeMode:'contain' }} />
+
           </View>
 
         </View>
@@ -103,27 +118,6 @@ export default class Home extends React.Component {
 
   render() {
     const { navigation } = this.props;
-    let dates = [
-      {
-        image: require("../Public/Images/services/washAndFold1.jpg"),
-        name: 'Wash & Fold',
-        description: 'Min 12 Hours'
-      },
-      {
-        image: require("../Public/Images/services/HomeCleaning.jpg"),
-        name: 'Wash only',
-        description: 'Min 2 Hours'
-      }, {
-        image: require("../Public/Images/services/shirt_iron_5.jpg"),
-        name: 'Wash & Iron',
-        description: 'Min 2 Hours'
-      },
-      {
-        image: require("../Public/Images/services/dryCleaning.jpg"),
-        name: 'Dry Cleaning',
-        description: 'Min 12 Hours'
-      },
-    ];
     let members = [
       {
         header:'Basic',
@@ -148,7 +142,6 @@ export default class Home extends React.Component {
 
     return (
       <View style={{ flex: 1,width: '100%',backgroundColor:'#eee'}} >
-
       <ScrollView style={{marginBottom:50}}>
 
       <SafeAreaView style={{flex: 1, backgroundColor:'#eee' }}>
@@ -167,7 +160,7 @@ export default class Home extends React.Component {
         <ScrollView horizontal={true} style={{ maxHeight: "50%"}}>
 
         <View style={styles.ServiceCardContainer}>
-          {dates.map((data,index) =>
+          {this.state.services.map((data,index) =>
             ServiceCard(data,navigation,index)
           )}
         </View>

@@ -4,7 +4,7 @@ import GuestNavigation from "./System/Route/GuestNavigation";
 import {NavigationContainer} from "@react-navigation/native";
 import AuthNavigation from "./System/Route/AuthNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { mainColor } from "./System/Utility/MyLib";
+import { fetchPostFunction, mainColor } from "./System/Utility/MyLib";
 import {AuthContext} from "./System/Utility/AuthContext";
 
 const CheckStack =  () =>
@@ -28,11 +28,14 @@ const [isLoading,setIsLoading] = React.useState(true)
   }));
 
  const setRetrieveUserToken = async () => {
-   setUserToken(await AsyncStorage.getItem('token'))
-    setIsLoading(false)
+    let phone_number= JSON.parse(await AsyncStorage.getItem('userDetails')).phone_number
+    let response = await fetchPostFunction('refreshToken',{phone_number:phone_number })
+     setUserToken(response.token)
+     await AsyncStorage.setItem('token',(response.token).toString())
+     setIsLoading(false)
  }
   useEffect(() => {
-    setRetrieveUserToken().then()
+    setRetrieveUserToken()
   },[])
   if(isLoading){
     return (

@@ -15,25 +15,35 @@ import {
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { mainColor } from "../Utility/MyLib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import RNRestart from 'react-native-restart';
 import { AuthContext } from "../Utility/AuthContext";
 
+const getUserDetails = async () => {
+  return await AsyncStorage.getItem('userDetails')
+}
+
 const CustomSidebarMenu = (props) => {
+  const [userDetails,SetUserDetails] = React.useState("{}")
+  React.useEffect(()=>{
+    getUserDetails().then(details => {
+      SetUserDetails(details);
+    })
+  },[])
+  let dataConverted = JSON.parse(userDetails)
   const {logOut} = React.useContext(AuthContext)
   return (
     <SafeAreaView style={{flex: 1, }}>
       {/*Top Large Image */}
       <View style={{ backgroundColor:mainColor,paddingVertical:15,paddingHorizontal:10,flexDirection:'row'}}>
         <Image
-          source={logo}
+          source={dataConverted.profile_picture ?? logo}
           style={styles.sideMenuProfileIcon}
         />
         <View style={{ justifyContent:'center',marginHorizontal:5}}>
           <Text style={{color:'#fff'}}>
-            Ashwin Kumar
+            {dataConverted.customer_name}
           </Text>
-          <Text  style={{color:'#fff'}}>
-            Delhi , India
+          <Text  style={{color:'#fff',width:150,fontSize:12}}>
+            {dataConverted.phone_number}
           </Text>
         </View>
       </View>
