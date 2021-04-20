@@ -9,24 +9,10 @@ import {AuthContext} from "./System/Utility/AuthContext";
 
 const CheckStack =  () =>
 {
-
- const initialLoginState = {
-   userToken:null,
- }
-
- const loginReducer = (previousState,action) => {
-   switch(action.type){
-     case "LOGIN":
-       return {}
-     case "LOGOUT":
-       return {}
-     case "REGISTER":
-       return {}
-   }
- }
+const [userToken,setUserToken] = React.useState(null)
+const [isLoading,setIsLoading] = React.useState(true)
 
   const authContext = React.useMemo(() => ({
-
     logIn:async  () => {
       setUserToken(await AsyncStorage.getItem('token'))
       setIsLoading(false)
@@ -35,37 +21,32 @@ const CheckStack =  () =>
       setUserToken(null)
       setIsLoading(false)
     },
-    register: () => {
-      setUserToken( AsyncStorage.getItem('token'))
+    register:async () => {
+      setUserToken(await AsyncStorage.getItem('token'))
       setIsLoading(false)
     }
   }));
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setIsLoading(false)
-  //   },1000)
-  // },[])
-  // if(isLoading){
-  //   return (
-  //     <View style={{ flex:1, alignItems:'center', justifyContent:'center'}}>
-  //       <Text>
-  //         text hai
-  //       </Text>
-  //       <ActivityIndicator size='large'  />
-  //     </View>
-  //
-  //   )
-  // }
-  console.log('token',userToken)
-
+ const setRetrieveUserToken = async () => {
+   setUserToken(await AsyncStorage.getItem('token'))
+    setIsLoading(false)
+ }
+  useEffect(() => {
+    setRetrieveUserToken().then()
+  },[])
+  if(isLoading){
+    return (
+      <View style={{ flex:1, alignItems:'center', justifyContent:'center'}}>
+        <ActivityIndicator size="large" color={mainColor} />
+      </View>
+    )
+  }
   return(
     <AuthContext.Provider value={authContext}>
         <NavigationContainer>
           {(userToken !== null ) ? AuthNavigation():GuestNavigation() }
         </NavigationContainer>
     </AuthContext.Provider>
-
   )
 }
 

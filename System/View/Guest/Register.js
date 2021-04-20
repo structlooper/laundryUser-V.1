@@ -18,17 +18,18 @@ import {
 import {logo} from '../../Utility/Images';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-const submitSignupFrom = async (username, email, number, navi) => {
+const submitSignupFrom = async (data , navi,loginLoading) => {
   let dom = {};
-  dom.customer_name = username;
-  dom.email = email;
-  dom.phone_number = number;
+  dom.customer_name = data.username;
+  dom.email = data.email;
+  dom.phone_number = data.number;
   let result = await fetchPostFunction('customer',dom);
+  loginLoading(false)
   if (result.status == 0) {
     MyToast(result.message);
   } else if (result.status == 1) {
     MyToast(result.message);
-    navi.navigate('Otp', {mobile: number});
+    navi.navigate('Otp', {mobile: data.number});
   } else {
     ToastAndroid.show('Server error', ToastAndroid.SHORT);
     console.log(result);
@@ -36,6 +37,7 @@ const submitSignupFrom = async (username, email, number, navi) => {
 };
 
 const Register = ({navigation}) => {
+  const [loginLoading, onLoginLoading] = React.useState(false);
   const [username, onChangeUsername] = React.useState(null);
   const [number, onChangeNumber] = React.useState(null);
   const [email, onChangeEmail] = React.useState(null);
@@ -94,10 +96,13 @@ const Register = ({navigation}) => {
             {/*{ MyButton(signupController(navigation),'Register') }*/}
             {MyButton(
               () => {
-                submitSignupFrom(username, email, number, navigation);
+                onLoginLoading(true)
+                submitSignupFrom({userName:username, email:email, number:number}, navigation,onLoginLoading);
               },
               'Register Now',
               '',
+              '',
+              loginLoading
             )}
           </View>
           <View style={{alignItems: 'center', marginTop: 3}}>

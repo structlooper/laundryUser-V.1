@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import { Platform, StyleSheet, View,Text } from 'react-native';
 import Splash from "./System/Utility/Splash";
-import GuestNavigation from "./System/Route/GuestNavigation";
-import {NavigationContainer} from "@react-navigation/native";
-import AuthNavigation from "./System/Route/AuthNavigation";
+
 import CheckStack from "./CheckStack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default class App extends Component
 {
   constructor(){
     super();
     this.state={
       isVisible : true,
-      navigationVar : false,
     }
   }
 
@@ -25,7 +22,7 @@ export default class App extends Component
     const that = this;
     setTimeout(function(){
       that.Hide_Splash_Screen();
-    }, 2000);
+    }, 1000);
   }
 
   render()

@@ -73,16 +73,23 @@ export const MyOutlineButton = (onPress,TextOnIt,style,icon,loading) => {
   )
 }
 
-export const MyOptField = (name,onChangeFunction,placeHolder,style) => {
+export const MyOptField = (name,onChangeFunction,placeHolder,style,icon,autofocus) => {
   return (
-    <TextInput
-      style={style}
-      onChangeText={onChangeFunction}
-      value={name}
-      placeholder={placeHolder}
-      maxLength={1}
-      keyboardType='numeric'
-    />
+    <View>
+
+      <TextInput
+        left={ icon ? <TextInput.Icon name={icon} size={20} color={mainColor}  /> : ''
+        }
+        name='IconSource'
+        style={style}
+        onChangeText={onChangeFunction}
+        value={name}
+        placeholder={placeHolder}
+        keyboardType='numeric'
+        maxLength={6}
+        autoFocus={autofocus ? autofocus :false}
+      />
+    </View>
   )
 }
 
@@ -93,7 +100,7 @@ export const MyToast = (message) => {
 
 export const mainColor = '#5414b3';
 export const AppName = 'KRYCHE';
-export const BaseUrl = 'http://192.168.1.14:8000/api/';
+export const BaseUrl = 'http://192.168.43.39:8000/api/';
 
 export const fetchPostFunction = async (route,dom) => {
   let res;
