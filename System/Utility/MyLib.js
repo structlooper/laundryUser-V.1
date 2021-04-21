@@ -105,6 +105,9 @@ export const MyToast = (message) => {
   return ToastAndroid.showWithGravityAndOffset(message, ToastAndroid.LONG,ToastAndroid.TOP,150,100);
 
 }
+export const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 export const fetchPostFunction = async (route,dom) => {
   let res;
   await fetch(BaseUrl + route, {

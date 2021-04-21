@@ -13,7 +13,7 @@ const iconSize = 18;
 const ServiceCard = (data,navi,index) => {
   return (
     <View style={styles.ServiceCard} key={index}>
-      <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider'),{serviceId:data.id}}}>
+      <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider',{serviceId:data.id,serviceName:data.name})}}>
         <Image source={{uri:data.image}} style={styles.ServiceImage}/>
         <Text style={styles.ServiceHeading}>{data.name}</Text>
         <Text style={styles.ServiceDescription}>{data.description}</Text>

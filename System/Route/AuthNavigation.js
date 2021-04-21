@@ -11,7 +11,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomSidebarMenu from "./CustomSidebarMenu";
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {mainColor} from "../Utility/MyLib";
+import {mainColor,capitalizeFirstLetter} from "../Utility/MyLib";
 
 import Home from '../View/Home';
 import Offers from "../View/Offers";
@@ -156,7 +156,7 @@ const HomeScreenStack = ({navigation}) => {
       headerTitleStyle: {
         // fontWeight: 'bold',
       },
-    })}               
+    })}
     >
       <Stack.Screen
         name="Home"
@@ -183,11 +183,8 @@ const HomeScreenStack = ({navigation}) => {
       <Stack.Screen
         name="ServicesSlider"
         component={ServicesSlider}
-
-        options={({route}) => ({
-
-          title: 'Service Details',
-
+        options={({route}) => ( {
+          title:  capitalizeFirstLetter(route.params.serviceName) ?? 'Service Details',
         })}
 
 

@@ -1,30 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {View,Text,StyleSheet,Image,ScrollView,TouchableOpacity } from "react-native";
-import {MyButton,mainColor} from "../../Utility/MyLib";
+import { MyButton, mainColor, fetchGetFunction, ImageUrl } from "../../Utility/MyLib";
 import { IconButton } from 'react-native-paper';
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import Modal from "react-native-modal";
-const productCard = (itemImage,Name,qty,price,toggleModal) => {
+import Loader from "../../Utility/Loader";
+import NoDataFound from "../NoDataFound";
+
+
+const productCard = (itemImage,Name,qty,price,unit,i) => {
   return (
-    <View style={styles.ItemMain}>
+    <View style={styles.ItemMain} key={i}>
       <View style={styles.ItemChild}>
-        <Image source={itemImage} style={styles.ItemImage}>
+        <Image source={{ uri:itemImage }} style={styles.ItemImage}>
         </Image>
       </View>
       <View style={styles.ItemChild}>
         <Text style={styles.ItemName}>
           {Name}
         </Text>
-        {/*<TouchableOpacity onPress={toggleModal} >*/}
-        {/*  <View style={styles.ItemServiceContainer}>*/}
-        {/*    <Text style={styles.ItemService}>*/}
-        {/*      Laundry*/}
-        {/*    </Text>*/}
-        {/*     <FontAwesome5 name={'caret-down'} size={23} color={mainColor} style={styles.ItemServiceIcon} />*/}
-
-        {/*  </View>*/}
-        {/*</TouchableOpacity>*/}
-
       </View>
       <View style={styles.ItemChild}>
         <View style={styles.AddCartBtn}>
@@ -59,64 +51,51 @@ const productCard = (itemImage,Name,qty,price,toggleModal) => {
           ₹ {price} /
         </Text>
         <Text style={styles.PriceLabel}>
-          Piece
+          {unit}
         </Text>
       </View>
     </View>
   )
 }
 
-const ServicePage = ({navigation}) => {
-  const [isModalVisible, setModalVisible] = useState(false);
+const ServicePage = ({navigation,route}) => {
+  const [products, setProducts] = useState(null);
+  const {categoryId} = route.params
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+  useEffect(() => {
+    getProductsByCategoryId().then()
+  },[])
+  const getProductsByCategoryId = async () => {
+    fetchGetFunction('product/'+categoryId).then(result => {
+      setProducts(result)
+    })
+  }
 
-  return (
-    <View style={{flex: 1,width: '100%',backgroundColor:'#eee'}}>
-      <Modal isVisible={isModalVisible} >
-        <View style={{flex: .7,borderWidth:.2,backgroundColor:'#eee',}}>
-          <View style={{borderBottomWidth:.5,paddingBottom:10,padding:10}}>
-            <View style={{}}>
-              {MyButton(toggleModal,'Back','','arrow-left')}
-            </View>
-          </View>
-          <View style={{ backgroundColor:'#fff',height:'88%',paddingVertical:20,alignItems:'center'}}>
-            <ScrollView style={{width:'80%',}} >
-              <Text style={{fontSize:20}}>
-                How will I know that my laundry has been picked-up?
-              </Text>
-              <Text style={{marginTop:10}}>
-                We most certainly can sort your items on your behalf for an extra charge of $20. Also, you would be agreeing that if we added any item to either service, its not our responsibility. For example, if you wanted your sweaters to be wash and folded, but we chose the Dry Clean service as we were worried about shrinkage of the item, then its the customer responsibility, as we tried to sort the order to the best of our ability
-                We most certainly can sort your items on your behalf for an extra charge of $20. Also, you would be agreeing that if we added any item to either service, its not our responsibility. For example, if you wanted your sweaters to be wash and folded, but we chose the Dry Clean service as we were worried about shrinkage of the item, then its the customer responsibility, as we tried to sort the order to the best of our ability
-                We most certainly can sort your items on your behalf for an extra charge of $20. Also, you would be agreeing that if we added any item to either service, its not our responsibility. For example, if you wanted your sweaters to be wash and folded, but we chose the Dry Clean service as we were worried about shrinkage of the item, then its the customer responsibility, as we tried to sort the order to the best of our ability
-              </Text>
-            </ScrollView>
-          </View>
+  if (products === null){
+    return <Loader />
+  }
+  else if(products.length > 0) {
+    return (
+      <View style={{ flex: 1, width: '100%', backgroundColor: '#eee' }}>
+        <ScrollView style={{ marginTop: 5 }}>
+          { products.map((data,i) =>
+            productCard(ImageUrl+'uploads/'+data.image, data.product_name, 0, data.price,data.unit,i)
+          )}
+        </ScrollView>
 
-
-
-          {/*<Button title="Hide modal" onPress={toggleModal} />*/}
-
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+          {MyButton(() => {
+            navigation.navigate('HomeScreenStack', { screen: 'ViewCart' })
+          }, 'View Cart', styles.bottomView, 'cart')}
         </View>
-
-      </Modal>
-
-      <ScrollView style={{marginTop:5}}>
-
-        {productCard(require('../../Public/Images/blazer.png'),'Blazer',2,3,toggleModal)}
-        {productCard(require('../../Public/Images/jeans.png'),'Jeans',3,5,toggleModal)}
-        {productCard(require('../../Public/Images/shirt.png'),"Shirt",1,2,toggleModal)}
-        {productCard(require('../../Public/Images/kurta.png'),"Mens Kurta",0,8,toggleModal)}
-
-      </ScrollView>
-
-      <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
-        {MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'ViewCart'})},'View Cart',styles.bottomView,'cart')}
       </View>
-    </View>
-  )
+    )
+  }
+  else{
+    return (
+      <NoDataFound />
+    )
+  }
 }
 const styles = StyleSheet.create({
   bottomView:{
