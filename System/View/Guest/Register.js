@@ -20,9 +20,10 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const submitSignupFrom = async (data , navi,loginLoading) => {
   let dom = {};
-  dom.customer_name = data.username;
+  dom.customer_name = data.userName;
   dom.email = data.email;
   dom.phone_number = data.number;
+
   let result = await fetchPostFunction('customer',dom);
   loginLoading(false)
   if (result.status == 0) {

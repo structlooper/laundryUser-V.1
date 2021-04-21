@@ -13,8 +13,8 @@ const iconSize = 18;
 const ServiceCard = (data,navi,index) => {
   return (
     <View style={styles.ServiceCard} key={index}>
-      <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider')}}>
-        <Image source={data.image} style={styles.ServiceImage}/>
+      <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider'),{serviceId:data.id}}}>
+        <Image source={{uri:data.image}} style={styles.ServiceImage}/>
         <Text style={styles.ServiceHeading}>{data.name}</Text>
         <Text style={styles.ServiceDescription}>{data.description}</Text>
       </TouchableOpacity>
@@ -48,35 +48,38 @@ export default class Home extends React.Component {
     this.state = {
       activeIndex:0,
       carouselItems: [],
-      services : [
+      services : [],
+      members : [
         {
-          image: require("../Public/Images/services/washAndFold1.jpg"),
-          name: 'Wash & Fold',
-          description: 'Min 12 Hours'
-        },
-        {
-          image: require("../Public/Images/services/HomeCleaning.jpg"),
-          name: 'Wash only',
-          description: 'Min 2 Hours'
-        }, {
-          image: require("../Public/Images/services/shirt_iron_5.jpg"),
-          name: 'Wash & Iron',
-          description: 'Min 2 Hours'
-        },
-        {
-          image: require("../Public/Images/services/dryCleaning.jpg"),
-          name: 'Dry Cleaning',
-          description: 'Min 12 Hours'
-        },
+          header:'Basic',
+          amount:'$10',
+          text1:"1 users",
+          text2:"basic plan for user",
+          text3:"get free access"
+        },{
+          header:'Stater',
+          amount:'$20',
+          text1:"20 users",
+          text2:"Stater plan for user",
+          text3:"get 50 access"
+        },{
+          header:'Pro',
+          amount:'$50',
+          text1:"unlimited users",
+          text2:"Pro plan for user",
+          text3:"get all access"
+        }
       ],
+
     }
   }
 
   componentDidMount =  () =>{
      this.getHomeBanners()
+     this.getServices()
   }
-  getHomeBanners =   () => {
-     fetchGetFunction('servicesBanners').then(result => {
+   getHomeBanners = async  () => {
+     await fetchGetFunction('servicesBanners').then(result => {
       let final = [];
       result.forEach(element => {
         element.banner_image =  ImageUrl + 'uploads/'+ element.banner_image
@@ -84,6 +87,18 @@ export default class Home extends React.Component {
       });
       this.setState({
         carouselItems: final
+      })
+    })
+  }
+  getServices = async  () => {
+     await fetchGetFunction('service').then(result => {
+      let final = [];
+      result.forEach(element => {
+        element.image =  ImageUrl + 'uploads/'+ element.image
+        final.push(element)
+      });
+      this.setState({
+        services: final
       })
     })
   }
@@ -118,28 +133,6 @@ export default class Home extends React.Component {
 
   render() {
     const { navigation } = this.props;
-    let members = [
-      {
-        header:'Basic',
-        amount:'$10',
-        text1:"1 users",
-        text2:"basic plan for user",
-        text3:"get free access"
-      },{
-        header:'Stater',
-        amount:'$20',
-        text1:"20 users",
-        text2:"Stater plan for user",
-        text3:"get 50 access"
-      },{
-        header:'Pro',
-        amount:'$50',
-        text1:"unlimited users",
-        text2:"Pro plan for user",
-        text3:"get all access"
-      }
-    ];
-
     return (
       <View style={{ flex: 1,width: '100%',backgroundColor:'#eee'}} >
       <ScrollView style={{marginBottom:50}}>
@@ -168,7 +161,7 @@ export default class Home extends React.Component {
         <Text style={styles.Heading}>Membership Offers</Text>
         <View style={{flexDirection:'row'}}>
           <ScrollView horizontal={true} >
-              {members.map((mem,index) =>
+              {this.state.members.map((mem,index) =>
                   MemberShipCard(mem,index)
                 )}
 

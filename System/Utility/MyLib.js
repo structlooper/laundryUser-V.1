@@ -82,7 +82,6 @@ export const MyOutlineButton = (onPress,TextOnIt,style,icon,loading) => {
     </Button>
   )
 }
-
 export const MyOptField = (name,onChangeFunction,placeHolder,style,icon,autofocus) => {
   return (
     <View>
@@ -102,12 +101,10 @@ export const MyOptField = (name,onChangeFunction,placeHolder,style,icon,autofocu
     </View>
   )
 }
-
 export const MyToast = (message) => {
   return ToastAndroid.showWithGravityAndOffset(message, ToastAndroid.LONG,ToastAndroid.TOP,150,100);
 
 }
-
 export const fetchPostFunction = async (route,dom) => {
   let res;
   await fetch(BaseUrl + route, {
@@ -130,9 +127,34 @@ export const fetchPostFunction = async (route,dom) => {
   return res;
 }
 
+export const fetchAuthPostFunction = async (route,dom) => {
+  let res;
+  let token = await AsyncStorage.getItem('token')
+  await fetch(BaseUrl + route, {
+    method: 'post',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization':'Bearer '+token
+    },
+    body: JSON.stringify(dom),
+  })
+    .then(response => response.json())
+    .then(json => {
+      res = json;
+    })
+    .catch(error => {
+      ToastAndroid.show('Server connection error', ToastAndroid.SHORT);
+      console.error(error);
+      res = error;
+    });
+  return res;
+}
+
 export const fetchGetFunction = async (route) => {
   let res;
   let token = await AsyncStorage.getItem('token')
+
    await fetch(BaseUrl + route, {
     method: 'get',
     headers: {

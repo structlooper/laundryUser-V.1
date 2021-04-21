@@ -28,10 +28,13 @@ const [isLoading,setIsLoading] = React.useState(true)
   }));
 
  const setRetrieveUserToken = async () => {
-    let phone_number= JSON.parse(await AsyncStorage.getItem('userDetails')).phone_number
-    let response = await fetchPostFunction('refreshToken',{phone_number:phone_number })
+   let UserDetails= await AsyncStorage.getItem('userDetails')
+   if (UserDetails !== null) {
+     let phone_number = JSON.parse(UserDetails).phone_number
+     let response = await fetchPostFunction('refreshToken', { phone_number: phone_number })
      setUserToken(response.token)
-     await AsyncStorage.setItem('token',(response.token).toString())
+     await AsyncStorage.setItem('token', (response.token).toString())
+   }
      setIsLoading(false)
  }
   useEffect(() => {

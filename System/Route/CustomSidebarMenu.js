@@ -62,6 +62,7 @@ const CustomSidebarMenu = (props) => {
           {...props}
           onPress={ async () => {
             await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('userDetails');
             const logout = () => {logOut()}
             logout()
           }}

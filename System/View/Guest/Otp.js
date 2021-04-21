@@ -14,7 +14,7 @@ const submitOtpFrom =  async (number,pin) => {
     MyToast(result.message)
   }else if(result.status == 1){
     MyToast(result.message)
-    await AsyncStorage.setItem('token',JSON.stringify(result.token))
+    await AsyncStorage.setItem('token',(result.token).toString())
     await AsyncStorage.setItem('userDetails',JSON.stringify(result.result))
   }else{
     MyToast('Server error');
