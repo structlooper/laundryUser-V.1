@@ -4,8 +4,8 @@ import {mainColor} from "./MyLib";
 
 const Loader = () => {
   return (
-    <View style={{ flex:1, alignItems:'center', justifyContent:'center'}}>
-      <ActivityIndicator size="large" color={mainColor} />
+    <View style={{ flex:1, alignItems:'center', justifyContent:'center',marginHorizontal:5}}>
+      <ActivityIndicator size="small" color={mainColor}  />
     </View>
   )
 };

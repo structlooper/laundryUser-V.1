@@ -80,7 +80,8 @@ export default class Home extends React.Component {
   }
    getHomeBanners = async  () => {
      await fetchGetFunction('servicesBanners').then(result => {
-      let final = [];
+
+       let final = [];
       result.forEach(element => {
         element.banner_image =  ImageUrl + 'uploads/'+ element.banner_image
         final.push(element)
@@ -92,6 +93,7 @@ export default class Home extends React.Component {
   }
   getServices = async  () => {
      await fetchGetFunction('service').then(result => {
+
       let final = [];
       result.forEach(element => {
         element.image =  ImageUrl + 'uploads/'+ element.image

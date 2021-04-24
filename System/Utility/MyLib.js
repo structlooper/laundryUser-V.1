@@ -10,8 +10,8 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 export const mainColor = '#5414b3';
 export const AppName = 'KRYCHE';
-export const BaseUrl = 'http://192.168.43.39:8000/api/';
-export const ImageUrl = 'http://192.168.43.39:8000/';
+export const ImageUrl = 'http://covidvaccination.co.in/';
+export const BaseUrl = ImageUrl+'api/';
 
 export const MyTextInput = (name,onChangeFunction,placeHolder,style,icon) => {
   return (
@@ -177,5 +177,6 @@ export const fetchGetFunction = async (route) => {
     });
   return res;
 }
+
 
 

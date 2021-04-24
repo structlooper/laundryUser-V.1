@@ -1,12 +1,38 @@
 import React, { useEffect, useState } from "react";
-import {View,Text,StyleSheet,Image,ScrollView,TouchableOpacity } from "react-native";
-import { MyButton, mainColor, fetchGetFunction, ImageUrl } from "../../Utility/MyLib";
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { MyButton, mainColor, fetchGetFunction, ImageUrl, fetchAuthPostFunction, MyToast } from "../../Utility/MyLib";
 import { IconButton } from 'react-native-paper';
 import Loader from "../../Utility/Loader";
 import NoDataFound from "../NoDataFound";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CartProductController from "../../Controller/CartProductController";
 
 
-const productCard = (itemImage,Name,qty,price,unit,i) => {
+
+
+const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader) => {
+  const Btn = (productId,setLoader,i,num) => {
+    let icon;
+    if(num === 1){
+      icon = 'plus'
+    }else if(num === -1){
+      icon = 'minus'
+    }else{
+      icon = 'cross'
+    }
+    return (
+      <IconButton
+        icon={icon}
+        color={mainColor}
+        size={15}
+        onPress={() => {
+          setLoader(i+icon)
+          CartProductController(productId, num);
+        }}
+        style={{borderColor:mainColor,borderWidth:1}}
+      />
+    )
+  }
   return (
     <View style={styles.ItemMain} key={i}>
       <View style={styles.ItemChild}>
@@ -21,13 +47,7 @@ const productCard = (itemImage,Name,qty,price,unit,i) => {
       <View style={styles.ItemChild}>
         <View style={styles.AddCartBtn}>
           <View>
-            <IconButton
-              icon="minus"
-              color={mainColor}
-              size={15}
-              onPress={() => console.log('Pressed')}
-              style={{borderColor:mainColor,borderWidth:1}}
-            />
+            { (loader === i+'minus') ? Loader() : Btn(productId,setLoader,i,-1)}
           </View>
           <View style={{paddingTop:6}}>
             <Text>
@@ -35,13 +55,7 @@ const productCard = (itemImage,Name,qty,price,unit,i) => {
             </Text>
           </View>
           <View>
-            <IconButton
-              icon="plus"
-              color={mainColor}
-              size={15}
-              onPress={() => console.log('Pressed')}
-              style={{borderColor:mainColor,borderWidth:1}}
-            />
+            { (loader === i+'plus') ? Loader() : Btn(productId,setLoader,i,1)}
           </View>
         </View>
 
@@ -60,26 +74,45 @@ const productCard = (itemImage,Name,qty,price,unit,i) => {
 
 const ServicePage = ({navigation,route}) => {
   const [products, setProducts] = useState(null);
+  const [loader, setLoader] = useState(false);
+  const [cartProducts, setCartProducts] = useState({});
   const {categoryId} = route.params
 
   useEffect(() => {
     getProductsByCategoryId().then()
-  },[])
+  },[cartProducts])
   const getProductsByCategoryId = async () => {
-    fetchGetFunction('product/'+categoryId).then(result => {
+   await fetchGetFunction('product/'+categoryId).then(result => {
       setProducts(result)
     })
+    let UserDetails= await AsyncStorage.getItem('userDetails')
+    let userId = JSON.parse(UserDetails).id
+    await fetchGetFunction('cart/'+userId).then(result => {
+      let obj = {};
+      (result.cart_products).forEach(element => {
+        let key = element.product_id
+        obj[key] = element.qty;
+      });
+      setCartProducts(obj)
+    })
+    setLoader(false)
   }
 
-  if (products === null){
+  if (products === null ){
     return <Loader />
   }
   else if(products.length > 0) {
     return (
       <View style={{ flex: 1, width: '100%', backgroundColor: '#eee' }}>
         <ScrollView style={{ marginTop: 5 }}>
-          { products.map((data,i) =>
-            productCard(ImageUrl+'uploads/'+data.image, data.product_name, 0, data.price,data.unit,i)
+          { products.map((data,i) => {
+            let Q = 0;
+              if (Object.keys(cartProducts).some(v => v == (data.id).toString())){
+                Q = cartProducts[data.id]
+              }
+              return productCard(ImageUrl + 'uploads/' + data.image, data.product_name, Q, data.price, data.unit,data.id, i,setLoader,loader)
+
+            }
           )}
         </ScrollView>
 
