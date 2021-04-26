@@ -1,12 +1,16 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, SafeAreaView} from 'react-native';
+import { View, Text, StyleSheet, Image, SafeAreaView, ScrollView } from "react-native";
 import MapView, {Marker, PROVIDER_GOOGLE} from "react-native-maps";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import {mainColor, MyButton, MyTextInput} from "../../Utility/MyLib";
+import { fetchAuthPostFunction, mainColor, MyButton, MyTextInput, MyToast } from "../../Utility/MyLib";
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
+
+const HERE_API_KEY = 'AIzaSyAhJW0BL0uuVzXfhkhiQb3ZXF8f4pQ0vYQ';
 
 function getAddressFromCoordinates({ latitude, longitude }) {
-    const HERE_API_KEY = 'AIzaSyAhJW0BL0uuVzXfhkhiQb3ZXF8f4pQ0vYQ';
     return new Promise((resolve) => {
         const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${HERE_API_KEY}`
         fetch(url)
@@ -27,19 +31,80 @@ function getAddressFromCoordinates({ latitude, longitude }) {
             })
     })
 }
+const GooglePlacesInput = (location, setLocation) => {
+    return (
+      <GooglePlacesAutocomplete
+        placeholder='Search'
+        onPress={(data, details = null) => {
+            // 'details' is provided when fetchDetails = true
+            // console.log(data.description, (details));
+            getLatLngFromAddress(data.description).then(response => {
+              const latitudeDelta= 0.008;
+               const  longitudeDelta= 0.008;
+                if (response.lat !== '' && response.lat !== undefined && response.lat !== null){
+                  setLocation({
+                    latitude: response.lat,
+                    longitude: response.lng,
+                    latitudeDelta: latitudeDelta,
+                    longitudeDelta: longitudeDelta,
+                  })
+                }
+            })
+        }}
+        query={{
+            key: HERE_API_KEY,
+            language: 'en',
+        }}
+      />
+    );
+};
 
+const getLatLngFromAddress = (address) => {
+    return new Promise((resolve) => {
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${HERE_API_KEY}`
+        fetch(url)
+          .then(res => res.json())
+          .then((resJson) => {
+              // the response had a deeply nested structure :/
+              if (resJson
+                && resJson.results
+                && resJson.results[0].geometry) {
+                  resolve(resJson.results[0].geometry.location)
+              } else {
+                  resolve()
+              }
+          })
+          .catch((e) => {
+              console.log('Error in getAddressFromCoordinates', e)
+              resolve()
+          })
+    })
+}
 
 const Create = ({navigation}) => {
+  const saveUserEnteredAddress = async (navigation,location,landMark,formattedAddress) => {
+    let UserDetails= await AsyncStorage.getItem('userDetails')
+    let userId = JSON.parse(UserDetails).id
+    await fetchAuthPostFunction('address/add',{user_id:userId,door_no:landMark,address:formattedAddress,lat:(location.latitude),lng:(location.longitude)}).then(response => {
+      if (response.status === 1){
+        MyToast(response.message)
+        navigation.goBack()
+      }else{
+        MyToast(response.message)
+      }
+    })
+  }
     const [location, setLocation] = React.useState({
         latitude: 28.5743,
         longitude: 77.0716,
         latitudeDelta: 0.02,
         longitudeDelta: 0.04,
     });
-    const [formatedAddress,setFormatedAddress] = React.useState(null)
+    const [formattedAddress,setFormattedAddress] = React.useState(null)
     const [landMark,setLandMark] = React.useState(null)
     return (
-        <View>
+      <View>
+
             <View style={styles.addressMainView}>
                 <MapView
                     style={styles.map}
@@ -52,16 +117,20 @@ const Create = ({navigation}) => {
                                 latitudeDelta: region.latitudeDelta,
                                 longitudeDelta: region.longitudeDelta,
                             })
-                        getAddressFromCoordinates(region).then((result) => {setFormatedAddress(result)})
+                        getAddressFromCoordinates(region).then((result) => {setFormattedAddress(result)})
                     }}
                 >
 
                 </MapView>
+                {GooglePlacesInput(location, setLocation) }
+
                 <View style={{ top:'50%' ,left:'50%',marginLeft:-24,marginTop:-48,position:'absolute' }}>
                     <FontAwesome5 name={'map-marker-alt'} size={30} color={mainColor} />
                 </View>
 
             </View>
+          <ScrollView>
+
             <View style={styles.addressContainer}>
                 <View style={styles.nearLabelContainer}>
                     <Text style={styles.nearLabel}>Door no / Landmark</Text>
@@ -70,26 +139,26 @@ const Create = ({navigation}) => {
                 <View style={styles.nearLabelContainer}>
                     <Text style={styles.nearLabel}>Address</Text>
                     <Text style={styles.address}>
-                        {formatedAddress}
+                        {formattedAddress}
                     </Text>
                 </View>
                 <View style={styles.bottomBtn}>
-                    {MyButton(()=>{navigation.goBack()},'Save Address','','map-marker')}
+                    {MyButton(()=>{saveUserEnteredAddress(navigation,location,landMark,formattedAddress)},'Save Address','','map-marker')}
                 </View>
             </View>
+        </ScrollView>
+      </View>
 
-
-        </View>
     )
 }
 
 const styles = StyleSheet.create({
     addressMainView:{
-        height: 350,
+        height: 280,
         width: '100%',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-    }, map: {
+    },
+    map: {
+        marginTop:30,
         ...StyleSheet.absoluteFillObject,
     },
     addressContainer:{

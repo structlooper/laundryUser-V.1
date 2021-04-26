@@ -94,8 +94,9 @@ const ServicePage = ({navigation,route}) => {
         obj[key] = element.qty;
       });
       setCartProducts(obj)
+      setLoader(false)
+
     })
-    setLoader(false)
   }
 
   if (products === null ){

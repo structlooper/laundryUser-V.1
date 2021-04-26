@@ -108,10 +108,10 @@ const Cart = ({navigation}) => {
     let userId = JSON.parse(UserDetails).id
     await fetchGetFunction('cart/'+userId).then(result => {
       setCart(result)
+      setLoader(false)
     })
     let Address =  JSON.parse(UserDetails).default_address;
     setDefaultAddress(Address)
-    setLoader(false)
   }
 
   if (cart === null ){

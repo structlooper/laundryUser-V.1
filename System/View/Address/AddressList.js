@@ -1,23 +1,25 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import {View,Text,ScrollView,StyleSheet,TouchableOpacity} from 'react-native';
 import {useNavigationState} from '@react-navigation/native';
-import {mainColor, MyButton} from "../../Utility/MyLib";
+import { fetchGetFunction, mainColor, MyButton } from "../../Utility/MyLib";
 import MapView, { PROVIDER_GOOGLE,Marker } from 'react-native-maps';
+import NoDataFound from "../NoDataFound";
+import Loader from "../../Utility/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const AddressCard = (addressNumber,lat,lng,addressDesc,) => {
-    const state = useNavigationState(state => state);
-    const routeName = (state.routeNames[state.index]);
-    const MapComponent = () => {
+const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeName) => {
+
+    const MapComponent = (addressNumber) => {
         return (
-            <View style={styles.addressMainView}>
+            <View style={styles.addressMainView} key={addressNumber}>
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
                     region={{
                         latitude:lat,
                         longitude:lng,
-                        latitudeDelta: 0.02,
-                        longitudeDelta: 0.04,
+                        latitudeDelta: 0.001,
+                        longitudeDelta: 0.002,
                     }}
                     // options={{ scrollEnabled:false }}
                     scrollEnabled={false}
@@ -29,11 +31,14 @@ const AddressCard = (addressNumber,lat,lng,addressDesc,) => {
         )
     }
     return (
-        <View style={styles.container}>
+        <View style={styles.container} key={addressNumber}>
             <Text style={styles.heading}>
-                Address#{addressNumber}
+                Address#{addressNumber+1}
             </Text>
-            {MapComponent()}
+            {MapComponent(addressNumber)}
+            <Text style={styles.addressDesc}>
+                {doorNumber}
+            </Text>
             <Text style={styles.addressDesc}>
                 {addressDesc}
             </Text>
@@ -43,7 +48,7 @@ const AddressCard = (addressNumber,lat,lng,addressDesc,) => {
                         <Text style={styles.actionBtn}>Edit</Text>
                     </TouchableOpacity>
                 </View>
-                <View >
+                <View>
 
                     <TouchableOpacity onPress={() => { console.log('Delete')}}>
                         <Text style={styles.actionBtn}>{(routeName === 'ServicesSlider') ? 'Select' : 'Delete'}</Text>
@@ -56,8 +61,10 @@ const AddressCard = (addressNumber,lat,lng,addressDesc,) => {
 
 
 const AddressList =  ({navigation}) => {
+
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
+    const [addressList , setAddressList] = React.useState(null);
     const addAddress = () => {
         if (routeName === 'ServicesSlider'){
             return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'CreateAddress'})},'Add address',styles.bottomView,'map-marker')
@@ -65,30 +72,50 @@ const AddressList =  ({navigation}) => {
             return MyButton(() => {navigation.navigate('AddressScreenStack',{screen:'CreateAddress'})},'Add address',styles.bottomView,'map-marker')
         }
     }
-    return (
-        <View style={{flex:1, backgroundColor:'#eee',paddingVertical:10}}>
-            <Text style={{ textAlign:'center',fontSize:18 }}>Your Address</Text>
-            <ScrollView style={{marginBottom:30}}>
-                {AddressCard(1,28.325343826348004,77.25692136213183,'Flat no. 57, Sec 7 , Dwarka, New Delhi 110059')}
-                {AddressCard(2,28.6843,77.0716,'341 /, Punja Sharif, Kashmere Gate')}
-                {AddressCard(3,28.5953,77.0716,'46 , Dadiseth, Agiary Lane, Kalbadev')}
-                {AddressCard(4,28.5843,77.0716,'Flat no. 57, Sec 7 , Dwarka, New Delhi 110059')}
 
-            </ScrollView>
-            <View style={{position: 'absolute', left: 0, right: 0, bottom: 0,padding: 15}}>
-                {addAddress()}
-            </View>
+    useEffect(() => {
+      getAddressList().then()
+    },)
+
+    const getAddressList = async () => {
+      let UserDetails= await AsyncStorage.getItem('userDetails')
+      let userId = JSON.parse(UserDetails).id
+      await fetchGetFunction('address/'+userId).then(result => {
+        setAddressList(result);
+      })
+    }
+    if (addressList === null) {
+      return <Loader />
+    }else if(addressList !== []){
+      return (
+        <View style={{flex:1, backgroundColor:'#fff',borderTopColor:'#eee',borderTopWidth:5}}>
+          <Text style={{ textAlign:'center',fontSize:18 }}>Your Address</Text>
+          <ScrollView style={{marginBottom:80}}>
+            {addressList.map((data,i) => {
+               return AddressCard(i, parseFloat(data.latitude), parseFloat(data.longitude), data.door_no,data.address,state,routeName)
+
+              })}
+
+          </ScrollView>
+          <View style={{position: 'absolute', left: 0, right: 0, bottom: 0,padding: 15}}>
+            {addAddress()}
+          </View>
         </View>
-    )
+      )
+    }else{
+      return <NoDataFound />
+    }
+
 }
 const styles = StyleSheet.create({
    container:{
         backgroundColor:'#fff',
         paddingHorizontal: 20,
-        marginVertical:10,
+        // marginVertical:10,
+     borderBottomWidth:5,
+     borderBottomColor:'#eee'
     },
     addressMainView:{
-        // ...StyleSheet.absoluteFillObject,
         height: 120,
         width: '100%',
         justifyContent: 'flex-end',
