@@ -216,7 +216,7 @@ const HomeScreenStack = ({navigation}) => {
         component={CreateAddress}
 
         options={({route}) => ({
-          title: 'Add Address',
+          title:  (route.params !== undefined) ? 'Update Address' :'Add Address',
         })}
 
 
@@ -289,9 +289,9 @@ const AddressScreenStack = ({navigation}) => {
       <Stack.Screen
         name="CreateAddress"
         component={CreateAddress}
-        options={{
-          title: 'Create Address',
-        }}
+        options={({route}) => ({
+          title:'Add Address',
+        })}
       />
 
     </Stack.Navigator>

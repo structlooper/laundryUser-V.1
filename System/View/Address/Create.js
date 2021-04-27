@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Image, SafeAreaView, ScrollView } from "react-native";
 import MapView, {Marker, PROVIDER_GOOGLE} from "react-native-maps";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { fetchAuthPostFunction, mainColor, MyButton, MyTextInput, MyToast } from "../../Utility/MyLib";
+import {
+  fetchAuthPostFunction,
+  fetchGetFunction,
+  mainColor,
+  MyButton,
+  MyTextInput,
+  MyToast,
+} from "../../Utility/MyLib";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {HERE_API_KEY} from "../../Utility/MyLib";
 
-
-
-const HERE_API_KEY = 'AIzaSyAhJW0BL0uuVzXfhkhiQb3ZXF8f4pQ0vYQ';
 
 function getAddressFromCoordinates({ latitude, longitude }) {
     return new Promise((resolve) => {
@@ -34,7 +39,7 @@ function getAddressFromCoordinates({ latitude, longitude }) {
 const GooglePlacesInput = (location, setLocation) => {
     return (
       <GooglePlacesAutocomplete
-        placeholder='Search'
+        placeholder='Search in map'
         onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
             // console.log(data.description, (details));
@@ -81,7 +86,39 @@ const getLatLngFromAddress = (address) => {
     })
 }
 
-const Create = ({navigation}) => {
+const Create = ({navigation,route}) => {
+  const [loop ,setLoop] = React.useState(true)
+  const [location, setLocation] = React.useState({
+    latitude: 28.5743,
+    longitude: 77.0716,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.04,
+  });
+  const [formattedAddress,setFormattedAddress] = React.useState(null)
+  const [landMark,setLandMark] = React.useState(null)
+  const [addressId,setAddressId] = React.useState(null)
+  if (loop === true) {
+    if (route.params !== undefined) {
+      const { addressId } = route.params;
+      setAddressId(addressId)
+      const getAddressDetailsById = async () => {
+        await fetchGetFunction('address_id/' + addressId,).then(response => {
+          const latitudeDelta = 0.008;
+          const longitudeDelta = 0.008;
+          setLandMark(response.door_no)
+          setFormattedAddress(response.address)
+          setLocation({
+            latitude: parseFloat(response.latitude),
+            longitude: parseFloat(response.longitude),
+            latitudeDelta: latitudeDelta,
+            longitudeDelta: longitudeDelta,
+          })
+        })
+      }
+      getAddressDetailsById().then();
+      setLoop(false)
+    }
+  }
   const saveUserEnteredAddress = async (navigation,location,landMark,formattedAddress) => {
     let UserDetails= await AsyncStorage.getItem('userDetails')
     let userId = JSON.parse(UserDetails).id
@@ -94,14 +131,18 @@ const Create = ({navigation}) => {
       }
     })
   }
-    const [location, setLocation] = React.useState({
-        latitude: 28.5743,
-        longitude: 77.0716,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.04,
-    });
-    const [formattedAddress,setFormattedAddress] = React.useState(null)
-    const [landMark,setLandMark] = React.useState(null)
+  const updateUserEnteredAddress = async (navigation,location,landMark,formattedAddress,addressId) => {
+    let UserDetails= await AsyncStorage.getItem('userDetails')
+    let userId = JSON.parse(UserDetails).id
+    await fetchAuthPostFunction('address/update',{address_id:addressId,user_id:userId,door_no:landMark,address:formattedAddress,lat:(location.latitude),lng:(location.longitude)}).then(response => {
+      if (response.status === 1){
+        MyToast(response.message)
+        navigation.goBack()
+      }else{
+        MyToast(response.message)
+      }
+    })
+  }
     return (
       <View>
 
@@ -143,7 +184,14 @@ const Create = ({navigation}) => {
                     </Text>
                 </View>
                 <View style={styles.bottomBtn}>
-                    {MyButton(()=>{saveUserEnteredAddress(navigation,location,landMark,formattedAddress)},'Save Address','','map-marker')}
+                    {MyButton(()=>{
+                        (route.params !== undefined) ?
+                          updateUserEnteredAddress(navigation,location,landMark,formattedAddress,addressId)
+                          :
+                      saveUserEnteredAddress(navigation,location,landMark,formattedAddress)
+                    },
+                      (route.params !== undefined) ?'Update Address':'Save Address',
+                      '','map-marker')}
                 </View>
             </View>
         </ScrollView>

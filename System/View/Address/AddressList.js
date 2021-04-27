@@ -1,13 +1,28 @@
 import React, { useEffect } from "react";
-import {View,Text,ScrollView,StyleSheet,TouchableOpacity} from 'react-native';
+import {View,Text,ScrollView,StyleSheet,TouchableOpacity,Alert} from 'react-native';
 import {useNavigationState} from '@react-navigation/native';
-import { fetchGetFunction, mainColor, MyButton } from "../../Utility/MyLib";
+import { fetchGetFunction, mainColor, MyButton,fetchAuthPostFunction,MyToast } from "../../Utility/MyLib";
 import MapView, { PROVIDER_GOOGLE,Marker } from 'react-native-maps';
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeName) => {
+const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeName,navi,addressId) => {
+  const editAddress = () => {
+    if (routeName === 'ServicesSlider'){
+      return(
+      <TouchableOpacity onPress={() => {navi.navigate('HomeScreenStack',{screen:'CreateAddress',params: { addressId: addressId }})}}>
+        <Text style={styles.actionBtn}>Edit</Text>
+      </TouchableOpacity>
+      )
+    }else{
+      return (
+        <TouchableOpacity onPress={() => {navi.navigate('AddressScreenStack',{screen:'CreateAddress',params: { addressId: addressId }})}}>
+          <Text style={styles.actionBtn}>Edit</Text>
+        </TouchableOpacity>
+      )
+    }
+  }
 
     const MapComponent = (addressNumber) => {
         return (
@@ -44,13 +59,25 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
             </Text>
             <View style={styles.actionButtons}>
                 <View style={{flex:.3}}>
-                    <TouchableOpacity onPress={() => {console.log('Edit')}}>
-                        <Text style={styles.actionBtn}>Edit</Text>
-                    </TouchableOpacity>
+                  {
+                    editAddress()}
                 </View>
                 <View>
 
-                    <TouchableOpacity onPress={() => { console.log('Delete')}}>
+                    <TouchableOpacity onPress={() => {
+                      Alert.alert(
+                      "Delete address",
+                      "Are you sure want to delete this address?",
+                      [
+                        {
+                          text: "Cancel",
+                          onPress: () => console.log("Cancel Pressed"),
+                          style: "cancel"
+                        },
+                        { text: "ok", onPress: () => {deleteAddress(addressId)} }
+                      ]
+                    )}
+                    }>
                         <Text style={styles.actionBtn}>{(routeName === 'ServicesSlider') ? 'Select' : 'Delete'}</Text>
                     </TouchableOpacity>
                 </View>
@@ -59,6 +86,13 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
     )
 }
 
+const deleteAddress = async (addressId) => {
+  let UserDetails= await AsyncStorage.getItem('userDetails')
+  let userId = JSON.parse(UserDetails).id
+  await fetchAuthPostFunction('address/delete',{address_id:addressId,user_id:userId}).then(response => {
+    MyToast(response.message)
+  })
+}
 
 const AddressList =  ({navigation}) => {
 
@@ -89,10 +123,10 @@ const AddressList =  ({navigation}) => {
     }else if(addressList !== []){
       return (
         <View style={{flex:1, backgroundColor:'#fff',borderTopColor:'#eee',borderTopWidth:5}}>
-          <Text style={{ textAlign:'center',fontSize:18 }}>Your Address</Text>
+          <Text style={{ textAlign:'center',fontSize:18,borderBottomColor:'#eee',borderBottomWidth:.5 }}>Your Address</Text>
           <ScrollView style={{marginBottom:80}}>
             {addressList.map((data,i) => {
-               return AddressCard(i, parseFloat(data.latitude), parseFloat(data.longitude), data.door_no,data.address,state,routeName)
+               return AddressCard(i, parseFloat(data.latitude), parseFloat(data.longitude), data.door_no,data.address,state,routeName,navigation,data.id)
 
               })}
 
