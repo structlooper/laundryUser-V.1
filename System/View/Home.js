@@ -9,8 +9,10 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
 const iconSize = 18;
+import Loader from "../Utility/Loader";
 
 const ServiceCard = (data,navi,index) => {
+
   return (
     <View style={styles.ServiceCard} key={index}>
       <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider',{serviceId:data.id,serviceName:data.name})}}>
@@ -46,7 +48,9 @@ export default class Home extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      didMount:false,
       activeIndex:0,
+      loader:true,
       carouselItems: [],
       services : [],
       members : [
@@ -75,8 +79,20 @@ export default class Home extends React.Component {
   }
 
   componentDidMount =  () =>{
-     this.getHomeBanners()
-     this.getServices()
+    this.setState({
+      didMount:true
+    })
+    this.callFunctions()
+    return () => {this.setState({didMount:false})}
+  }
+  callFunctions = () => {
+    if (this.state.activeIndex === 0){
+      this.getHomeBanners().then()
+      this.getServices().then()
+    }
+    this.setState({
+      activeIndex:1
+    })
   }
    getHomeBanners = async  () => {
      await fetchGetFunction('servicesBanners').then(result => {
@@ -103,9 +119,13 @@ export default class Home extends React.Component {
         services: final
       })
     })
+    this.setState({
+      loader:false,
+    })
   }
 
   _renderItem({item,index}){
+
     return (
       <View style={{
         backgroundColor:'#fff',
@@ -134,62 +154,69 @@ export default class Home extends React.Component {
 
 
   render() {
+    if(!this.state.didMount) {
+      return null;
+    }
     const { navigation } = this.props;
-    return (
-      <View style={{ flex: 1,width: '100%',backgroundColor:'#eee'}} >
-      <ScrollView style={{marginBottom:50}}>
+    if (this.state.loader) {
+      return <Loader />
+    } else {
+      return (
+        <View style={{ flex: 1, width: '100%', backgroundColor: '#eee' }}>
+          <ScrollView style={{ marginBottom: 50 }}>
 
-      <SafeAreaView style={{flex: 1, backgroundColor:'#eee' }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#eee' }}>
 
-        <View style={{ flexDirection:'row', justifyContent: 'center', }}>
-          <Carousel
-            layout={"default"}
+              <View style={{ flexDirection: 'row', justifyContent: 'center', }}>
+                <Carousel
+                  layout={"default"}
 
-            data={this.state.carouselItems}
-            sliderWidth={width}
-            itemWidth={width}
-            renderItem={this._renderItem}
-            onSnapToItem = { index => this.setState({activeIndex:index}) } />
-        </View>
-        <Text style={styles.Heading}>Services</Text>
-        <ScrollView horizontal={true} style={{ maxHeight: "50%"}}>
+                  data={this.state.carouselItems}
+                  sliderWidth={width}
+                  itemWidth={width}
+                  renderItem={this._renderItem}
+                  onSnapToItem={index => this.setState({ activeIndex: index })} />
+              </View>
+              <Text style={styles.Heading}>Services</Text>
+              <ScrollView horizontal={true} style={{ maxHeight: "50%" }}>
 
-        <View style={styles.ServiceCardContainer}>
-          {this.state.services.map((data,index) =>
-            ServiceCard(data,navigation,index)
-          )}
-        </View>
-      </ScrollView>
-        <Text style={styles.Heading}>Membership Offers</Text>
-        <View style={{flexDirection:'row'}}>
-          <ScrollView horizontal={true} >
-              {this.state.members.map((mem,index) =>
-                  MemberShipCard(mem,index)
-                )}
+                <View style={styles.ServiceCardContainer}>
+                  {this.state.services.map((data, index) =>
+                    ServiceCard(data, navigation, index)
+                  )}
+                </View>
+              </ScrollView>
+              <Text style={styles.Heading}>Membership Offers</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <ScrollView horizontal={true}>
+                  {this.state.members.map((mem, index) =>
+                    MemberShipCard(mem, index)
+                  )}
+
+                </ScrollView>
+
+              </View>
+
+
+            </SafeAreaView>
 
           </ScrollView>
-
-        </View>
-
-
-
-
-      </SafeAreaView>
-
-      </ScrollView>
-        <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
-          <View style={[styles.PrimeMemberBannerContainer,{marginLeft:35}]}>
-            <TouchableOpacity>
-              <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'} style={{marginRight:10}} />  Call </Text>
-            </TouchableOpacity>
-            <TouchableOpacity >
-              <Text style={[styles.CallButton]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'} style={{marginRight:10}} />  Whatsapp</Text>
-            </TouchableOpacity>
+          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+            <View style={[styles.PrimeMemberBannerContainer, { marginLeft: 35 }]}>
+              <TouchableOpacity>
+                <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'}
+                                                                style={{ marginRight: 10 }} /> Call </Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={[styles.CallButton]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'}
+                                                                style={{ marginRight: 10 }} /> Whatsapp</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-       </View>
 
-    );
+      );
+    }
   }
 }
 const styles = StyleSheet.create({

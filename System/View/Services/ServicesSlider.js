@@ -4,22 +4,24 @@ import ServicePage from "./ServicePage";
 import { fetchGetFunction, mainColor } from "../../Utility/MyLib";
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function ServicesSlider({route}) {
+  const [activeIndex,setActiveIndex] = useState(0)
   const {serviceId} = route.params;
   const [categories , setCategories] = React.useState(null)
   useEffect(() => {
-    getCategoriesByServiceId().then()
+    if (activeIndex === 0) {
+      getCategoriesByServiceId().then()
+      setActiveIndex(activeIndex + 1)
+    }
   },[])
-
   const Tabs = (category,categoryId,i) => {
     return <Tab.Screen name={category} component={ServicePage} initialParams={{ categoryId:categoryId }}  key={i} />
   }
-
   const getCategoriesByServiceId = async () => {
     await fetchGetFunction('category/'+serviceId).then(result => {
       setCategories(result)
@@ -33,6 +35,7 @@ export default function ServicesSlider({route}) {
       <NoDataFound />
     )
   }else {
+
     return (
       <Tab.Navigator
         tabBarOptions={{
@@ -46,9 +49,9 @@ export default function ServicesSlider({route}) {
           indicatorStyle: { backgroundColor: '#fff' },
         }}
       >
-        {categories.map((data,i) =>
-          Tabs(data.category_name, data.id,i)
-        )}
+        {categories.map((data,i) => {
+         return Tabs(data.category_name, data.id, i)
+        }) }
       </Tab.Navigator>
     );
   }

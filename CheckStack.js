@@ -9,8 +9,9 @@ import {AuthContext} from "./System/Utility/AuthContext";
 
 const CheckStack =  () =>
 {
-const [userToken,setUserToken] = React.useState(null)
-const [isLoading,setIsLoading] = React.useState(true)
+
+  const [userToken,setUserToken] = React.useState(null)
+  const [isLoading,setIsLoading] = React.useState(true)
 
   const authContext = React.useMemo(() => ({
     logIn:async  () => {
@@ -35,10 +36,11 @@ const [isLoading,setIsLoading] = React.useState(true)
      setUserToken(response.token)
      await AsyncStorage.setItem('token', (response.token).toString())
    }
-     setIsLoading(false)
+   setIsLoading(false)
  }
+
   useEffect(() => {
-    setRetrieveUserToken()
+    setRetrieveUserToken().then()
   },[])
   if(isLoading){
     return (

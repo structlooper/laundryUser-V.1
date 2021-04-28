@@ -45,6 +45,22 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
             </View>
         )
     }
+    const deleteAlert = () => {
+    return (
+      Alert.alert(
+        "Delete address",
+        "Are you sure want to delete this address?",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel"
+          },
+          { text: "ok", onPress: () => {deleteAddress(addressId)} }
+        ]
+      )
+    )
+    }
     return (
         <View style={styles.container} key={addressNumber}>
             <Text style={styles.heading}>
@@ -63,20 +79,7 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
                     editAddress()}
                 </View>
                 <View>
-
-                    <TouchableOpacity onPress={() => {
-                      Alert.alert(
-                      "Delete address",
-                      "Are you sure want to delete this address?",
-                      [
-                        {
-                          text: "Cancel",
-                          onPress: () => console.log("Cancel Pressed"),
-                          style: "cancel"
-                        },
-                        { text: "ok", onPress: () => {deleteAddress(addressId)} }
-                      ]
-                    )}
+                    <TouchableOpacity onPress={() => {(routeName === 'ServicesSlider') ? console.log('change default address') : deleteAlert()  }
                     }>
                         <Text style={styles.actionBtn}>{(routeName === 'ServicesSlider') ? 'Select' : 'Delete'}</Text>
                     </TouchableOpacity>

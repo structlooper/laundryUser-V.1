@@ -13,6 +13,7 @@ const CartProductController = async (productId,qty) => {
   fetchAuthPostFunction('cart',dom).then(result => {
     console.log('response',result)
     MyToast(result.message)
+
   })
 }
 export default CartProductController;

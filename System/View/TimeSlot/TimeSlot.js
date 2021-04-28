@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import {View, Text,StyleSheet,TouchableOpacity,ScrollView} from 'react-native'
-import {mainColor, MyButton} from "../../Utility/MyLib";
+import { fetchGetFunction, mainColor, MyButton } from "../../Utility/MyLib";
 import RazorpayCheckout from 'react-native-razorpay';
 import {logo} from "../../Utility/Images";
-
+import NoDataFound from "../NoDataFound";
+import Loader from "../../Utility/Loader";
 
 const SlotBtnActive = (time) => {
   return (
@@ -29,49 +30,69 @@ const SlotBtn = (time) => {
 }
 
 const TimeSlot = ({navigation}) => {
-  return (
-    <View style={styles.MainContainer}>
-      <View style={styles.DateContainer}>
-        <Text style={styles.DateLabel}>
-          Select Pickup Date
-        </Text>
-        <ScrollView  horizontal={true} style={styles.dateBtnScroller}>
-          <View style={styles.DateBtnContainer}>
-            {SlotBtnActive('Today, 08 Sep')}
-            {SlotBtn('Tomorrow, 09 Sep')}
-            {SlotBtn('10 Sep')}
-          </View>
-        </ScrollView>
-        <View style={styles.TimeContainer}>
+  const [time,setTimeSlot] = React.useState(null);
+  const [date,setDateSlot] = React.useState(null);
+
+  useEffect(() => {
+    getDateTimeSlots().then()
+  })
+  const getDateTimeSlots = async () => {
+    await fetchGetFunction('time_slots').then(time => {
+      setTimeSlot(time)
+    })
+    await fetchGetFunction('date_slots').then(date => {
+      setDateSlot(date)
+    })
+  }
+
+  if (time === null || date === null){
+    return <Loader />
+  }else if(time === [] || date === []){
+    return <NoDataFound />
+  }else{
+    return (
+      <View style={styles.MainContainer}>
+        <View style={styles.DateContainer}>
           <Text style={styles.DateLabel}>
-            Select Pickup Time
+            Select Pickup Date
           </Text>
-          <View style={{alignItems:'center',marginTop:10,}}>
-            <View style={styles.TimeSlotPatternContainer}>
-              {SlotBtn('9 am to 10 am')}
-              {SlotBtn('10 am to 11 am')}
+          <ScrollView  horizontal={true} style={styles.dateBtnScroller}>
+            <View style={styles.DateBtnContainer}>
+              {SlotBtnActive('Today, 08 Sep')}
+              {SlotBtn('Tomorrow, 09 Sep')}
+              {SlotBtn('10 Sep')}
             </View>
+          </ScrollView>
+          <View style={styles.TimeContainer}>
+            <Text style={styles.DateLabel}>
+              Select Pickup Time
+            </Text>
+            <View style={{alignItems:'center',marginTop:10,}}>
+              <View style={styles.TimeSlotPatternContainer}>
+                {SlotBtn('9 am to 10 am')}
+                {SlotBtn('10 am to 11 am')}
+              </View>
 
-            <View style={styles.TimeSlotPatternContainer}>
-              {SlotBtnActive('11 am to 12 pm')}
-              {SlotBtn('12 pm to 01 pm')}
-            </View>
+              <View style={styles.TimeSlotPatternContainer}>
+                {SlotBtnActive('11 am to 12 pm')}
+                {SlotBtn('12 pm to 01 pm')}
+              </View>
 
-            <View style={styles.TimeSlotPatternContainer}>
-              {SlotBtn('01 pm to 02 pm')}
-              {SlotBtn('02 pm to 03 pm')}
-            </View>
+              <View style={styles.TimeSlotPatternContainer}>
+                {SlotBtn('01 pm to 02 pm')}
+                {SlotBtn('02 pm to 03 pm')}
+              </View>
 
-            <View style={styles.TimeSlotPatternContainer}>
-              {SlotBtn('03 pm to 04 pm')}
-              {SlotBtn('04 pm to 05 pm')}
+              <View style={styles.TimeSlotPatternContainer}>
+                {SlotBtn('03 pm to 04 pm')}
+                {SlotBtn('04 pm to 05 pm')}
+              </View>
             </View>
           </View>
         </View>
-      </View>
 
-      <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
-        {MyButton(() => {
+        <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
+          {MyButton(() => {
             const options = {
               description: 'Payment towards Laundry',
               image: logo,
@@ -100,9 +121,11 @@ const TimeSlot = ({navigation}) => {
             });
           },'Proceed to Pay ',styles.bottomView,'cash-multiple')}
 
+        </View>
       </View>
-    </View>
-  )
+    )
+  }
+
 }
 
 const styles = StyleSheet.create({

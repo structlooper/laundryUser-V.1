@@ -10,7 +10,7 @@ import CartProductController from "../../Controller/CartProductController";
 
 
 
-const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader) => {
+const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader,setCheckRequest,cartProducts,setCartProducts) => {
   const Btn = (productId,setLoader,i,num) => {
     let icon;
     if(num === 1){
@@ -20,6 +20,7 @@ const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader)
     }else{
       icon = 'cross'
     }
+
     return (
       <IconButton
         icon={icon}
@@ -27,7 +28,12 @@ const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader)
         size={15}
         onPress={() => {
           setLoader(i+icon)
-          CartProductController(productId, num);
+          CartProductController(productId, num).then()
+          setCartProducts({
+            ...cartProducts,
+            [productId]:(qty > 0)?(num === 1)?qty+1:qty-1:(num === 1)?qty+1:0
+          })
+          setLoader(false)
         }}
         style={{borderColor:mainColor,borderWidth:1}}
       />
@@ -35,6 +41,7 @@ const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader)
   }
   return (
     <View style={styles.ItemMain} key={i}>
+
       <View style={styles.ItemChild}>
         <Image source={{ uri:itemImage }} style={styles.ItemImage}>
         </Image>
@@ -73,13 +80,18 @@ const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader)
 }
 
 const ServicePage = ({navigation,route}) => {
+
+  const [checkRequest, setCheckRequest] = useState(0);
   const [products, setProducts] = useState(null);
   const [loader, setLoader] = useState(false);
   const [cartProducts, setCartProducts] = useState({});
-  const {categoryId} = route.params
 
+  const {categoryId} = route.params
   useEffect(() => {
-    getProductsByCategoryId().then()
+    if (checkRequest === 0){
+      getProductsByCategoryId().then()
+      setCheckRequest(1)
+    }
   },[cartProducts])
   const getProductsByCategoryId = async () => {
    await fetchGetFunction('product/'+categoryId).then(result => {
@@ -111,7 +123,7 @@ const ServicePage = ({navigation,route}) => {
               if (Object.keys(cartProducts).some(v => v == (data.id).toString())){
                 Q = cartProducts[data.id]
               }
-              return productCard(ImageUrl + 'uploads/' + data.image, data.product_name, Q, data.price, data.unit,data.id, i,setLoader,loader)
+              return productCard(ImageUrl + 'uploads/' + data.image, data.product_name, Q, data.price, data.unit,data.id, i,setLoader,loader,setCheckRequest,cartProducts,setCartProducts)
 
             }
           )}
