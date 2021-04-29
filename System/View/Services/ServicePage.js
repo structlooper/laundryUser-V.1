@@ -28,7 +28,7 @@ const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader,
         size={15}
         onPress={() => {
           setLoader(i+icon)
-          CartProductController(productId, num).then()
+          CartProductController(productId, num,setCheckRequest).then()
           setCartProducts({
             ...cartProducts,
             [productId]:(qty > 0)?(num === 1)?qty+1:qty-1:(num === 1)?qty+1:0
@@ -81,35 +81,38 @@ const productCard = (itemImage,Name,qty,price,unit,productId,i,setLoader,loader,
 
 const ServicePage = ({navigation,route}) => {
 
-  const [checkRequest, setCheckRequest] = useState(0);
+  const [checkRequest, setCheckRequest] = useState(true);
   const [products, setProducts] = useState(null);
   const [loader, setLoader] = useState(false);
   const [cartProducts, setCartProducts] = useState({});
 
   const {categoryId} = route.params
   useEffect(() => {
-    if (checkRequest === 0){
-      getProductsByCategoryId().then()
-      setCheckRequest(1)
-    }
-  },[cartProducts])
-  const getProductsByCategoryId = async () => {
-   await fetchGetFunction('product/'+categoryId).then(result => {
-      setProducts(result)
-    })
-    let UserDetails= await AsyncStorage.getItem('userDetails')
-    let userId = JSON.parse(UserDetails).id
-    await fetchGetFunction('cart/'+userId).then(result => {
-      let obj = {};
-      (result.cart_products).forEach(element => {
-        let key = element.product_id
-        obj[key] = element.qty;
-      });
-      setCartProducts(obj)
-      setLoader(false)
 
-    })
+      getProductsByCategoryId().then()
+
+  },[])
+  const getProductsByCategoryId = async () => {
+    if (checkRequest === true) {
+      await fetchGetFunction('product/' + categoryId).then(result => {
+        setProducts(result)
+      })
+      let UserDetails = await AsyncStorage.getItem('userDetails')
+      let userId = JSON.parse(UserDetails).id
+      await fetchGetFunction('cart/' + userId).then(result => {
+        let obj = {};
+        (result.cart_products).forEach(element => {
+          let key = element.product_id
+          obj[key] = element.qty;
+        });
+        setCartProducts(obj)
+        setLoader(false)
+
+      })
+      setCheckRequest(false)
+    }
   }
+
 
   if (products === null ){
     return <Loader />

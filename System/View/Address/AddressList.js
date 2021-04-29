@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {View,Text,ScrollView,StyleSheet,TouchableOpacity,Alert} from 'react-native';
 import {useNavigationState} from '@react-navigation/native';
 import { fetchGetFunction, mainColor, MyButton,fetchAuthPostFunction,MyToast } from "../../Utility/MyLib";
@@ -101,6 +101,8 @@ const AddressList =  ({navigation}) => {
 
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
+    const [checkRequest, setCheckRequest] = useState(true);
+    const [count, setCount] = useState(0);
     const [addressList , setAddressList] = React.useState(null);
     const addAddress = () => {
         if (routeName === 'ServicesSlider'){
@@ -115,11 +117,22 @@ const AddressList =  ({navigation}) => {
     },)
 
     const getAddressList = async () => {
-      let UserDetails= await AsyncStorage.getItem('userDetails')
-      let userId = JSON.parse(UserDetails).id
-      await fetchGetFunction('address/'+userId).then(result => {
-        setAddressList(result);
-      })
+      if (checkRequest === true) {
+
+        let UserDetails = await AsyncStorage.getItem('userDetails')
+        let userId = JSON.parse(UserDetails).id
+        await fetchGetFunction('address/' + userId).then(result => {
+          setAddressList(result);
+        })
+        setCheckRequest(false)
+
+
+
+      }else{
+        setTimeout(() => {
+          setCheckRequest(true)
+        },10000)
+      }
     }
     if (addressList === null) {
       return <Loader />

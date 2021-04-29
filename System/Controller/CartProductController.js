@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchAuthPostFunction, MyToast } from "../Utility/MyLib";
 
-const CartProductController = async (productId,qty) => {
+const CartProductController = async (productId,qty,setCheckRequest) => {
   let UserDetails= await AsyncStorage.getItem('userDetails')
   let userId = JSON.parse(UserDetails).id
   let dom = {};
@@ -13,7 +13,7 @@ const CartProductController = async (productId,qty) => {
   fetchAuthPostFunction('cart',dom).then(result => {
     console.log('response',result)
     MyToast(result.message)
-
+    setCheckRequest(true)
   })
 }
 export default CartProductController;

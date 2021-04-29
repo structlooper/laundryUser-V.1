@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {View,Text,StyleSheet,Image,ScrollView} from 'react-native';
 import { fetchGetFunction, mainColor, MyButton, MyOutlineButton } from "../Utility/MyLib";
 import {TouchableOpacity} from "react-native-gesture-handler";
@@ -26,7 +26,7 @@ const bill = (labelName,price,style) => {
     </View>
   )
 }
-const product = (name,qty,price,productId,i,setLoader,loader) => {
+const product = (name,qty,price,productId,i,setLoader,loader,setCheckRequest) => {
   const Btn = (productId,setLoader,i,num) => {
     let icon;
     if(num === 1){
@@ -41,9 +41,9 @@ const product = (name,qty,price,productId,i,setLoader,loader) => {
         icon={icon}
         color={mainColor}
         size={15}
-        onPress={() => {
+        onPress={ () => {
           setLoader(i+icon)
-          CartProductController(productId, num);
+          CartProductController(productId, num,setCheckRequest)
         }}
         style={{borderColor:mainColor,borderWidth:1,marginTop:1}}
       />
@@ -98,25 +98,31 @@ const Cart = ({navigation}) => {
   const [cart , setCart] = React.useState(null)
   const [loader , setLoader] = React.useState(false)
   const [defaultAddress , setDefaultAddress] = React.useState(false)
-
+  const [checkRequest, setCheckRequest] = useState(true);
   useEffect(() => {
-    getCartData().then()
-  },[cart])
+      getCartData().then()
+  },)
 
   const getCartData = async () => {
-    let UserDetails= await AsyncStorage.getItem('userDetails')
-    let userId = JSON.parse(UserDetails).id
-    await fetchGetFunction('cart/'+userId).then(result => {
-      setCart(result)
-      setLoader(false)
-    })
-    let Address =  JSON.parse(UserDetails).default_address;
-    setDefaultAddress(Address)
+    if (checkRequest === true) {
+      let UserDetails = await AsyncStorage.getItem('userDetails')
+      let userId = JSON.parse(UserDetails).id
+      await fetchGetFunction('cart/' + userId).then(result => {
+        setCart(result)
+        setLoader(false)
+      })
+      let Address = JSON.parse(UserDetails).default_address;
+      setDefaultAddress(Address)
+      setCheckRequest(false)
+    }
   }
 
   if (cart === null ){
     return <Loader />
-  }else if(cart !== {}){
+  }else if(cart.length === 0 || (cart.cart_products).length === 0 || cart === {}){
+    return <NoDataFound />
+  }else{
+    console.log(cart.length)
     return (
       <View style={Styles.mainView}>
         <View style={Styles.headingView}>
@@ -129,7 +135,7 @@ const Cart = ({navigation}) => {
         <View>
           <ScrollView style={{ minHeight:230}}>
             { (cart.cart_products).map((data,i) =>
-              product(data.product_name+' ( ' +data.service_name+' )',data.qty,'₹ '+(data.price * data.qty),data.product_id,i,setLoader,loader)
+              product(data.product_name+' ( ' +data.service_name+' )',data.qty,'₹ '+(data.price * data.qty),data.product_id,i,setLoader,loader,setCheckRequest)
             )}
           </ScrollView>
 
@@ -167,7 +173,11 @@ const Cart = ({navigation}) => {
               ((defaultAddress !== false) ? ((defaultAddress === null) ? addAddressFunctions(navigation) : addressFunctions(navigation,defaultAddress)) : loadAddressFunctions(navigation))
             }
             <View >
-              {MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'TimeBar'})},'Proceed',Styles.bottomView,'checkbox-marked-circle')}
+              {MyButton(() => {
+                saveCartId(cart.id).then(
+                  navigation.navigate('HomeScreenStack',{screen:'TimeBar'})
+                )
+              },'Proceed',Styles.bottomView,'checkbox-marked-circle')}
             </View>
           </View>
 
@@ -175,8 +185,6 @@ const Cart = ({navigation}) => {
 
       </View>
     )
-  }else{
-    return <NoDataFound />
   }
 
 }
@@ -210,12 +218,16 @@ const addAddressFunctions = (navi) => {
 
       </View>
       <View>
-        {MyOutlineButton(() => {navi.navigate('HomeScreenStack',{screen:'SelectAddress'})},'Add Address',Styles.bottomView,)}
+        {MyOutlineButton(() => {navi.navigate('HomeScreenStack',{screen:'SelectAddress'})
+        },'Add Address',Styles.bottomView,)}
 
       </View>
     </View>
 
   )
+}
+const saveCartId = async (cartId) => {
+  await AsyncStorage.setItem('cartId',cartId.toString())
 }
 const loadAddressFunctions = (navi) => {
   return (

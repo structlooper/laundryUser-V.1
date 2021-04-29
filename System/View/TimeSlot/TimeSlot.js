@@ -1,14 +1,15 @@
 import React, { useEffect } from "react";
 import {View, Text,StyleSheet,TouchableOpacity,ScrollView} from 'react-native'
-import { fetchGetFunction, mainColor, MyButton } from "../../Utility/MyLib";
+import { fetchAuthPostFunction, fetchGetFunction, mainColor, MyButton, MyToast,razorpay_key } from "../../Utility/MyLib";
 import RazorpayCheckout from 'react-native-razorpay';
 import {logo} from "../../Utility/Images";
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const SlotBtnActive = (time) => {
+const SlotBtnActive = (time,timeId,j) => {
   return (
-    <View style={styles.btnContainer}>
+    <View style={styles.btnContainer} key={j}>
       <TouchableOpacity style={styles.DateBtnActive}
                         onPress={() => {console.log('pressed')}}
       >
@@ -17,11 +18,51 @@ const SlotBtnActive = (time) => {
     </View>
   )
 }
-const SlotBtn = (time) => {
+const SlotBtn = (time,timId,setTimeId, itsTime,pageName,j) => {
+  let value = (itsTime === true) ? 'time' : 'date';
+  const saveTimeServer = async () => {
+    let cartId=await AsyncStorage.getItem('cartId');
+    await fetchAuthPostFunction('save_date_time',{cart_id:cartId,type:pageName,value:value,data:time}).then(response => {
+     if (response.status == 1){
+       setTimeId(timId)
+     }else{
+       MyToast(response.message)
+     }
+    })
+  }
+
   return (
-    <View style={styles.btnContainer}>
+    <View style={styles.btnContainer} key={j}>
       <TouchableOpacity style={styles.DateBtn}
-                        onPress={() => {console.log('pressed')}}
+                        onPress={() => {
+                          saveTimeServer().then()
+                        }}
+      >
+        <View><Text style={styles.btnTextBlack}>{time}</Text></View>
+      </TouchableOpacity>
+    </View>
+  )
+}
+const TimeSlotBtn = (time,timId,setTimeId, itsTime,pageName,Date) => {
+
+  let value = (itsTime === true) ? 'time' : 'date';
+  const saveTimeServer = async () => {
+    let cartId=await AsyncStorage.getItem('cartId');
+    await fetchAuthPostFunction('save_date_time',{cart_id:cartId,type:pageName,value:value,data:Date}).then(response => {
+     if (response.status == 1){
+       setTimeId(timId)
+     }else{
+       MyToast(response.message)
+     }
+    })
+  }
+
+  return (
+    <View style={styles.btnContainer} >
+      <TouchableOpacity style={styles.DateBtn}
+                        onPress={() => {
+                          saveTimeServer().then()
+                        }}
       >
         <View><Text style={styles.btnTextBlack}>{time}</Text></View>
       </TouchableOpacity>
@@ -29,23 +70,118 @@ const SlotBtn = (time) => {
   )
 }
 
-const TimeSlot = ({navigation}) => {
+const TimeSlotCart = (timeChild,i,timeId,setTimeId,pageName) => {
+
+  return (
+    <View style={styles.TimeSlotPatternContainer} key={i}>
+      {
+        timeChild.map((timeChildChild,j) => {
+          return  (timeId === timeChildChild.id) ? SlotBtnActive(timeChildChild.time_from + ' to '+ timeChildChild.time_to,timeChildChild.id,j) : SlotBtn(timeChildChild.time_from + ' to '+timeChildChild.time_to,timeChildChild.id,setTimeId,true,pageName,j)
+        })
+
+      }
+
+    </View>
+  )
+}
+
+const TimeSlot = ({navigation,route}) => {
+  const {pageName} = route.params
+  const [cart , setCart] = React.useState(null)
   const [time,setTimeSlot] = React.useState(null);
   const [date,setDateSlot] = React.useState(null);
+  const [timeId,setTimeId] = React.useState(null);
+  const [dateId,setDateId] = React.useState(null);
+  const [loader,setLoader] = React.useState(false);
+
+  const clearSlotFunction = async () => {
+    let cartId=await AsyncStorage.getItem('cartId')
+    fetchAuthPostFunction('slots/clear',{type:pageName,cart_id:cartId}).then(response => {
+        setDateId(null)
+        setTimeId(null)
+    })
+  }
 
   useEffect(() => {
     getDateTimeSlots().then()
-  })
+    clearSlotFunction().then()
+  },[])
   const getDateTimeSlots = async () => {
     await fetchGetFunction('time_slots').then(time => {
       setTimeSlot(time)
     })
-    await fetchGetFunction('date_slots').then(date => {
+    await fetchGetFunction('date_slots/'+pageName).then(date => {
       setDateSlot(date)
+    })
+    let UserDetails = await AsyncStorage.getItem('userDetails')
+    let userId = JSON.parse(UserDetails).id
+    await fetchGetFunction('cart/' + userId).then(result => {
+      setCart(result)
     })
   }
 
-  if (time === null || date === null){
+  const clearSlotBtn = () => {
+    if (pageName === 'drop'){
+      return (
+        <TouchableOpacity style={[styles.DateLabel,{borderRadius:100/2 ,borderColor:mainColor ,borderWidth:1,padding:2}]}
+                          onPress={() => {
+                            clearSlotFunction()
+                          }}
+        >
+
+          <Text style={{color:mainColor}}>Clear {pageName} slots</Text>
+        </TouchableOpacity>
+      )
+    }else{
+      return <View></View>
+    }
+
+  }
+
+
+  const onlinePayFunction = async () => {
+    let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'))
+    let amount = (cart.total_amt * 100).toString();
+    const CheckOutFunction = async () => {
+      await fetchAuthPostFunction('cart/checkout',{cart_id:cart.id,user_id:userDetails.id}).then(response => {
+        console.log('order_response',response)
+        const removeCart = async () => {
+          await AsyncStorage.removeItem('cartId');
+        }
+        if (response.status === 1){
+          removeCart()
+          navigation.navigate('HomeScreenStack',{screen:'newOrderDetails',params:{order_id:(response.data.order_id)}})
+        }else{
+          MyToast(response.message)
+        }
+      })
+    }
+    const options = {
+      description: 'Payment towards Laundry',
+      image: logo,
+      currency: 'INR',
+      key: razorpay_key,
+      amount: amount,
+      name: 'KRYCHE',
+      prefill: {
+        email: userDetails.email,
+        contact: userDetails.phone_number,
+        name: userDetails.customer_name
+      },
+      theme: {color: mainColor}
+
+    }
+    RazorpayCheckout.open(options).then((data) => {
+      // handle success
+      setLoader(true)
+      CheckOutFunction()
+    }).catch((error) => {
+      // handle failure
+      alert(`Error: ${error.code} | ${error.description}`);
+    });
+  }
+
+  if (time === null || date === null || loader === true){
     return <Loader />
   }else if(time === [] || date === []){
     return <NoDataFound />
@@ -53,73 +189,44 @@ const TimeSlot = ({navigation}) => {
     return (
       <View style={styles.MainContainer}>
         <View style={styles.DateContainer}>
-          <Text style={styles.DateLabel}>
-            Select Pickup Date
-          </Text>
+          <View style={{ flexDirection:'row'}}>
+            <Text style={[styles.DateLabel,{flex:1}]}>
+              Select {pageName} Date
+            </Text>
+            { clearSlotBtn() }
+          </View>
+
           <ScrollView  horizontal={true} style={styles.dateBtnScroller}>
             <View style={styles.DateBtnContainer}>
-              {SlotBtnActive('Today, 08 Sep')}
-              {SlotBtn('Tomorrow, 09 Sep')}
-              {SlotBtn('10 Sep')}
+              {(dateId === "today") ? SlotBtnActive(date.today) : TimeSlotBtn(date.today,"today",setDateId,false,pageName,date.day1)}
+              {(dateId === "next_day") ? SlotBtnActive(date.next_day) : TimeSlotBtn(date.next_day,"next_day",setDateId,false,pageName,date.day2)}
+              {(dateId === "after_next_date") ? SlotBtnActive(date.day_after_next) : TimeSlotBtn(date.day_after_next,"after_next_date",setDateId,false,pageName,date.day3)}
             </View>
           </ScrollView>
           <View style={styles.TimeContainer}>
             <Text style={styles.DateLabel}>
-              Select Pickup Time
+              Select {pageName} Time
             </Text>
             <View style={{alignItems:'center',marginTop:10,}}>
-              <View style={styles.TimeSlotPatternContainer}>
-                {SlotBtn('9 am to 10 am')}
-                {SlotBtn('10 am to 11 am')}
-              </View>
-
-              <View style={styles.TimeSlotPatternContainer}>
-                {SlotBtnActive('11 am to 12 pm')}
-                {SlotBtn('12 pm to 01 pm')}
-              </View>
-
-              <View style={styles.TimeSlotPatternContainer}>
-                {SlotBtn('01 pm to 02 pm')}
-                {SlotBtn('02 pm to 03 pm')}
-              </View>
-
-              <View style={styles.TimeSlotPatternContainer}>
-                {SlotBtn('03 pm to 04 pm')}
-                {SlotBtn('04 pm to 05 pm')}
-              </View>
+              { time.map((timeParent,i) =>
+                TimeSlotCart(timeParent,i,timeId,setTimeId,pageName))}
             </View>
           </View>
         </View>
 
         <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
-          {MyButton(() => {
-            const options = {
-              description: 'Payment towards Laundry',
-              image: logo,
-              currency: 'INR',
-              key: 'rzp_test_CdseL953bSWnYB',
-              amount: '5000',
-              name: 'KRYCHE',
-              prefill: {
-                email: 'ashwin.kumar@example.com',
-                contact: '9191919191',
-                name: 'Ashwin Kumar'
-              },
-              theme: {color: mainColor}
-
+          {
+            (pageName === 'drop')?
+            MyButton(() => {
+            if (timeId !== null && dateId !== null){
+              onlinePayFunction().then()
+            }else{
+              MyToast('Please Select pickup and drop time slot')
             }
-            RazorpayCheckout.open(options).then((data) => {
-              // handle success
-              console.log(navigation)
-              navigation.navigate('HomeScreenStack',{screen:'newOrderDetails'})
+          },'Proceed to Pay ',styles.bottomView,'cash-multiple')
+              : null
+          }
 
-            }).catch((error) => {
-              // handle failure
-              console.log(navigation)
-
-              alert(`Error: ${error.code} | ${error.description}`);
-            });
-          },'Proceed to Pay ',styles.bottomView,'cash-multiple')}
 
         </View>
       </View>

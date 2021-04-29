@@ -19,8 +19,8 @@ export default function TimeBar() {
         indicatorStyle: { backgroundColor: '#fff'},
       }}
     >
-      <Tab.Screen name="Pickup" component={TimeSlot}  />
-      <Tab.Screen name="Drop" component={TimeSlot}  />
+      <Tab.Screen name="Pickup" component={TimeSlot} initialParams={{ pageName:"pickup" }}  />
+      <Tab.Screen name="Drop" component={TimeSlot}  initialParams={{ pageName:"drop" }} />
     </Tab.Navigator>
   );
 }

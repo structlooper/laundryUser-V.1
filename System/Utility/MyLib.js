@@ -13,6 +13,7 @@ export const AppName = 'KRYCHE';
 export const ImageUrl = 'http://covidvaccination.co.in/';
 export const BaseUrl = ImageUrl+'api/';
 export const HERE_API_KEY = 'AIzaSyAhJW0BL0uuVzXfhkhiQb3ZXF8f4pQ0vYQ';
+export const razorpay_key = 'rzp_test_CdseL953bSWnYB'
 
 export const MyTextInput = (name,onChangeFunction,placeHolder,style,icon) => {
   return (
