@@ -1,50 +1,79 @@
 import React from 'react';
 import {View,Text,StyleSheet,Image,ScrollView,TouchableOpacity} from 'react-native';
-import {mainColor} from "../../Utility/MyLib";
-
-const orderCard = (nav) => {
-    return (
-            <TouchableOpacity onPress={() => {nav.navigate('HomeScreenStack',{screen:'orderDetails'})}}>
-                <View style={styles.orderCart}>
-                    <View style={styles.statusImageContainer}>
-                        <Image source={require('../../Public/Images/machine.jpg')} style={styles.statusImage}/>
-                    </View>
-                    <View style={styles.orderLabelContainer}>
-                        <Text style={styles.orderLabelHeader}>
-                            Order Id : 00007
-                        </Text>
-                        <Text>
-                            31 Aug-2021 12:05
-                        </Text>
-                        <Text style={styles.orderStatusLabel}>
-                            Order Placed
-                        </Text>
-                    </View>
-                    <View style={styles.priceContainer}>
-                        <Text style={styles.priceLabel}>
-                            $ 8
-                        </Text>
-                    </View>
-                </View>
-            </TouchableOpacity>
-
-    )
-}
-
+import { fetchAuthPostFunction, mainColor } from "../../Utility/MyLib";
+import Loader from "../../Utility/Loader";
+import NoDataFound from "../NoDataFound";
+import orderStatusImage from "../../Controller/OrderImageController";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from 'moment';
+import { useIsFocused } from "@react-navigation/native";
 const Orders = ({navigation}) => {
-    return (
-        <View style={styles.mainContainer}>
-            <ScrollView>
-                {orderCard(navigation)}
-                {orderCard(navigation)}
-                {orderCard(navigation)}
-                {orderCard(navigation)}
-                {orderCard(navigation)}
-                {orderCard(navigation)}
-                {orderCard(navigation)}
-            </ScrollView>
-        </View>
-    )
+    const isFocused = useIsFocused();
+    const [orders,setOrders] = React.useState(null)
+    React.useEffect(() => {
+        getUserOrders().then()
+    },[isFocused])
+
+    const getUserOrders = async () => {
+        let UserDetails = await AsyncStorage.getItem('userDetails')
+        let userId = JSON.parse(UserDetails).id
+        await fetchAuthPostFunction('get_orders',{customer_id:userId,lang:'en'}).then(response => {
+            setOrders(response.result);
+        })
+    }
+
+    const orderCard = (order,i) => {
+
+
+        return (
+          <TouchableOpacity onPress={() => {navigation.navigate('HomeScreenStack',{screen:'orderDetails',params:{order_id:order.id}})}} key={i}>
+              <View style={styles.orderCart}>
+                  <View style={styles.statusImageContainer}>
+                      <Image source={orderStatusImage(order)} style={styles.statusImage}/>
+                  </View>
+                  <View style={styles.orderLabelContainer}>
+                      <Text style={styles.orderLabelHeader}>
+                          Order : {order.order_id}
+                      </Text>
+                      <Text>
+                          {moment(order.created_at).format('MMM Do YYYY, h:mm a')}
+                      </Text>
+                      <Text style={styles.orderStatusLabel}>
+                          {order.label_name}
+                      </Text>
+                  </View>
+                  <View style={styles.priceContainer}>
+                      <Text style={styles.priceLabel}>
+                          ₹{order.total}
+                      </Text>
+                  </View>
+              </View>
+          </TouchableOpacity>
+
+        )
+    }
+
+
+
+
+
+    if (orders === null ){
+        return <Loader />
+    }else if(orders.length === 0 ||  orders === []){
+        return <NoDataFound />
+    }else{
+        return (
+          <View style={styles.mainContainer}>
+              <ScrollView>
+                  {
+                      orders.map((order,i) => {
+                          return orderCard(order,i)
+                      })
+                  }
+              </ScrollView>
+          </View>
+        )
+    }
 }
 
 const styles = StyleSheet.create({
@@ -61,22 +90,22 @@ const styles = StyleSheet.create({
 
     },
     statusImageContainer:{
-        borderWidth:3,
-        borderRadius: 100/2,
-        padding:8,
-        borderColor:'grey'
+        // borderWidth:3,
+        // borderRadius: 100/2,
+        // padding:8,
+        // borderColor:'grey'
     },
     statusImage:{
         width:70,
         height:70,
-        borderRadius: 70/ 2
+        // borderRadius: 70/ 2
     },
     orderLabelContainer : {
         flex:.9,
         marginLeft:25,
     },
     orderLabelHeader:{
-        fontSize:18,
+        fontSize:15,
         fontWeight:'bold',
         marginVertical: 2,
     },

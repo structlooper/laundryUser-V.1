@@ -11,7 +11,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomSidebarMenu from "./CustomSidebarMenu";
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {mainColor,capitalizeFirstLetter} from "../Utility/MyLib";
+import { mainColor, capitalizeFirstLetter, AppName } from "../Utility/MyLib";
 
 import Home from '../View/Home';
 import Offers from "../View/Offers";
@@ -22,6 +22,7 @@ import Orders from "../View/Order/Orders";
 import OrderDetails from "../View/Order/OrderDetails";
 import AddressList from "../View/Address/AddressList";
 import CreateAddress from "../View/Address/Create";
+import CreateAddressFlag from "../View/Address/CreateAddressFlag";
 import TestPage from "../View/TestPage";
 import Faq from "../View/Faq/Faq";
 import ServicesSlider from "../View/Services/ServicesSlider";
@@ -59,7 +60,7 @@ const getHeaderTitle = (route) => {
 
   switch (routeName) {
     case 'HomeTab':
-      return 'KRYCHE';
+      return AppName;
     case 'Profile':
       return 'Account';
     case 'Notification':
@@ -68,6 +69,8 @@ const getHeaderTitle = (route) => {
       return 'Offers';
     case 'Service':
       return 'Home';
+    case 'Orders':
+      return 'Orders';
   }
 };
 
@@ -216,7 +219,17 @@ const HomeScreenStack = ({navigation}) => {
         component={CreateAddress}
 
         options={({route}) => ({
-          title:  (route.params !== undefined) ? 'Update Address' :'Add Address',
+          title:  (route.params !== undefined) ?'Update Address' : 'Add Address',
+        })}
+
+
+      />
+      <Stack.Screen
+        name="CreateAddressFlag"
+        component={CreateAddressFlag}
+
+        options={({route}) => ({
+          title:  'Add Address',
         })}
 
 
@@ -290,7 +303,7 @@ const AddressScreenStack = ({navigation}) => {
         name="CreateAddress"
         component={CreateAddress}
         options={({route}) => ({
-          title:'Add Address',
+          title: (route.params !== undefined) ?'Update Address' : 'Add Address',
         })}
       />
 

@@ -87,7 +87,6 @@ const getLatLngFromAddress = (address) => {
 }
 
 const Create = ({navigation,route}) => {
-  const [loop ,setLoop] = React.useState(true)
   const [location, setLocation] = React.useState({
     latitude: 28.5743,
     longitude: 77.0716,
@@ -97,11 +96,13 @@ const Create = ({navigation,route}) => {
   const [formattedAddress,setFormattedAddress] = React.useState(null)
   const [landMark,setLandMark] = React.useState(null)
   const [addressId,setAddressId] = React.useState(null)
-  if (loop === true) {
+  useEffect(() => {
+    addressLoadFunction().then();
+  },[])
+  const addressLoadFunction = async () => {
     if (route.params !== undefined) {
       const { addressId } = route.params;
       setAddressId(addressId)
-      const getAddressDetailsById = async () => {
         await fetchGetFunction('address_id/' + addressId,).then(response => {
           const latitudeDelta = 0.008;
           const longitudeDelta = 0.008;
@@ -114,11 +115,10 @@ const Create = ({navigation,route}) => {
             longitudeDelta: longitudeDelta,
           })
         })
-      }
-      getAddressDetailsById().then();
-      setLoop(false)
     }
   }
+
+
   const saveUserEnteredAddress = async (navigation,location,landMark,formattedAddress) => {
     let UserDetails= await AsyncStorage.getItem('userDetails')
     let userId = JSON.parse(UserDetails).id

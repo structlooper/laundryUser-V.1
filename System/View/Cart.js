@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {View,Text,StyleSheet,Image,ScrollView} from 'react-native';
-import { fetchGetFunction, mainColor, MyButton, MyOutlineButton } from "../Utility/MyLib";
+import { fetchGetFunction, mainColor, MyButton, MyOutlineButton, MyToast } from "../Utility/MyLib";
 import {TouchableOpacity} from "react-native-gesture-handler";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +8,7 @@ import { IconButton } from "react-native-paper";
 import Loader from "../Utility/Loader";
 import NoDataFound from "./NoDataFound";
 import CartProductController from "../Controller/CartProductController";
+import { useIsFocused } from "@react-navigation/native";
 
 const bill = (labelName,price,style) => {
   return (
@@ -49,11 +50,11 @@ const product = (name,qty,price,productId,i,setLoader,loader,setCheckRequest) =>
       />
     )
   }
-  const cross = (productId,setLoader,i) => {
+  const cross = (productId,setLoader,i,setCheckRequest) => {
     return (
       <TouchableOpacity onPress={()=> {
         setLoader(i+'cross')
-        CartProductController(productId, 0);
+        CartProductController(productId, 0,setCheckRequest);
       }}>
         <Text style={{ fontSize:15,color: 'red',textAlign:'right'}}>
           X
@@ -87,7 +88,7 @@ const product = (name,qty,price,productId,i,setLoader,loader,setCheckRequest) =>
           </Text>
         </View>
         <View >
-          { (loader === i+'cross') ? Loader() : cross(productId,setLoader,i)}
+          { (loader === i+'cross') ? Loader() : cross(productId,setLoader,i,setCheckRequest)}
           </View>
       </View>
     </View>
@@ -99,22 +100,55 @@ const Cart = ({navigation}) => {
   const [loader , setLoader] = React.useState(false)
   const [defaultAddress , setDefaultAddress] = React.useState(false)
   const [checkRequest, setCheckRequest] = useState(true);
+  const isFocused = useIsFocused();
+
   useEffect(() => {
       getCartData().then()
-  },)
+  },[isFocused,checkRequest])
 
   const getCartData = async () => {
-    if (checkRequest === true) {
+
       let UserDetails = await AsyncStorage.getItem('userDetails')
       let userId = JSON.parse(UserDetails).id
-      await fetchGetFunction('cart/' + userId).then(result => {
-        setCart(result)
-        setLoader(false)
-      })
+      // if (checkRequest === true) {
+       await fetchGetFunction('cart/' + userId).then(result => {
+          setCart(result)
+          setLoader(false)
+        })
+      // }
       let Address = JSON.parse(UserDetails).default_address;
       setDefaultAddress(Address)
       setCheckRequest(false)
+  }
+
+  const promoCodeBtn = () => {
+    if (cart.promocode_id === 0){
+      return (
+        <View style={{marginLeft:15}}>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('HomeScreenStack',{screen:'Offers',params:{cartId:cart.id}})}
+          >
+            <Text style={{fontSize:17,color: mainColor}}>Apply promo</Text>
+            <Text >Check offers</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }else{
+      return (
+        <View style={{marginLeft:15}}>
+          <Text style={{fontSize:17,color: mainColor}}>Promotion Applied</Text>
+          <Text >You are saving ₹ {cart.discount ?? '0.0'}</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('HomeScreenStack',{screen:'Offers',params:{cartId:cart.id}})}
+          >
+            <Text  style={{fontSize:12,color: mainColor}}>Change Promo</Text>
+
+          </TouchableOpacity>
+        </View>
+      )
     }
+
   }
 
   if (cart === null ){
@@ -122,7 +156,6 @@ const Cart = ({navigation}) => {
   }else if(cart.length === 0 || (cart.cart_products).length === 0 || cart === {}){
     return <NoDataFound />
   }else{
-    console.log(cart.length)
     return (
       <View style={Styles.mainView}>
         <View style={Styles.headingView}>
@@ -148,16 +181,7 @@ const Cart = ({navigation}) => {
             <View >
               <FontAwesome5 name={'user-tag'} size={45} color={'black'} style={{ marginTop:5 }} />
             </View>
-            <View style={{marginLeft:15}}>
-              <Text style={{fontSize:17,color: mainColor}}>Promotion Applied</Text>
-              <Text >You are saving $ 01.3</Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('HomeScreenStack',{screen:'Offers'})}
-              >
-                <Text  style={{fontSize:12,color: mainColor}}>Change Promo</Text>
-
-              </TouchableOpacity>
-            </View>
+            {promoCodeBtn()}
           </View>
 
           {/*bill section*/}
@@ -175,7 +199,10 @@ const Cart = ({navigation}) => {
             <View >
               {MyButton(() => {
                 saveCartId(cart.id).then(
+                  ((defaultAddress.address ?? defaultAddress) === undefined ? MyToast('Please select an address') :
                   navigation.navigate('HomeScreenStack',{screen:'TimeBar'})
+              )
+
                 )
               },'Proceed',Styles.bottomView,'checkbox-marked-circle')}
             </View>
@@ -194,7 +221,7 @@ const addressFunctions = (navi,defaultAddress) => {
       <View style={{marginLeft:12,marginTop:15,flex:1}} >
 
         <View>
-          <Text style={{fontSize:17,color: 'black'}}>{defaultAddress.address}</Text>
+          <Text style={{fontSize:17,color: 'black' ,maxHeight:40}}>{defaultAddress.address ?? defaultAddress}</Text>
         </View>
 
       </View>

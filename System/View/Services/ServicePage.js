@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { MyButton, mainColor, fetchGetFunction, ImageUrl, fetchAuthPostFunction, MyToast } from "../../Utility/MyLib";
 import { IconButton } from 'react-native-paper';
+import { useIsFocused } from "@react-navigation/native";
+
 import Loader from "../../Utility/Loader";
 import NoDataFound from "../NoDataFound";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -87,14 +89,14 @@ const ServicePage = ({navigation,route}) => {
   const [cartProducts, setCartProducts] = useState({});
 
   const {categoryId} = route.params
+  const {serviceId} = route.params
+  const isFocused = useIsFocused();
   useEffect(() => {
-
       getProductsByCategoryId().then()
-
-  },[])
+  },[isFocused])
   const getProductsByCategoryId = async () => {
     if (checkRequest === true) {
-      await fetchGetFunction('product/' + categoryId).then(result => {
+      await fetchGetFunction('product/' + categoryId+'/'+serviceId).then(result => {
         setProducts(result)
       })
       let UserDetails = await AsyncStorage.getItem('userDetails')
@@ -127,7 +129,6 @@ const ServicePage = ({navigation,route}) => {
                 Q = cartProducts[data.id]
               }
               return productCard(ImageUrl + 'uploads/' + data.image, data.product_name, Q, data.price, data.unit,data.id, i,setLoader,loader,setCheckRequest,cartProducts,setCartProducts)
-
             }
           )}
         </ScrollView>

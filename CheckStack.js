@@ -42,6 +42,7 @@ const CheckStack =  () =>
   useEffect(() => {
     setRetrieveUserToken().then()
   },[])
+
   if(isLoading){
     return (
       <View style={{ flex:1, alignItems:'center', justifyContent:'center'}}>
@@ -49,6 +50,7 @@ const CheckStack =  () =>
       </View>
     )
   }
+
   return(
     <AuthContext.Provider value={authContext}>
         <NavigationContainer>

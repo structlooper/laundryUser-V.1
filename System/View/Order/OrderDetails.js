@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import {View, Text, StyleSheet, Image, ScrollView} from 'react-native'
-import {mainColor, MyButton} from "../../Utility/MyLib";
+import { fetchAuthPostFunction, mainColor, MyButton } from "../../Utility/MyLib";
 import {useNavigationState} from '@react-navigation/native';
+import NoDataFound from "../NoDataFound";
+import Loader from "../../Utility/Loader";
+import moment from "moment";
+import orderStatusImage from "../../Controller/OrderImageController";
+
 
 const bill = (labelName,price,style) => {
 
@@ -22,32 +27,7 @@ const bill = (labelName,price,style) => {
     )
 }
 
-const product = (name,qty,price) => {
-    return (
-        <View style={{ paddingHorizontal:5}}>
-            <View style={{flexDirection:'row' ,paddingVertical:5 }}>
-                <View style={{flex:.5}}>
-                    <Text style={{ fontSize:15,color: mainColor,fontWeight: 'bold'}}>
-                        {qty}
-                    </Text>
-                </View>
-                <View style={{flex:2}}>
-                    <Text style={{ fontSize:15,color: 'black'}}>
-                        {name}
-                    </Text>
-                </View>
-                <View style={{flex:1}}>
-                    <Text style={{ fontSize:15,color: 'black',marginLeft:40}}>
-                        {price}
-                    </Text>
-                </View>
-            </View>
-        </View>
-    )
-}
-const homeBtn = (navigation) => {
-    const state = useNavigationState(state => state);
-    const routeName = (state.routeNames[state.index]);
+const homeBtn = (navigation,routeName) => {
     if (routeName === 'ViewCart'){
         return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'Home'})},'Go Home',{marginTop:10},'home')
     }else{
@@ -57,80 +37,140 @@ const homeBtn = (navigation) => {
     }
 }
 
-const OrderDetails = ({navigation}) => {
+const OrderDetails = ({navigation,route}) => {
+    const state = useNavigationState(state => state);
+    const routeName = (state.routeNames[state.index]);
+    const {order_id} = route.params;
+    const [order,setOrder] = React.useState(null);
 
-    return (
-        <View style={styles.mainContainer}>
-           <View style={styles.headerContainer}>
-               <Text style={styles.orderHeaderLabel}>
-                   Order Id - 00007
-               </Text>
-               <Text style={styles.orderDate}>
-                   31 Aug-2019 19:05
-               </Text>
-               <View style={styles.headerImageContainer}>
-                   <Image source={require('../../Public/Images/machine.jpg')} style={styles.headerImage}/>
-               </View>
-               <Text style={styles.orderStatusLabel}>
-                   Order Placed
-               </Text>
-           </View>
-            <View style={styles.middleContainer}>
-                <View style={styles.middleContainerHeader}>
-                    <Text style={styles.addressHeader}>
-                        Delivery Address
-                    </Text>
-                    <Text style={styles.addressDesc}>
-                        46 , Dadiseth, Agiary Lane, Kalbadev
-                    </Text>
-
-                </View>
-                <View style={styles.middleContainerHeader}>
-                    <Text style={styles.addressHeader}>
-                        Delivery Date
-                    </Text>
-                    <Text style={styles.addressDesc}>
-                        31 Aug- 2020
-                    </Text>
-
-                </View>
-
-                <View style={styles.orderProductContainer}>
-                    <ScrollView style={{maxHeight:100}}>
-
-                        {product('Blazer (Dry Cleaning)','2x','₹ 4')}
-                        {product('Jens (Dry Cleaning)','3x','₹ 3')}
-                        {product('Shirt (Dry Cleaning)','5x','₹ 8')}
-                        {product('Mens Kurta (Dry Cleaning)','1x','₹ 10')}
+    useEffect(() => {
+        getOrderDetails().then()
+    },[])
+    const getOrderDetails = async () => {
+        await fetchAuthPostFunction('order',{order_id:order_id}).then(response => {
+            setOrder(response)
+        })
+    }
 
 
-                    </ScrollView>
+    const product = (order_products,i) => {
+        return (
+          <View style={{ paddingHorizontal:5}} key={i}>
+              <View style={{flexDirection:'row' ,paddingVertical:5 }}>
+                  <View style={{flex:.5}}>
+                      <Text style={{ fontSize:15,color: mainColor,fontWeight: 'bold'}}>
+                          {order_products.qty}
+                      </Text>
+                  </View>
+                  <View style={{flex:2}}>
+                      <Text style={{ fontSize:15,color: 'black'}}>
+                          {order_products.product_name} ({order_products.service_name})
+                      </Text>
+                  </View>
+                  <View style={{flex:1}}>
+                      <Text style={{ fontSize:15,color: 'black',marginLeft:40}}>
+                          {order_products.price}
+                      </Text>
+                  </View>
+              </View>
+          </View>
+        )
+    }
+    if (order === null){
+        return <Loader />
+    }
+    else if(  Object.keys(order).length === 0 ){
+        return <NoDataFound />
+    }else {
+        return (
+          <View style={styles.mainContainer}>
+              <View style={styles.headerContainer}>
+                  <Text style={styles.orderHeaderLabel}>
+                      Order Id - {order.order_id}
+                  </Text>
+                  <Text style={styles.orderDate}>
+                      {moment(order.created_at).format('MMM Do YYYY, h:mm a')}
+                  </Text>
+                  <View style={styles.headerImageContainer}>
+                      <Image source={orderStatusImage(order)} style={styles.headerImage} />
+                  </View>
+                  <Text style={styles.orderStatusLabel}>
+                      {order.label_name}
+                  </Text>
+              </View>
+              <View style={styles.middleContainer}>
+                  <View style={styles.middleContainerHeader}>
+                      <Text style={styles.addressHeader}>
+                          Address
+                      </Text>
+                      <Text style={styles.addressDesc}>
+                          {order.address_details.door_no}
+                      </Text>
+                      <Text style={styles.addressDesc}>
+                          {order.address_details.address}
+                      </Text>
 
-                </View>
-            </View>
-            <View style={styles.bottomContainer}>
-                {bill('Subtotal','₹ 10.0',styles.priceLabel)}
-                {bill('Discount','₹ 01.3',styles.priceLabel)}
-                {bill('Total','₹ 09.0',styles.priceLabelFinal)}
-            </View>
-            {homeBtn(navigation)}
-        </View>
+                  </View>
+                  <View style={styles.middleContainerHeader}>
+                      <View style={{ flexDirection: 'row' }}>
+                          <View style={{ flex: 1 }}>
+                              <Text style={styles.addressHeader}>
+                                  Pickup Date
+                              </Text>
+                              <Text style={styles.addressDesc}>
+                                  {order.pickup_time}, {moment(order.expected_pickup_date).format('MMM D')}
+                              </Text>
+                          </View>
+                          <View>
+                              <Text style={styles.addressHeader}>
+                                  Drop Date
+                              </Text>
+                              <Text style={styles.addressDesc}>
+                                  {order.drop_time}, {moment(order.expected_delivery_date).format('MMM D')}
+                              </Text>
+                          </View>
+                      </View>
 
-    )
+
+                  </View>
+
+                  <View style={styles.orderProductContainer}>
+                      <ScrollView style={{ maxHeight: 100 , minHeight: 100 }}>
+                          {
+                              (order.order_products).map((order_product,i) =>{
+                                  return product(order_product,i)
+                              })
+                          }
+                      </ScrollView>
+
+                  </View>
+              </View>
+              <View style={styles.bottomContainer}>
+                  {bill('Subtotal', '₹ '+order.sub_total, styles.priceLabel)}
+                  {bill('Discount', '₹ '+order.discount, styles.priceLabel)}
+                  {bill('Total', '₹ '+order.total, styles.priceLabelFinal)}
+              </View>
+              {homeBtn(navigation,routeName)}
+          </View>
+        )
+    }
 }
 
 const styles = StyleSheet.create({
     mainContainer:{
         height:'100%',
         backgroundColor:'#fff',
-        paddingHorizontal:10
+        paddingHorizontal:10,
+        borderTopColor:'#eee',
+        borderTopWidth:5
     },
     headerContainer:{
         alignItems:'center',
         justifyContent:'center',
         borderBottomColor: 'grey',
         borderBottomWidth:1,
-        paddingVertical:20
+        paddingBottom:10,
+
     },
     orderHeaderLabel:{
         fontSize:18,
@@ -141,15 +181,15 @@ const styles = StyleSheet.create({
     },
     headerImageContainer:{
         marginVertical:10,
-        borderWidth:3,
-        borderRadius: 150/2,
+        // borderWidth:3,
+        // borderRadius: 150/2,
         padding:5,
-        borderColor:'grey'
+        // borderColor:'grey'
     },
     headerImage:{
         width:150,
         height: 150,
-        borderRadius: 150/ 2
+        // borderRadius: 150/ 2
     },
     orderStatusLabel:{
         fontSize: 18,
@@ -163,7 +203,7 @@ const styles = StyleSheet.create({
     },
     middleContainerHeader:{
         paddingHorizontal: 10,
-        paddingVertical: 10
+        paddingVertical: 5
     },
     addressHeader:{
         fontSize:20,
@@ -173,7 +213,10 @@ const styles = StyleSheet.create({
         fontSize:15
     },
     orderProductContainer:{
+        marginTop:5,
         padding:10,
+        borderTopColor: '#000',
+        borderTopWidth: .5
     },
     priceLabel:{
         fontSize: 14

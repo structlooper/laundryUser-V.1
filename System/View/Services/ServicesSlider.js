@@ -20,7 +20,7 @@ export default function ServicesSlider({route}) {
     }
   },[])
   const Tabs = (category,categoryId,i) => {
-    return <Tab.Screen name={category} component={ServicePage} initialParams={{ categoryId:categoryId }}  key={i} />
+    return <Tab.Screen name={category} component={ServicePage} initialParams={{ categoryId:categoryId,serviceId:serviceId }}  key={i} />
   }
   const getCategoriesByServiceId = async () => {
     await fetchGetFunction('category/'+serviceId).then(result => {
