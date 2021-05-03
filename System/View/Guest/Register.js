@@ -98,7 +98,7 @@ const Register = ({navigation}) => {
             {MyButton(
               () => {
                 onLoginLoading(true)
-                submitSignupFrom({userName:username, email:email, number:number}, navigation,onLoginLoading);
+                submitSignupFrom({userName:username, email:email, number:number}, navigation,onLoginLoading).then();
               },
               'Register Now',
               '',

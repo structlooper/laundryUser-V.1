@@ -128,7 +128,7 @@ const ServicePage = ({navigation,route}) => {
               if (Object.keys(cartProducts).some(v => v == (data.id).toString())){
                 Q = cartProducts[data.id]
               }
-              return productCard(ImageUrl + 'uploads/' + data.image, data.product_name, Q, data.price, data.unit,data.id, i,setLoader,loader,setCheckRequest,cartProducts,setCartProducts)
+              return productCard(ImageUrl +  data.image, data.product_name, Q, data.price, data.unit,data.id, i,setLoader,loader,setCheckRequest,cartProducts,setCartProducts)
             }
           )}
         </ScrollView>

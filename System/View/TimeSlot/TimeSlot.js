@@ -18,23 +18,53 @@ const SlotBtnActive = (time,timeId,j) => {
     </View>
   )
 }
-const SlotBtn = (time,timId,setTimeId, itsTime,pageName,j) => {
+const SlotBtn = (time,timId,setTimeId, itsTime,pageName,j,dateId,time_to) => {
+
+
   let value = (itsTime === true) ? 'time' : 'date';
   const saveTimeServer = async () => {
-    let cartId=await AsyncStorage.getItem('cartId');
-    await fetchAuthPostFunction('save_date_time',{cart_id:cartId,type:pageName,value:value,data:time}).then(response => {
-     if (response.status == 1){
-       setTimeId(timId)
-     }else{
-       MyToast(response.message)
-     }
-    })
+      const functionSave = async () => {
+
+          let cartId=await AsyncStorage.getItem('cartId');
+          let dom ={cart_id:cartId,type:pageName,value:value,data:time};
+        // console.log('dom1',dom)
+          await fetchAuthPostFunction('save_date_time',dom).then(async response => {
+            if (response.status == 1){
+              setTimeId(timId)
+            }else{
+              MyToast(response.message)
+            }
+          })
+      }
+
+    // console.log(userVal,' =>'+now)
+    if (dateId === null){
+      MyToast('Please select date first!')
+    }else {
+      if (pageName === 'drop'){
+        functionSave().then()
+      } else if(dateId === 'today'){
+        const now = new Date();
+        const dt = (now.getMonth() + 1) + "/" + now.getDate() + "/" + now.getFullYear() + " " + time_to.replace(' ',':00 ');
+        const userVal = new Date(dt);
+        if (now < userVal) {
+          functionSave().then()
+        } else {
+          MyToast('Time Slot greater then current time')
+        }
+      }else{
+        functionSave().then()
+      }
+    }
+
+
   }
 
   return (
     <View style={styles.btnContainer} key={j}>
       <TouchableOpacity style={styles.DateBtn}
                         onPress={() => {
+                          // console.log('time',time_to)
                           saveTimeServer().then()
                         }}
       >
@@ -43,14 +73,16 @@ const SlotBtn = (time,timId,setTimeId, itsTime,pageName,j) => {
     </View>
   )
 }
-const TimeSlotBtn = (time,timId,setTimeId, itsTime,pageName,Date) => {
+const DateSlotBtn = (time,timId,setDateId,pageName,Date,setTimeId) => {
 
-  let value = (itsTime === true) ? 'time' : 'date';
+  let value =  'date';
   const saveTimeServer = async () => {
     let cartId=await AsyncStorage.getItem('cartId');
-    await fetchAuthPostFunction('save_date_time',{cart_id:cartId,type:pageName,value:value,data:Date}).then(response => {
+    let dom = {cart_id:cartId,type:pageName,value:value,data:Date};
+    await fetchAuthPostFunction('save_date_time',dom).then(response => {
      if (response.status == 1){
-       setTimeId(timId)
+       setDateId(timId)
+       setTimeId(null)
      }else{
        MyToast(response.message)
      }
@@ -70,13 +102,16 @@ const TimeSlotBtn = (time,timId,setTimeId, itsTime,pageName,Date) => {
   )
 }
 
-const TimeSlotCart = (timeChild,i,timeId,setTimeId,pageName) => {
+const TimeSlotCart = (timeChild,i,timeId,setTimeId,pageName,dateId) => {
 
   return (
     <View style={styles.TimeSlotPatternContainer} key={i}>
       {
         timeChild.map((timeChildChild,j) => {
-          return  (timeId === timeChildChild.id) ? SlotBtnActive(timeChildChild.time_from + ' to '+ timeChildChild.time_to,timeChildChild.id,j) : SlotBtn(timeChildChild.time_from + ' to '+timeChildChild.time_to,timeChildChild.id,setTimeId,true,pageName,j)
+          return  (timeId === timeChildChild.id) ? SlotBtnActive(timeChildChild.time_from + ' to '+ timeChildChild.time_to,timeChildChild.id,j) :
+            SlotBtn(timeChildChild.time_from + ' to '+timeChildChild.time_to,
+              timeChildChild.id,setTimeId,
+              true,pageName,j,dateId,timeChildChild.time_from)
         })
 
       }
@@ -87,7 +122,8 @@ const TimeSlotCart = (timeChild,i,timeId,setTimeId,pageName) => {
 
 const TimeSlot = ({navigation,route}) => {
   const {pageName} = route.params
-  const [cart , setCart] = React.useState(null)
+  const [cart,
+    setCart] = React.useState(null)
   const [time,setTimeSlot] = React.useState(null);
   const [date,setDateSlot] = React.useState(null);
   const [timeId,setTimeId] = React.useState(null);
@@ -198,9 +234,9 @@ const TimeSlot = ({navigation,route}) => {
 
           <ScrollView  horizontal={true} style={styles.dateBtnScroller}>
             <View style={styles.DateBtnContainer}>
-              {(dateId === "today") ? SlotBtnActive(date.today) : TimeSlotBtn(date.today,"today",setDateId,false,pageName,date.day1)}
-              {(dateId === "next_day") ? SlotBtnActive(date.next_day) : TimeSlotBtn(date.next_day,"next_day",setDateId,false,pageName,date.day2)}
-              {(dateId === "after_next_date") ? SlotBtnActive(date.day_after_next) : TimeSlotBtn(date.day_after_next,"after_next_date",setDateId,false,pageName,date.day3)}
+              {(dateId === "today") ? SlotBtnActive(date.today) : DateSlotBtn(date.today,"today",setDateId,pageName,date.day1,setTimeId)}
+              {(dateId === "next_day") ? SlotBtnActive(date.next_day) : DateSlotBtn(date.next_day,"next_day",setDateId,pageName,date.day2,setTimeId)}
+              {(dateId === "after_next_date") ? SlotBtnActive(date.day_after_next) : DateSlotBtn(date.day_after_next,"after_next_date",setDateId,pageName,date.day3,setTimeId)}
             </View>
           </ScrollView>
           <View style={styles.TimeContainer}>
@@ -209,7 +245,7 @@ const TimeSlot = ({navigation,route}) => {
             </Text>
             <View style={{alignItems:'center',marginTop:10,}}>
               { time.map((timeParent,i) =>
-                TimeSlotCart(timeParent,i,timeId,setTimeId,pageName))}
+                TimeSlotCart(timeParent,i,timeId,setTimeId,pageName,dateId))}
             </View>
           </View>
         </View>

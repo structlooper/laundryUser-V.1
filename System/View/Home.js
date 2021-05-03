@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Linking,
   Text,
   View,
   SafeAreaView , Image , StyleSheet,ScrollView,TouchableOpacity,Dimensions } from 'react-native';
@@ -46,11 +47,14 @@ export default class Home extends React.Component {
 
 
   constructor(props){
+
     super(props);
     this.state = {
       didMount:false,
       activeIndex:0,
       loader:true,
+      whatsAppNumber:null,
+      callNumber:null,
       carouselItems: [],
       services : [],
       members : [
@@ -79,6 +83,7 @@ export default class Home extends React.Component {
   }
 
   componentDidMount =  () =>{
+
     this.setState({
       didMount:true
     })
@@ -89,17 +94,25 @@ export default class Home extends React.Component {
     if (this.state.activeIndex === 0){
       this.getHomeBanners().then()
       this.getServices().then()
+      this.getAppSettings().then()
     }
     this.setState({
       activeIndex:1
     })
   }
+  getAppSettings = async () => {
+    await fetchGetFunction('app_setting').then(response => {
+      this.setState({
+        whatsAppNumber:response.result.whatsapp_number,
+        callNumber:response.result.contact_number
+      })
+    })
+  }
    getHomeBanners = async  () => {
      await fetchGetFunction('servicesBanners').then(result => {
-
        let final = [];
       result.forEach(element => {
-        element.banner_image =  ImageUrl + 'uploads/'+ element.banner_image
+        element.banner_image =  ImageUrl + element.banner_image
         final.push(element)
       });
       this.setState({
@@ -112,9 +125,11 @@ export default class Home extends React.Component {
 
       let final = [];
       result.forEach(element => {
-        element.image =  ImageUrl + 'uploads/'+ element.image
+        element.image =  ImageUrl + element.image
+        element.navi = this.state.navigation
         final.push(element)
       });
+
       this.setState({
         services: final
       })
@@ -125,7 +140,6 @@ export default class Home extends React.Component {
   }
 
   _renderItem({item,index}){
-
     return (
       <View style={{
         backgroundColor:'#fff',
@@ -138,7 +152,9 @@ export default class Home extends React.Component {
         <View style={{ flexDirection:'row'}}>
           <View style={{ flex:.9 }}>
             <Text style={{fontSize: 20}}>{item.title}</Text>
-            <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>
+            <TouchableOpacity onPress={() => {this.props.navigation.navigate('ServicesSlider',{serviceId:item.service_id,serviceName:item.service_name})}}>
+              <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>
+            </TouchableOpacity>
           </View>
           <View style={{ alignItems:'center' }}>
             <Image source={{ uri:item.banner_image }} style={{ width:150,height:150,resizeMode:'contain' }} />
@@ -151,13 +167,41 @@ export default class Home extends React.Component {
     )
   }
 
+ openWhatsapp = () =>{
+   let msg ="";
+   let mobile = this.state.whatsAppNumber;
+       let url =
+         "whatsapp://send?text=" +
+         msg +
+         "&phone=91" +
+         mobile;
+       Linking.openURL(url)
+         .then(data => {
+           console.log("WhatsApp Opened successfully " + data);
+         })
+         .catch(() => {
+           alert("Make sure WhatsApp installed on your device");
+         });
 
+  }
+  openCallapp = () =>{
+   let mobile = this.state.callNumber;
+        Linking.openURL(`tel:${mobile}`)
+         .then(data => {
+           console.log("Call Opened successfully " + data);
+         })
+         .catch(() => {
+           alert("Some error");
+         });
+
+  }
 
   render() {
     if(!this.state.didMount) {
       return null;
     }
-    const { navigation } = this.props;
+
+    const navigation = this.props.navigation;
     if (this.state.loader) {
       return <Loader />
     } else {
@@ -174,8 +218,12 @@ export default class Home extends React.Component {
                   data={this.state.carouselItems}
                   sliderWidth={width}
                   itemWidth={width}
-                  renderItem={this._renderItem}
-                  onSnapToItem={index => this.setState({ activeIndex: index })} />
+                  renderItem={this._renderItem.bind(this)}
+                  onSnapToItem={index => this.setState({ activeIndex: index })}
+                  loop={true}
+                  autoplay={true}
+                  autoplayInterval={5000}
+                />
               </View>
               <Text style={styles.Heading}>Services</Text>
               <ScrollView horizontal={true} style={{ maxHeight: "50%" }}>
@@ -203,11 +251,11 @@ export default class Home extends React.Component {
           </ScrollView>
           <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
             <View style={[styles.PrimeMemberBannerContainer, { marginLeft: 35 }]}>
-              <TouchableOpacity>
+              <TouchableOpacity  onPress={() => this.openCallapp()}>
                 <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'}
                                                                 style={{ marginRight: 10 }} /> Call </Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => this.openWhatsapp()}>
                 <Text style={[styles.CallButton]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'}
                                                                 style={{ marginRight: 10 }} /> Whatsapp</Text>
               </TouchableOpacity>

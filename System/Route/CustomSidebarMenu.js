@@ -13,7 +13,7 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { mainColor } from "../Utility/MyLib";
+import { ImageUrl, mainColor, UserImagePlaceHolder } from "../Utility/MyLib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../Utility/AuthContext";
 
@@ -30,12 +30,13 @@ const CustomSidebarMenu = (props) => {
   },[])
   let dataConverted = JSON.parse(userDetails)
   const {logOut} = React.useContext(AuthContext)
+  let dp = (dataConverted.profile_picture !== null) ? {uri:ImageUrl+dataConverted.profile_picture} : UserImagePlaceHolder
   return (
     <SafeAreaView style={{flex: 1, }}>
       {/*Top Large Image */}
       <View style={{ backgroundColor:mainColor,paddingVertical:15,paddingHorizontal:10,flexDirection:'row'}}>
         <Image
-          source={dataConverted.profile_picture ?? logo}
+          source={dp}
           style={styles.sideMenuProfileIcon}
         />
         <View style={{ justifyContent:'center',marginHorizontal:5}}>
@@ -87,11 +88,11 @@ const CustomSidebarMenu = (props) => {
 
 const styles = StyleSheet.create({
   sideMenuProfileIcon: {
-    resizeMode: 'center',
+    // resizeMode: 'contain',
     width: 80,
     height: 80,
     borderRadius: 500 / 2,
-    alignSelf: 'center',
+    // alignSelf: 'center',
 
   },
   iconStyle: {
