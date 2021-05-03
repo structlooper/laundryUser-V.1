@@ -6,6 +6,7 @@ import NoDataFound from "../NoDataFound";
 import orderStatusImage from "../../Controller/OrderImageController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from 'moment';
+import OrderCountDownController from "../../Controller/OrderCountDownController";
 import { useIsFocused } from "@react-navigation/native";
 const Orders = ({navigation}) => {
     const isFocused = useIsFocused();
@@ -23,8 +24,6 @@ const Orders = ({navigation}) => {
     }
 
     const orderCard = (order,i) => {
-
-
         return (
           <TouchableOpacity onPress={() => {navigation.navigate('HomeScreenStack',{screen:'orderDetails',params:{order_id:order.id}})}} key={i}>
               <View style={styles.orderCart}>
@@ -41,6 +40,8 @@ const Orders = ({navigation}) => {
                       <Text style={styles.orderStatusLabel}>
                           {order.label_name}
                       </Text>
+                      {OrderCountDownController(order.label_name,order.drop_duration) }
+
                   </View>
                   <View style={styles.priceContainer}>
                       <Text style={styles.priceLabel}>
