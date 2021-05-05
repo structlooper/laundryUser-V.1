@@ -71,7 +71,6 @@ const Profile =   ({ navigation }) => {
 
   }
 
-  console.log('image',profileImage)
   let dp = (userDetails.profile_picture !== null) ? {uri:ImageUrl+userDetails.profile_picture} : UserImagePlaceHolder
   return (
     <View style={{ flex:1 }}>

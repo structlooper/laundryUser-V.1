@@ -71,6 +71,8 @@ const getHeaderTitle = (route) => {
       return 'Home';
     case 'Orders':
       return 'Orders';
+    case 'TermsAndConditions':
+      return 'Terms & Conditions'
   }
 };
 
@@ -432,7 +434,7 @@ const TermsAndConditionsScreenStack = ({navigation}) => {
         name="TermsAndCondition"
         component={TermsAndConditions}
         options={{
-          title: 'Contact us',
+          title: 'Terms & Conditions',
         }}
       />
 

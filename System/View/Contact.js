@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text,StyleSheet } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import {mainColor} from "../Utility/MyLib";
+import { fetchGetFunction, mainColor } from "../Utility/MyLib";
 import MapView, {Marker} from "react-native-maps";
-
+import NoDataFound from "./NoDataFound";
+import Loader from "../Utility/Loader";
 const Contact = () => {
   const [location, setLocation] = React.useState({
     latitude: 28.5743,
@@ -11,12 +12,32 @@ const Contact = () => {
     latitudeDelta: 0.01,
     longitudeDelta: 0.02,
   });
+  const [contact,setContact] = React.useState(null)
+  useEffect(() => {
+    getContactData().then()
+  },[])
+  const getContactData = async () => {
+    fetchGetFunction('app_setting').then(response => {
+      setContact(response.result)
+      setLocation({
+        latitude: response.result.address_lat,
+        longitude: response.result.address_lng,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.02,
+      })
+    })
+  }
+  if (contact === null){
+    return <Loader />
+  }else if(contact === {}){
+    return <NoDataFound />
+  }
   return (
     <View style={styles.mainContainer}>
       <View style={styles.ContactDetailContainer}>
         <View style={styles.ContactDetailContainerChild}>
           <Text style={{color:'gray'}}>Call us</Text>
-          <Text>+91 9898989898</Text>
+          <Text>+91 {contact.contact_number}</Text>
         </View>
         <View style={styles.ContactDetailContainerChildTwo}>
           <FontAwesome5 name={'phone-alt'} size={25} color={mainColor}/>
@@ -24,8 +45,8 @@ const Contact = () => {
       </View>
       <View style={styles.ContactDetailContainer}>
         <View style={styles.ContactDetailContainerChild}>
-          <Text style={{color:'gray'}}>Email us</Text>
-          <Text>Info@kryche.com</Text>
+          <Text style={{color:'gray'}}>Mail us</Text>
+          <Text>{contact.email}</Text>
         </View>
         <View style={styles.ContactDetailContainerChildTwo}>
           <FontAwesome5 name={'inbox'} size={25} color={mainColor}/>
@@ -34,7 +55,7 @@ const Contact = () => {
       <View style={styles.AddressDetailContainer}>
         <View style={styles.ContactDetailContainerChild}>
           <Text style={{color:'gray'}}>Reach us</Text>
-          <Text>Shop No 3 Pant Ngr, Eagle Chs Stn Rd., Opp. Fish Market, Ghatkopar (east)</Text>
+          <Text>{contact.address}</Text>
         </View>
         <View style={styles.ContactDetailContainerChildTwo}>
           <FontAwesome5 name={'route'} size={28} color={mainColor}/>

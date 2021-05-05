@@ -17,12 +17,14 @@ import {
 } from '../../Utility/MyLib';
 import {logo} from '../../Utility/Images';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const submitSignupFrom = async (data , navi,loginLoading) => {
   let dom = {};
   dom.customer_name = data.userName;
   dom.email = data.email;
   dom.phone_number = data.number;
+  dom.fcm_token = await AsyncStorage.getItem('fcmToken');
 
   let result = await fetchPostFunction('customer',dom);
   loginLoading(false)

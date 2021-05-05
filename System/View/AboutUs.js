@@ -1,54 +1,76 @@
-import React from "react";
-import { View, Text ,StyleSheet,Image,ScrollView} from "react-native";
+import React, { useEffect } from "react";
+import { View, Text ,StyleSheet,Image,ScrollView,RefreshControl,SafeAreaView} from "react-native";
 import {logo} from '../Utility/Images'
-import {AppName} from '../Utility/MyLib'
+import { AppName, fetchGetFunction,ImageUrl } from "../Utility/MyLib";
+import Loader from "../Utility/Loader";
+import NoDataFound from "./NoDataFound";
+
+
+
+
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
 
 const ServiceCard = (data,index) => {
   return (
     <View style={styles.ServiceCard} key={index}>
-      <Image source={data.image} style={styles.ServiceImage}/>
-      <Text>Wash & Fold</Text>
+      <Image source={{ uri: ImageUrl + (data.image) }} style={styles.ServiceImage}/>
+      <Text>{data.name}</Text>
     </View>
   )
 }
 const AboutUs = () => {
-  let dates = [
-    {
-      image: require("../Public/Images/services/washAndFold1.jpg"),
-      name: 'Wash & Fold',
-      description: 'Min 12 Hours'
-    },
-    {
-      image: require("../Public/Images/services/HomeCleaning.jpg"),
-      name: 'Wash only',
-      description: 'Min 2 Hours'
-    }, {
-      image: require("../Public/Images/services/shirt_iron_5.jpg"),
-      name: 'Wash & Iron',
-      description: 'Min 2 Hours'
-    },
-    {
-      image: require("../Public/Images/services/dryCleaning.jpg"),
-      name: 'Dry Cleaning',
-      description: 'Min 12 Hours'
-    },
-  ];
+  const [aboutUs,setAboutUs] = React.useState(null)
+  const [services,setServices] = React.useState([])
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
+  useEffect(() => {
+    getAboutUs().then()
+  },[refreshing])
+
+  const getAboutUs = async () => {
+    fetchGetFunction('app_setting').then(response => {
+      setAboutUs(response.result.about_us)
+    })
+    fetchGetFunction('service').then(response => {
+      setServices(response)
+    })
+  }
+  if (aboutUs === null){
+    return <Loader />
+  }else if(aboutUs === {}){
+    return <NoDataFound />
+  }
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView>
+
+    <ScrollView style={styles.mainContainer}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                  />
+                }
+    >
       <View style={styles.AppDetailsContainer}>
         <Image source={logo} style={styles.AppImage} />
         <Text style={styles.AppName}>{AppName}</Text>
       </View>
       <ScrollView style={styles.AppDescription}>
         <Text style={styles.AppDescriptionText}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+          {aboutUs}
         </Text>
-        <Text style={styles.AppDescriptionText}>
-          veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.
+        {/*<Text style={styles.AppDescriptionText}>*/}
+        {/*  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.*/}
 
 
-        </Text>
+        {/*</Text>*/}
       </ScrollView>
       <View style={{borderTopColor:'#eee',marginTop:5,borderTopWidth:5,paddingHorizontal:20,paddingVertical:30}}>
         <Text style={styles.ServiceHeading}>
@@ -56,7 +78,7 @@ const AboutUs = () => {
         </Text>
         <View style={styles.ServiceCardContainer}>
           <ScrollView horizontal={true}>
-            {dates.map((data,index) =>
+            {services.map((data,index) =>
               ServiceCard(data,index)
             )}
 
@@ -65,12 +87,15 @@ const AboutUs = () => {
           </ScrollView>
         </View>
       </View>
-    </View>
+    </ScrollView>
+    </SafeAreaView>
+
   );
 };
 
 const styles = StyleSheet.create({
   mainContainer:{
+    height:'100%',
     marginVertical:5,
     backgroundColor:'#fff'
   },

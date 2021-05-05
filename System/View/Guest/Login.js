@@ -2,11 +2,12 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, Text,   View } from "react-native";
 import TopLogo from "../../Utility/TopLogo";
 import { MyNumericInput, MyButton, MyOutlineButton, mainColor, fetchPostFunction, MyToast } from "../../Utility/MyLib";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const submitLoginFrom = async (number,navi,onLoginLoading) => {
   let dom = {};
   dom.phone_number = number;
-  dom.fcm_token = 'test_token';
+  dom.fcm_token = await AsyncStorage.getItem('fcmToken');
   let result = await fetchPostFunction('customer/login',dom);
   onLoginLoading(false)
   if (result.status == 0) {
