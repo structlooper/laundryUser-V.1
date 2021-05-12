@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {View,Text,StyleSheet,Image,ScrollView} from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator } from "react-native";
 import { fetchGetFunction, mainColor, MyButton, MyOutlineButton, MyToast } from "../Utility/MyLib";
 import {TouchableOpacity} from "react-native-gesture-handler";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
@@ -10,16 +10,24 @@ import NoDataFound from "./NoDataFound";
 import CartProductController from "../Controller/CartProductController";
 import { useIsFocused } from "@react-navigation/native";
 
+const cartLoader = () => {
+  return (
+    <View style={{ padding:4 }}>
+      <ActivityIndicator size="small" color={mainColor}  />
+    </View>
+  )
+}
+
 const bill = (labelName,price,style) => {
   return (
     <View style={{flexDirection:'row',marginVertical:4,}}>
-      <View style={{flex:1 , paddingLeft:4}}>
+      <View style={{flex:3 , paddingLeft:5}}>
         <Text style={style}>
           {labelName}
         </Text>
       </View>
-      <View style={{flex:1}}></View>
-      <View style={{flex:1,alignItems: 'center'}}>
+      <View style={{flex:2}}></View>
+      <View style={{flex:1,}}>
         <Text style={style}>
           {price}
         </Text>
@@ -72,13 +80,13 @@ const product = (name,qty,price,productId,i,setLoader,loader,setCheckRequest) =>
         </View>
         <View style={{flex:.8}}>
           <View style={Styles.AddCartBtn}>
-            { (loader === i+'minus') ? Loader() : Btn(productId,setLoader,i,-1)}
+            { (loader === i+'minus') ? cartLoader() : Btn(productId,setLoader,i,-1)}
             <View style={{marginTop:1}}>
               <Text>
                 {qty}
               </Text>
             </View>
-            { (loader === i+'plus') ? Loader() : Btn(productId,setLoader,i,1)}
+            { (loader === i+'plus') ? cartLoader() : Btn(productId,setLoader,i,1)}
           </View>
 
         </View>
@@ -88,7 +96,7 @@ const product = (name,qty,price,productId,i,setLoader,loader,setCheckRequest) =>
           </Text>
         </View>
         <View >
-          { (loader === i+'cross') ? Loader() : cross(productId,setLoader,i,setCheckRequest)}
+          { (loader === i+'cross') ? cartLoader() : cross(productId,setLoader,i,setCheckRequest)}
           </View>
       </View>
     </View>
@@ -187,7 +195,8 @@ const Cart = ({navigation}) => {
           {/*bill section*/}
           <View style={{padding:10,flex:1,borderTopColor:'gray',borderTopWidth:1}}>
             {bill('Subtotal','₹ '+cart.subtotal,Styles.priceLabel)}
-            {bill('Discount','₹ '+((cart.discount === 0)?"00.0" : cart.discount) ,Styles.priceLabel)}
+            {bill('Member discount','₹ '+((cart.mem_total_discount === 0)?"0.0" : cart.mem_total_discount) ,Styles.priceLabel)}
+            {bill('Discount','₹ '+((cart.discount === 0)?"0.0" : cart.discount) ,Styles.priceLabel)}
             {(cart.additional_charges > 0)? bill('Additional Charge','₹ '+((cart.additional_charges === 0)?"00.0" : cart.additional_charges) ,Styles.priceLabel): <View></View>}
             {bill('Total','₹ '+cart.total_amt,Styles.priceLabelFinal)}
           </View>

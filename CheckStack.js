@@ -35,6 +35,7 @@ const CheckStack =  () =>
      let response = await fetchPostFunction('refreshToken', { phone_number: phone_number })
      setUserToken(response.token)
      await AsyncStorage.setItem('token', (response.token).toString())
+     await AsyncStorage.setItem('userDetails',JSON.stringify(response.user))
    }
    setIsLoading(false)
  }

@@ -5,12 +5,22 @@ import {
   View,
   SafeAreaView , Image , StyleSheet,ScrollView,TouchableOpacity,Dimensions } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
-import { mainColor, MyButton,fetchGetFunction,ImageUrl } from "../Utility/MyLib";
+import {
+  mainColor,
+  MyButton,
+  fetchGetFunction,
+  ImageUrl,
+  capitalizeFirstLetter,
+  fetchAuthPostFunction, MyToast,
+} from "../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import PaymentController from "../Controller/PaymentController";
+import RNRestart from 'react-native-restart';
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
 const iconSize = 18;
 import Loader from "../Utility/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ServiceCard = (data,navi,index) => {
 
@@ -26,14 +36,36 @@ const ServiceCard = (data,navi,index) => {
 }
 
 const MemberShipCard = (data,index) => {
+  const saveMembership = async () => {
+    let userId = JSON.parse(await AsyncStorage.getItem('userDetails')).id;
+    fetchAuthPostFunction('membership/save',{membership_id:data.id,user_id:userId}).then(response => {
+      MyToast(response.message)
+      if (response.status === 1){
+        RNRestart.Restart();
+      }
+    })
+
+  }
   return (
     <View style={[styles.pricingCardContainer,{alignItems: 'center'}]} key={index}>
-      <Text style={styles.pricingCardHeader}>{data.header}</Text>
-      <Text style={styles.pricingCardPrice}>{data.amount}</Text>
-      <Text style={styles.pricingCardDetails}>{data.text1}</Text>
-      <Text style={styles.pricingCardDetails}>{data.text2}</Text>
-      <Text style={styles.pricingCardDetails}>{data.text3}</Text>
-      <TouchableOpacity onPress={() => {console.log('started')}}>
+      <Text style={styles.pricingCardHeader}>{capitalizeFirstLetter(data.title)}</Text>
+      <View style={{flexDirection:'row'}}>
+        <Text style={styles.pricingCardPrice}>₹{data.price}</Text>
+        <Text style={{ marginVertical:15,fontSize:13}}>/{data.duration_name}</Text>
+      </View>
+      <Text style={styles.pricingCardDetails}>{data.desc_1}</Text>
+      <Text style={styles.pricingCardDetails}>{data.desc_2}</Text>
+      <Text style={styles.pricingCardDetails}>{data.desc_3 ?? ''}</Text>
+
+      <TouchableOpacity onPress={() => {
+        let amount = (data.price * 100).toString();
+      PaymentController(amount,data.title+' membership').then(res => {
+        if (res == 'true'){
+          saveMembership().then()
+        }
+      })
+      }
+      }>
         <Text style={styles.PriceButton}><FontAwesome5 name={'lightbulb'} size={iconSize-2} color={'#fff'}  />  GET STARTED</Text>
       </TouchableOpacity>
 
@@ -57,27 +89,7 @@ export default class Home extends React.Component {
       callNumber:null,
       carouselItems: [],
       services : [],
-      members : [
-        {
-          header:'Basic',
-          amount:'$10',
-          text1:"1 users",
-          text2:"basic plan for user",
-          text3:"get free access"
-        },{
-          header:'Stater',
-          amount:'$20',
-          text1:"20 users",
-          text2:"Stater plan for user",
-          text3:"get 50 access"
-        },{
-          header:'Pro',
-          amount:'$50',
-          text1:"unlimited users",
-          text2:"Pro plan for user",
-          text3:"get all access"
-        }
-      ],
+      members : [],
 
     }
   }
@@ -95,6 +107,7 @@ export default class Home extends React.Component {
       this.getHomeBanners().then()
       this.getServices().then()
       this.getAppSettings().then()
+      this.getMembershipDetails().then()
     }
     this.setState({
       activeIndex:1
@@ -184,7 +197,7 @@ export default class Home extends React.Component {
          });
 
   }
-  openCallapp = () =>{
+  openCallApp = () =>{
    let mobile = this.state.callNumber;
         Linking.openURL(`tel:${mobile}`)
          .then(data => {
@@ -194,6 +207,14 @@ export default class Home extends React.Component {
            alert("Some error");
          });
 
+  }
+
+  getMembershipDetails = async () => {
+    fetchGetFunction('membership').then(response => {
+      this.setState({
+        members:response
+      })
+    })
   }
 
   render() {
@@ -229,29 +250,25 @@ export default class Home extends React.Component {
               <ScrollView horizontal={true} style={{ maxHeight: "50%" }}>
 
                 <View style={styles.ServiceCardContainer}>
-                  {this.state.services.map((data, index) =>
+                  { ((this.state.services).length > 0) ? this.state.services.map((data, index) =>
                     ServiceCard(data, navigation, index)
-                  )}
+                  ) : null}
                 </View>
               </ScrollView>
               <Text style={styles.Heading}>Membership Offers</Text>
               <View style={{ flexDirection: 'row' }}>
                 <ScrollView horizontal={true}>
-                  {this.state.members.map((mem, index) =>
+                  { ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>
                     MemberShipCard(mem, index)
-                  )}
-
+                  ) : null }
                 </ScrollView>
-
               </View>
-
-
             </SafeAreaView>
 
           </ScrollView>
           <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
             <View style={[styles.PrimeMemberBannerContainer, { marginLeft: 35 }]}>
-              <TouchableOpacity  onPress={() => this.openCallapp()}>
+              <TouchableOpacity  onPress={() => this.openCallApp()}>
                 <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'}
                                                                 style={{ marginRight: 10 }} /> Call </Text>
               </TouchableOpacity>
@@ -367,7 +384,7 @@ const styles = StyleSheet.create({
   pricingCardContainer:{
     marginVertical:5,
     marginLeft:5,
-    height:210,
+    // height:210,
     width:140,
     backgroundColor:'#fff',
     padding:5,
@@ -380,11 +397,14 @@ const styles = StyleSheet.create({
   pricingCardPrice:{
     marginVertical:5,
     fontSize:25,
-    fontWeight:'bold'
+    fontWeight:'bold',
+
   },
   pricingCardDetails:{
-    marginVertical:3,
-    color:'gray'
+    marginVertical:1,
+    color:'gray',
+    textAlign:'center',
+    // height:28
   },
   PriceButton:{
     marginTop: 5,

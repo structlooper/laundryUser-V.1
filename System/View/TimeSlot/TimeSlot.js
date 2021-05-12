@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import {View, Text,StyleSheet,TouchableOpacity,ScrollView} from 'react-native'
 import { fetchAuthPostFunction, fetchGetFunction, mainColor, MyButton, MyToast,razorpay_key } from "../../Utility/MyLib";
-import RazorpayCheckout from 'react-native-razorpay';
-import {logo} from "../../Utility/Images";
+import PaymentController from "../../Controller/PaymentController";
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -192,29 +191,12 @@ const TimeSlot = ({navigation,route}) => {
         }
       })
     }
-    const options = {
-      description: 'Payment towards Laundry',
-      image: logo,
-      currency: 'INR',
-      key: razorpay_key,
-      amount: amount,
-      name: 'KRYCHE',
-      prefill: {
-        email: userDetails.email,
-        contact: userDetails.phone_number,
-        name: userDetails.customer_name
-      },
-      theme: {color: mainColor}
-
-    }
-    RazorpayCheckout.open(options).then((data) => {
-      // handle success
-      setLoader(true)
-      CheckOutFunction()
-    }).catch((error) => {
-      // handle failure
-      alert(`Error: ${error.code} | ${error.description}`);
-    });
+    PaymentController(amount,'Laundry').then(res => {
+      if (res == "true"){
+        setLoader(true)
+        CheckOutFunction()
+      }
+    })
   }
 
   if (time === null || date === null || loader === true){

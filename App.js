@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, View, Text, Alert } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import Splash from "./System/Utility/Splash";
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import PushNotification from "react-native-push-notification";
