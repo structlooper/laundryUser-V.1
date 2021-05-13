@@ -135,7 +135,7 @@ const OrderDetails = ({navigation,route}) => {
                   </View>
 
                   <View style={styles.orderProductContainer}>
-                      <ScrollView style={{ maxHeight: 100 , minHeight: 100 }}>
+                      <ScrollView style={{ maxHeight: 80 , minHeight: 80 }}>
                           {
                               (order.order_products).map((order_product,i) =>{
                                   return product(order_product,i)
@@ -148,6 +148,7 @@ const OrderDetails = ({navigation,route}) => {
               <View style={styles.bottomContainer}>
                   {bill('Subtotal', '₹ '+order.sub_total, styles.priceLabel)}
                   {bill('Discount', '₹ '+order.discount, styles.priceLabel)}
+                  {bill('Membership Discount', '₹ '+order.mem_total_discount, styles.priceLabel)}
                   {bill('Total', '₹ '+order.total, styles.priceLabelFinal)}
               </View>
               {homeBtn(navigation,routeName)}

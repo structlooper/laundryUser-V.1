@@ -81,10 +81,12 @@ const Profile =   ({ navigation }) => {
         <View style={styles.ProfileNameContainer}>
           <Text style={styles.ProfileName}>{userDetails.customer_name}</Text>
           { (userDetails.membership === undefined) ?null:(userDetails.membership === null) ? null :
-          <View style={{borderWidth:.1,padding:2,borderRadius:100/2,marginVertical:5,backgroundColor:'#d75757',width:'50%' }}>
-            <Text  style={{color:'#fff',fontSize:17,marginLeft:5}}>
-              {userDetails.membership.title}
-            </Text>
+         <View style={{ flexDirection:'row'}}>
+          <View style={{borderWidth:.1,padding:2,borderRadius:100/2,backgroundColor:'#d75757',flex:.5 }}>
+              <Text  style={{color:'#fff',fontSize:17,marginLeft:5}}>
+                {userDetails.membership.title}
+              </Text>
+            </View>
           </View>
               }
           <TouchableOpacity>
