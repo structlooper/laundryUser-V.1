@@ -112,6 +112,14 @@ const OrderDetails = ({navigation,route}) => {
 
                   </View>
                   <View style={styles.middleContainerHeader}>
+                      <Text style={styles.addressHeader}>
+                          Payment
+                      </Text>
+                      <Text style={styles.addressDesc}>
+                          {order.payment_mode} ( {order.payment_status} )
+                      </Text>
+                  </View>
+                  <View style={styles.middleContainerHeader}>
                       <View style={{ flexDirection: 'row' }}>
                           <View style={{ flex: 1 }}>
                               <Text style={styles.addressHeader}>
@@ -189,8 +197,8 @@ const styles = StyleSheet.create({
         // borderColor:'grey'
     },
     headerImage:{
-        width:150,
-        height: 150,
+        width:120,
+        height: 120,
         // borderRadius: 150/ 2
     },
     orderStatusLabel:{

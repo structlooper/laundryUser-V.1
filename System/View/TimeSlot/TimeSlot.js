@@ -1,6 +1,14 @@
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
-import { fetchAuthPostFunction, fetchGetFunction, mainColor, MyButton, MyToast,razorpay_key } from "../../Utility/MyLib";
+import {
+  fetchAuthPostFunction,
+  fetchGetFunction,
+  ImageUrl,
+  mainColor,
+  MyButton,
+  MyToast,
+  razorpay_key,
+} from "../../Utility/MyLib";
 import PaymentController from "../../Controller/PaymentController";
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
@@ -129,7 +137,8 @@ const TimeSlot = ({navigation,route}) => {
   const [timeId,setTimeId] = React.useState(null);
   const [dateId,setDateId] = React.useState(null);
   const [loader,setLoader] = React.useState(false);
-  const [checked,setChecked] = React.useState(null);
+  const [paymentChecked,setPaymentChecked] = React.useState(null);
+  const [paymentOptions,setPaymentOptions] = React.useState(null);
 
   const clearSlotFunction = async () => {
     let cartId=await AsyncStorage.getItem('cartId')
@@ -142,7 +151,15 @@ const TimeSlot = ({navigation,route}) => {
   useEffect(() => {
     getDateTimeSlots().then()
     clearSlotFunction().then()
+    getPaymentOptions().then()
   },[])
+  const getPaymentOptions = async () => {
+    fetchAuthPostFunction('payment',{lang:'en'}).then(response => {
+      if (response.status ===1){
+        setPaymentOptions(response.result)
+      }
+    })
+  }
   const getDateTimeSlots = async () => {
     await fetchGetFunction('time_slots').then(time => {
       setTimeSlot(time)
@@ -156,13 +173,12 @@ const TimeSlot = ({navigation,route}) => {
       setCart(result)
     })
   }
-
   const clearSlotBtn = () => {
     if (pageName === 'drop'){
       return (
         <TouchableOpacity style={[styles.DateLabel,{borderRadius:100/2 ,borderColor:mainColor ,borderWidth:1,padding:2}]}
                           onPress={() => {
-                            clearSlotFunction()
+                            clearSlotFunction().then()
                           }}
         >
 
@@ -170,7 +186,7 @@ const TimeSlot = ({navigation,route}) => {
         </TouchableOpacity>
       )
     }else{
-      return <View></View>
+      return null;
     }
 
   }
@@ -180,8 +196,7 @@ const TimeSlot = ({navigation,route}) => {
     let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'))
     let amount = (cart.total_amt * 100).toString();
     const CheckOutFunction = async () => {
-      await fetchAuthPostFunction('cart/checkout',{cart_id:cart.id,user_id:userDetails.id}).then(response => {
-        console.log('order_response',response)
+      await fetchAuthPostFunction('cart/checkout',{cart_id:cart.id,user_id:userDetails.id,payment_method:paymentChecked}).then(response => {
         const removeCart = async () => {
           await AsyncStorage.removeItem('cartId');
         }
@@ -193,60 +208,62 @@ const TimeSlot = ({navigation,route}) => {
         }
       })
     }
-    PaymentController(amount,'Laundry').then(res => {
-      if (res == "true"){
-        setLoader(true)
-        CheckOutFunction()
-      }
-    })
+    if (paymentChecked === 2) {
+      PaymentController(amount, 'Laundry').then(res => {
+        if (res === "true") {
+          setLoader(true)
+          CheckOutFunction()
+        }
+      })
+    }else{
+      await CheckOutFunction()
+    }
   }
   const dropPageBtn = () => {
     const proBtn = () => {
       return MyButton(() => {
         if (timeId !== null && dateId !== null){
-          onlinePayFunction().then()
+          if (paymentChecked === null){
+            MyToast('Please Select Payment option')
+          }else{
+
+              onlinePayFunction().then()
+
+          }
         }else{
           MyToast('Please Select pickup and drop time slot')
         }
       },'Proceed to Pay ',styles.bottomView,'cash-multiple')
     }
+    const paymentOptionCard = (data,i) => {
+      return (
+        <View style={{  marginHorizontal:4 ,flex:1}} key={i}>
+          <TouchableOpacity
+            style={[{ justifyContent:'center',alignItems:'center' , paddingVertical:5,borderRadius:50/2},
+              ((paymentChecked === data.id) ? { backgroundColor:mainColor,}:{borderColor:mainColor,borderWidth:1 })]}
+            onPress={() => {
+              setPaymentChecked(data.id);
+            }}
+          >
+            <Text style={[{ fontSize:25 },
+              ((paymentChecked === data.id) ? { color:'#fff',}:{color:mainColor })
+            ]}>{data.payment_mode}</Text>
+            <View style={{ flex:1 }}>
+              <Image source={{uri:ImageUrl+data.icon }} style={{width:50,height:50,resizeMode:'contain'}} />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )
+    }
     return (
-      <View>
-        <View style={{paddingHorizontal:10,marginVertical:5}}>
+      <View style={{ borderTopWidth:.5,borderTopColor:'grey',paddingVertical:5,marginHorizontal:10 }}>
+        <View style={{marginVertical:5}}>
         <View style={[{ flexDirection:'row'}]} >
-          <View style={{  marginHorizontal:4 ,flex:1}}>
-          <TouchableOpacity
-            style={[{ justifyContent:'center',alignItems:'center' , paddingVertical:5,borderRadius:50/2},
-              ((checked === 0) ? { backgroundColor:mainColor,}:{borderColor:mainColor,borderWidth:1 })]}
-                onPress={() => {
-                  setChecked(0);
-                 }}
-          >
-            <Text style={[{ fontSize:25 },
-              ((checked === 0) ? { color:'#fff',}:{color:mainColor })
-            ]}>Online</Text>
-            <View style={{ flex:1 }}>
-              <Image source={{uri:'https://cdn1.iconfinder.com/data/icons/shopping-and-commerce-17/64/32-512.png'}} style={{width:50,height:50,resizeMode:'contain'}} />
-            </View>
-          </TouchableOpacity>
-          </View>
-          <View style={{  marginHorizontal:4 ,flex:1}}>
-          <TouchableOpacity
-            style={[{ justifyContent:'center',alignItems:'center' , paddingVertical:5,borderRadius:50/2},
-              ((checked === 1) ? { backgroundColor:mainColor,}:{borderColor:mainColor,borderWidth:1 })]}
-                onPress={() => {
-                  setChecked(1);
-                 }}
-          >
-            <Text style={[{ fontSize:25 },
-              ((checked === 1) ? { color:'#fff',}:{color:mainColor })
-            ]}>Cash</Text>
-            <View style={{ flex:1 }}>
-              <Image source={{uri:'https://image.flaticon.com/icons/png/512/438/438526.png'}} style={{width:50,height:50,resizeMode:'contain'}} />
-            </View>
-          </TouchableOpacity>
-          </View>
-
+          {
+            paymentOptions.map((data,i) =>
+              paymentOptionCard(data,i)
+            )
+          }
         </View>
         </View>
 
@@ -360,7 +377,7 @@ const styles = StyleSheet.create({
     paddingHorizontal:2
   },
   bottomView:{
-    margin:10
+    marginVertical:10
   },
 })
 export default TimeSlot;

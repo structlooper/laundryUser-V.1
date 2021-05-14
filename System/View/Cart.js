@@ -12,7 +12,7 @@ import { useIsFocused } from "@react-navigation/native";
 
 const cartLoader = () => {
   return (
-    <View style={{ padding:4 }}>
+    <View style={{ paddingHorizontal:7,paddingVertical:3 }}>
       <ActivityIndicator size="small" color={mainColor}  />
     </View>
   )
