@@ -25,7 +25,8 @@ function getAddressFromCoordinates({ latitude, longitude }) {
         if (resJson
           && resJson.results
           && resJson.results[0].formatted_address) {
-          resolve(resJson.results[0].formatted_address)
+          let zipcode = resJson.results[0].address_components[9] ?? resJson.results[0].address_components[8]
+          resolve({address:resJson.results[0].formatted_address , zip:zipcode})
         } else {
           resolve()
         }
@@ -94,6 +95,7 @@ const CreateAddressFlag = ({navigation,route}) => {
     longitudeDelta: 0.04,
   });
   const [formattedAddress,setFormattedAddress] = React.useState(null)
+  const [zipcode,setZipcode] = React.useState(null)
   const [landMark,setLandMark] = React.useState(null)
 
 
@@ -101,7 +103,7 @@ const CreateAddressFlag = ({navigation,route}) => {
   const saveUserEnteredAddress = async (navigation,location,landMark,formattedAddress) => {
     let UserDetails= await AsyncStorage.getItem('userDetails')
     let userId = JSON.parse(UserDetails).id
-    await fetchAuthPostFunction('address/add',{user_id:userId,door_no:landMark,address:formattedAddress,lat:(location.latitude),lng:(location.longitude)}).then(response => {
+    await fetchAuthPostFunction('address/add',{user_id:userId,door_no:landMark,address:formattedAddress,lat:(location.latitude),lng:(location.longitude),pincode:zipcode}).then(response => {
       if (response.status === 1){
         MyToast(response.message)
         navigation.goBack()
@@ -126,7 +128,10 @@ const CreateAddressFlag = ({navigation,route}) => {
               latitudeDelta: region.latitudeDelta,
               longitudeDelta: region.longitudeDelta,
             })
-            getAddressFromCoordinates(region).then((result) => {setFormattedAddress(result)})
+            getAddressFromCoordinates(region).then((result) => {
+              setFormattedAddress(result.address)
+              setZipcode(result.zip.long_name)
+            })
           }}
         >
 

@@ -12,13 +12,13 @@ const bill = (labelName,price,style) => {
 
     return (
         <View style={{flexDirection:'row',marginVertical:4,}}>
-            <View style={{flex:1 , paddingLeft:4}}>
+            <View style={{flex:3.5 , paddingLeft:4}}>
                 <Text style={style}>
                     {labelName}
                 </Text>
             </View>
             <View style={{flex:1}}></View>
-            <View style={{flex:1,alignItems: 'center'}}>
+            <View style={{flex:1}}>
                 <Text style={style}>
                     {price}
                 </Text>
@@ -147,8 +147,9 @@ const OrderDetails = ({navigation,route}) => {
               </View>
               <View style={styles.bottomContainer}>
                   {bill('Subtotal', '₹ '+order.sub_total, styles.priceLabel)}
-                  {bill('Discount', '₹ '+order.discount, styles.priceLabel)}
-                  {bill('Membership Discount', '₹ '+order.mem_total_discount, styles.priceLabel)}
+                  {(order.discount > 0) ?bill('Discount', '₹ '+order.discount, styles.priceLabel):null}
+                  {(order.mem_total_discount > 0)?bill('Membership Discount', '₹ '+order.mem_total_discount, styles.priceLabel):null}
+                  {bill('Delivery Charges', '₹ '+order.delivery_changes, styles.priceLabel)}
                   {bill('Total', '₹ '+order.total, styles.priceLabelFinal)}
               </View>
               {homeBtn(navigation,routeName)}

@@ -68,7 +68,6 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
       await fetchAuthPostFunction('select/address',{user_id:userId,address_id:addressId}).then(response => {
         if (response.status === 1){
           MyToast(response.message)
-
           UserDetails.default_address = addressDesc;
           AsyncStorage.setItem('userDetails',JSON.stringify(UserDetails));
           navi.goBack()

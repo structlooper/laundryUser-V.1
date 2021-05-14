@@ -108,6 +108,7 @@ const Cart = ({navigation}) => {
   const [loader , setLoader] = React.useState(false)
   const [defaultAddress , setDefaultAddress] = React.useState(false)
   const [checkRequest, setCheckRequest] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -117,6 +118,7 @@ const Cart = ({navigation}) => {
   const getCartData = async () => {
 
       let UserDetails = await AsyncStorage.getItem('userDetails')
+      setUserDetails(JSON.parse(UserDetails))
       let userId = JSON.parse(UserDetails).id
       // if (checkRequest === true) {
        await fetchGetFunction('cart/' + userId).then(result => {
@@ -129,34 +131,47 @@ const Cart = ({navigation}) => {
       setCheckRequest(false)
   }
 
-  const promoCodeBtn = () => {
-    if (cart.promocode_id === 0){
-      return (
-        <View style={{marginLeft:15}}>
+  const promoCodeBtn =  () => {
+      if (cart.promocode_id === 0) {
+        return (
+          <View style={{ marginLeft: 15 }}>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('HomeScreenStack',{screen:'Offers',params:{cartId:cart.id}})}
-          >
-            <Text style={{fontSize:17,color: mainColor}}>Apply promo</Text>
-            <Text >Check offers</Text>
-          </TouchableOpacity>
-        </View>
-      )
-    }else{
-      return (
-        <View style={{marginLeft:15}}>
-          <Text style={{fontSize:17,color: mainColor}}>Promotion Applied</Text>
-          <Text >You are saving ₹ {cart.discount ?? '0.0'}</Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('HomeScreenStack',{screen:'Offers',params:{cartId:cart.id}})}
-          >
-            <Text  style={{fontSize:12,color: mainColor}}>Change Promo</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('HomeScreenStack', { screen: 'Offers', params: { cartId: cart.id } })}
+            >
+              <Text style={{ fontSize: 17, color: mainColor }}>Apply promo</Text>
+              <Text>Check offers</Text>
+            </TouchableOpacity>
+          </View>
+        )
+      } else {
+        return (
+          <View style={{ marginLeft: 15 }}>
+            <Text style={{ fontSize: 17, color: mainColor }}>Promotion Applied</Text>
+            <Text>You are saving ₹ {cart.discount ?? '0.0'}</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('HomeScreenStack', { screen: 'Offers', params: { cartId: cart.id } })}
+            >
+              <Text style={{ fontSize: 12, color: mainColor }}>Change Promo</Text>
 
-          </TouchableOpacity>
-        </View>
-      )
-    }
+            </TouchableOpacity>
+          </View>
+        )
+      }
 
+  }
+  const saveCartId = async (cartId) => {
+     return new Promise(resolve => {
+       fetchGetFunction('checkAddress/'+userDetails.id).then(async response => {
+         if (response.status === 1){
+           await AsyncStorage.setItem('cartId',cartId.toString())
+           resolve(true)
+         }else{
+           MyToast(response.message)
+           resolve(false)
+         }
+       })
+     })
   }
 
   if (cart === null ){
@@ -185,19 +200,27 @@ const Cart = ({navigation}) => {
         <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
 
           {/* Promotion apply section*/}
-          <View style={{flexDirection:'row',marginHorizontal:20,marginVertical:10}}>
-            <View >
-              <FontAwesome5 name={'user-tag'} size={45} color={'black'} style={{ marginTop:5 }} />
+          {(userDetails.membership === null) ?
+            <View style={{flexDirection:'row',marginHorizontal:20,marginVertical:10}}>
+              <View >
+                <FontAwesome5 name={'user-tag'} size={45} color={'black'} style={{ marginTop:5 }} />
+              </View>
+              {
+                promoCodeBtn()
+              }
             </View>
-            {promoCodeBtn()}
-          </View>
+            : null}
+
 
           {/*bill section*/}
           <View style={{padding:10,flex:1,borderTopColor:'gray',borderTopWidth:1}}>
             {bill('Subtotal','₹ '+cart.subtotal,Styles.priceLabel)}
-            {bill('Member discount','₹ '+((cart.mem_total_discount === 0)?"0.0" : cart.mem_total_discount) ,Styles.priceLabel)}
-            {bill('Discount','₹ '+((cart.discount === 0)?"0.0" : cart.discount) ,Styles.priceLabel)}
-            {(cart.additional_charges > 0)? bill('Additional Charge','₹ '+((cart.additional_charges === 0)?"00.0" : cart.additional_charges) ,Styles.priceLabel): <View></View>}
+            {(userDetails === null)?
+              bill('Discount','₹ '+((cart.discount === 0)?"0.0" : cart.discount) ,Styles.priceLabel)
+              :bill('Member discount','₹ '+((cart.mem_total_discount === 0)?"0.0" : cart.mem_total_discount) ,Styles.priceLabel)
+            }
+            { bill('Delivery Charges','₹ '+(cart.delivery_changes))}
+            {(cart.additional_charges > 0)? bill('Additional Charge','₹ '+((cart.additional_charges === 0)?"00.0" : cart.additional_charges) ,Styles.priceLabel): null}
             {bill('Total','₹ '+cart.total_amt,Styles.priceLabelFinal)}
           </View>
 
@@ -207,12 +230,11 @@ const Cart = ({navigation}) => {
             }
             <View >
               {MyButton(() => {
-                saveCartId(cart.id).then(
-                  ((defaultAddress.address ?? defaultAddress) === undefined ? MyToast('Please select an address') :
-                  navigation.navigate('HomeScreenStack',{screen:'TimeBar'})
-              )
-
-                )
+                saveCartId(cart.id).then(resolve => {
+                  if (resolve === true){
+                    navigation.navigate('HomeScreenStack',{screen:'TimeBar'})
+                  }
+                })
               },'Proceed',Styles.bottomView,'checkbox-marked-circle')}
             </View>
           </View>
@@ -262,9 +284,7 @@ const addAddressFunctions = (navi) => {
 
   )
 }
-const saveCartId = async (cartId) => {
-  await AsyncStorage.setItem('cartId',cartId.toString())
-}
+
 const loadAddressFunctions = (navi) => {
   return (
     <View style={{ flexDirection:'row'}}>
