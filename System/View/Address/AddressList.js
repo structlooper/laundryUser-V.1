@@ -8,7 +8,7 @@ import Loader from "../../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
 
-const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeName,navi,addressId,getAddressList) => {
+const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeName,navi,addressId,getAddressList,setLoader) => {
   const editAddress = () => {
     if (routeName === 'ServicesSlider'){
       return(
@@ -62,17 +62,20 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
       )
     )
     }
-    const selectAddress = async () => {
+    const selectAddress = async ( ) => {
+      setLoader(true)
       let UserDetails= JSON.parse(await AsyncStorage.getItem('userDetails'))
       let userId = UserDetails.id
-      await fetchAuthPostFunction('select/address',{user_id:userId,address_id:addressId}).then(response => {
+      await fetchAuthPostFunction('select/address',{user_id:userId,address_id:addressId}).then(async response => {
         if (response.status === 1){
           MyToast(response.message)
           UserDetails.default_address = addressDesc;
-          AsyncStorage.setItem('userDetails',JSON.stringify(UserDetails));
+          await AsyncStorage.setItem('userDetails',JSON.stringify(UserDetails));
+          setLoader(false)
           navi.goBack()
         }else{
           MyToast(response.message)
+          setLoader(false)
         }
       })
 
@@ -95,7 +98,10 @@ const AddressCard = (addressNumber,lat,lng,doorNumber,addressDesc,state,routeNam
                     editAddress()}
                 </View>
                 <View>
-                    <TouchableOpacity onPress={() => {(routeName === 'ServicesSlider') ? selectAddress() : deleteAlert()  }
+                    <TouchableOpacity onPress={() => {
+                      (routeName === 'ServicesSlider') ?
+                      selectAddress( setLoader)
+                    : deleteAlert()  }
                     }>
                         <Text style={styles.actionBtn}>{(routeName === 'ServicesSlider') ? 'Select' : 'Delete'}</Text>
                     </TouchableOpacity>
@@ -120,6 +126,7 @@ const AddressList =  ({navigation}) => {
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
     const [addressList , setAddressList] = React.useState(null);
+    const [loader , setLoader] = React.useState(false);
     const addAddress = () => {
         if (routeName === 'ServicesSlider'){
             return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'CreateAddressFlag'})},'Add address',styles.bottomView,'map-marker')
@@ -140,7 +147,7 @@ const AddressList =  ({navigation}) => {
           setAddressList(result);
         })
     }
-    if (addressList === null) {
+    if (addressList === null || loader === true) {
       return <Loader />
     }else if(addressList !== []){
       return (
@@ -148,7 +155,7 @@ const AddressList =  ({navigation}) => {
           <Text style={{ textAlign:'center',fontSize:18,borderBottomColor:'#eee',borderBottomWidth:.5 }}>Your Address</Text>
           <ScrollView style={{marginBottom:80}}>
             {addressList.map((data,i) => {
-               return AddressCard(i, parseFloat(data.latitude), parseFloat(data.longitude), data.door_no,data.address,state,routeName,navigation,data.id,getAddressList)
+               return AddressCard(i, parseFloat(data.latitude), parseFloat(data.longitude), data.door_no,data.address,state,routeName,navigation,data.id,getAddressList,setLoader)
 
               })}
 

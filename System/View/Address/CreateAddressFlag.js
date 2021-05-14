@@ -98,8 +98,6 @@ const CreateAddressFlag = ({navigation,route}) => {
   const [zipcode,setZipcode] = React.useState(null)
   const [landMark,setLandMark] = React.useState(null)
 
-
-
   const saveUserEnteredAddress = async (navigation,location,landMark,formattedAddress) => {
     let UserDetails= await AsyncStorage.getItem('userDetails')
     let userId = JSON.parse(UserDetails).id

@@ -40,7 +40,20 @@ function getAddressFromCoordinates({ latitude, longitude }) {
 const GooglePlacesInput = (location, setLocation) => {
     return (
       <GooglePlacesAutocomplete
-        placeholder='Search in map'
+        placeholder={"Search in map"}
+        textInputProps={{ placeholderTextColor: 'pink' }}
+        styles={{
+          container: {
+            backgroundColor: theme.color.screen,
+          },
+          textInput: {
+            backgroundColor: '#eee',
+            color: mainColor,
+          },
+          textInputContainer: {
+            backgroundColor: '#000',
+          },
+        }}
         onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
             // console.log(data.description, (details));
@@ -60,6 +73,7 @@ const GooglePlacesInput = (location, setLocation) => {
         query={{
             key: HERE_API_KEY,
             language: 'en',
+
         }}
       />
     );

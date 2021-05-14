@@ -117,7 +117,6 @@ const Cart = ({navigation}) => {
   },[isFocused,checkRequest])
 
   const getCartData = async () => {
-
       let UserDetails = await AsyncStorage.getItem('userDetails')
       setUserDetails(JSON.parse(UserDetails))
       let userId = JSON.parse(UserDetails).id
@@ -237,6 +236,7 @@ const Cart = ({navigation}) => {
                     setLoading(false)
                     navigation.navigate('HomeScreenStack',{screen:'TimeBar'})
                   }
+                  setLoading(false)
                 })
               },'Proceed',Styles.bottomView,'checkbox-marked-circle',loading)}
             </View>
