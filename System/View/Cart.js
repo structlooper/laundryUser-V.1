@@ -106,6 +106,7 @@ const product = (name,qty,price,productId,i,setLoader,loader,setCheckRequest) =>
 const Cart = ({navigation}) => {
   const [cart , setCart] = React.useState(null)
   const [loader , setLoader] = React.useState(false)
+  const [loading , setLoading] = React.useState(false)
   const [defaultAddress , setDefaultAddress] = React.useState(false)
   const [checkRequest, setCheckRequest] = useState(true);
   const [userDetails, setUserDetails] = useState(null);
@@ -230,12 +231,14 @@ const Cart = ({navigation}) => {
             }
             <View >
               {MyButton(() => {
+                setLoading(true)
                 saveCartId(cart.id).then(resolve => {
                   if (resolve === true){
+                    setLoading(false)
                     navigation.navigate('HomeScreenStack',{screen:'TimeBar'})
                   }
                 })
-              },'Proceed',Styles.bottomView,'checkbox-marked-circle')}
+              },'Proceed',Styles.bottomView,'checkbox-marked-circle',loading)}
             </View>
           </View>
 

@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import {View, Text,StyleSheet,TouchableOpacity,ScrollView} from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import { fetchAuthPostFunction, fetchGetFunction, mainColor, MyButton, MyToast,razorpay_key } from "../../Utility/MyLib";
 import PaymentController from "../../Controller/PaymentController";
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const SlotBtnActive = (time,timeId,j) => {
   return (
@@ -128,6 +129,7 @@ const TimeSlot = ({navigation,route}) => {
   const [timeId,setTimeId] = React.useState(null);
   const [dateId,setDateId] = React.useState(null);
   const [loader,setLoader] = React.useState(false);
+  const [checked,setChecked] = React.useState(null);
 
   const clearSlotFunction = async () => {
     let cartId=await AsyncStorage.getItem('cartId')
@@ -198,6 +200,62 @@ const TimeSlot = ({navigation,route}) => {
       }
     })
   }
+  const dropPageBtn = () => {
+    const proBtn = () => {
+      return MyButton(() => {
+        if (timeId !== null && dateId !== null){
+          onlinePayFunction().then()
+        }else{
+          MyToast('Please Select pickup and drop time slot')
+        }
+      },'Proceed to Pay ',styles.bottomView,'cash-multiple')
+    }
+    return (
+      <View>
+        <View style={{paddingHorizontal:10,marginVertical:5}}>
+        <View style={[{ flexDirection:'row'}]} >
+          <View style={{  marginHorizontal:4 ,flex:1}}>
+          <TouchableOpacity
+            style={[{ justifyContent:'center',alignItems:'center' , paddingVertical:5,borderRadius:50/2},
+              ((checked === 0) ? { backgroundColor:mainColor,}:{borderColor:mainColor,borderWidth:1 })]}
+                onPress={() => {
+                  setChecked(0);
+                 }}
+          >
+            <Text style={[{ fontSize:25 },
+              ((checked === 0) ? { color:'#fff',}:{color:mainColor })
+            ]}>Online</Text>
+            <View style={{ flex:1 }}>
+              <Image source={{uri:'https://cdn1.iconfinder.com/data/icons/shopping-and-commerce-17/64/32-512.png'}} style={{width:50,height:50,resizeMode:'contain'}} />
+            </View>
+          </TouchableOpacity>
+          </View>
+          <View style={{  marginHorizontal:4 ,flex:1}}>
+          <TouchableOpacity
+            style={[{ justifyContent:'center',alignItems:'center' , paddingVertical:5,borderRadius:50/2},
+              ((checked === 1) ? { backgroundColor:mainColor,}:{borderColor:mainColor,borderWidth:1 })]}
+                onPress={() => {
+                  setChecked(1);
+                 }}
+          >
+            <Text style={[{ fontSize:25 },
+              ((checked === 1) ? { color:'#fff',}:{color:mainColor })
+            ]}>Cash</Text>
+            <View style={{ flex:1 }}>
+              <Image source={{uri:'https://image.flaticon.com/icons/png/512/438/438526.png'}} style={{width:50,height:50,resizeMode:'contain'}} />
+            </View>
+          </TouchableOpacity>
+          </View>
+
+        </View>
+        </View>
+
+        {proBtn()}
+      </View>
+
+    )
+
+  }
 
   if (time === null || date === null || loader === true){
     return <Loader />
@@ -235,13 +293,7 @@ const TimeSlot = ({navigation,route}) => {
         <View style={{position: 'absolute', left: 0, right: 0, bottom: 0}}>
           {
             (pageName === 'drop')?
-            MyButton(() => {
-            if (timeId !== null && dateId !== null){
-              onlinePayFunction().then()
-            }else{
-              MyToast('Please Select pickup and drop time slot')
-            }
-          },'Proceed to Pay ',styles.bottomView,'cash-multiple')
+            dropPageBtn()
               : null
           }
 
