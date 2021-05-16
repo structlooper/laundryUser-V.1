@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.reactnativerestart.RestartPackage;
 import com.reactnativerestart.RestartPackage;
 // import io.invertase.firebase.RNFirebasePackage;

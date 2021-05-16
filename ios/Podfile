@@ -20,6 +20,8 @@ target 'LaundryUser' do
 
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase'
 
+  pod 'react-native-geolocation-service', :path => '../node_modules/react-native-geolocation-service'
+
   target 'LaundryUserTests' do
     inherit! :complete
     # Pods for testing

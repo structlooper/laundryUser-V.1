@@ -13,7 +13,8 @@ import {
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {HERE_API_KEY} from "../../Utility/MyLib";
-
+import Geolocation from 'react-native-geolocation-service';
+import Loader from "../../Utility/Loader";
 
 function getAddressFromCoordinates({ latitude, longitude }) {
     return new Promise((resolve) => {
@@ -39,43 +40,34 @@ function getAddressFromCoordinates({ latitude, longitude }) {
 }
 const GooglePlacesInput = (location, setLocation) => {
     return (
+  <View style={{ flexDirection:'row',paddingVertical:5 }}>
+    <View style={{backgroundColor:'#fff',justifyContent:'center',paddingLeft:15,height:44}}>
+      <Text>Search</Text>
+    </View>
       <GooglePlacesAutocomplete
-        placeholder={"Search in map"}
-        textInputProps={{ placeholderTextColor: 'pink' }}
-        styles={{
-          container: {
-            backgroundColor: theme.color.screen,
-          },
-          textInput: {
-            backgroundColor: '#eee',
-            color: mainColor,
-          },
-          textInputContainer: {
-            backgroundColor: '#000',
-          },
-        }}
         onPress={(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
-            // console.log(data.description, (details));
-            getLatLngFromAddress(data.description).then(response => {
-              const latitudeDelta= 0.008;
-               const  longitudeDelta= 0.008;
-                if (response.lat !== '' && response.lat !== undefined && response.lat !== null){
-                  setLocation({
-                    latitude: response.lat,
-                    longitude: response.lng,
-                    latitudeDelta: latitudeDelta,
-                    longitudeDelta: longitudeDelta,
-                  })
-                }
-            })
+          // 'details' is provided when fetchDetails = true
+          // console.log(data.description, (details));
+          getLatLngFromAddress(data.description).then(response => {
+            const latitudeDelta= 0.0080;
+            const  longitudeDelta= 0.008;
+            if (response.lat !== '' && response.lat !== undefined && response.lat !== null){
+              setLocation({
+                latitude: response.lat,
+                longitude: response.lng,
+                latitudeDelta: latitudeDelta,
+                longitudeDelta: longitudeDelta,
+              })
+            }
+          })
         }}
         query={{
-            key: HERE_API_KEY,
-            language: 'en',
-
+          key: HERE_API_KEY,
+          language: 'en',
         }}
       />
+  </View>
+
     );
 };
 
@@ -102,17 +94,33 @@ const getLatLngFromAddress = (address) => {
 }
 
 const Create = ({navigation,route}) => {
-  const [location, setLocation] = React.useState({
-    latitude: 28.5743,
-    longitude: 77.0716,
-    latitudeDelta: 0.02,
-    longitudeDelta: 0.04,
-  });
+  const [location, setLocation] = React.useState(null);
   const [formattedAddress,setFormattedAddress] = React.useState(null)
   const [landMark,setLandMark] = React.useState(null)
   const [zipcode,setZipcode] = React.useState(null)
   const [addressId,setAddressId] = React.useState(null)
   useEffect(() => {
+    Geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude:position.coords.latitude,
+            longitude:position.coords.longitude,
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.004,
+          })
+        },
+        (error) => {
+          // See error code charts below.
+          console.log(error.code, error.message);
+          setLocation({
+            latitude: 28.5743,
+            longitude: 77.0716,
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.004,
+          })
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
     addressLoadFunction().then();
   },[])
   const addressLoadFunction = async () => {
@@ -159,6 +167,9 @@ const Create = ({navigation,route}) => {
       }
     })
   }
+  if (location === null){
+    return Loader();
+  }
     return (
       <View>
 
@@ -167,14 +178,14 @@ const Create = ({navigation,route}) => {
                     style={styles.map}
                     region={location}
 
-                    onRegionChangeComplete={region => {
+                    onRegionChangeComplete={async region => {
                         setLocation({
                                 latitude: region.latitude,
                                 longitude: region.longitude,
                                 latitudeDelta: region.latitudeDelta,
                                 longitudeDelta: region.longitudeDelta,
                             })
-                        getAddressFromCoordinates(region).then((result) => {
+                        await getAddressFromCoordinates(region).then((result) => {
                           setFormattedAddress(result.address)
                           setZipcode(result.zip.long_name)
                         })
@@ -182,11 +193,11 @@ const Create = ({navigation,route}) => {
                 >
 
                 </MapView>
-                {GooglePlacesInput(location, setLocation) }
 
                 <View style={{ top:'50%' ,left:'50%',marginLeft:-24,marginTop:-48,position:'absolute' }}>
                     <FontAwesome5 name={'map-marker-alt'} size={30} color={mainColor} />
                 </View>
+              {GooglePlacesInput(location, setLocation) }
 
             </View>
           <ScrollView>

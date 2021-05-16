@@ -27,7 +27,7 @@ const CustomSidebarMenu = (props) => {
     getUserDetails().then(details => {
       SetUserDetails(details);
     })
-  },[])
+  },)
   let dataConverted = JSON.parse(userDetails)
   const {logOut} = React.useContext(AuthContext)
   let dp = (dataConverted.profile_picture !== null) ? {uri:ImageUrl+dataConverted.profile_picture} : UserImagePlaceHolder
