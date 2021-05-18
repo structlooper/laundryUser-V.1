@@ -49,6 +49,7 @@ export const MyNumericInput = (name,onChangeFunction,placeHolder,style,icon,auto
         value={name}
         placeholder={placeHolder}
       keyboardType='numeric'
+      maxLength={10}
       autoFocus={autofocus ? autofocus :false}
       />
     </View>
@@ -108,7 +109,7 @@ export const MyOptField = (name,onChangeFunction,placeHolder,style,icon,autofocu
   )
 }
 export const MyToast = (message) => {
-  return ToastAndroid.showWithGravityAndOffset(message, ToastAndroid.LONG,ToastAndroid.TOP,150,100);
+  return ToastAndroid.showWithGravityAndOffset(message, ToastAndroid.LONG,ToastAndroid.BOTTOM,0,150);
 
 }
 export const capitalizeFirstLetter = (string) => {
@@ -163,7 +164,7 @@ export const fetchImagePostFunction = async (route,dom,profile_image) => {
   const createFormData = (photo, body) => {
     const data = new FormData();
 
-    data.append('profile_image', {
+    data.append('profile_picture', {
       name: photo.fileName,
       type: photo.type,
       uri:

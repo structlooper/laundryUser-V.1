@@ -55,12 +55,9 @@ const Orders = ({navigation}) => {
     }
 
 
-
-
-
     if (orders === null ){
         return <Loader />
-    }else if(orders.length === 0 ||  orders === []){
+    }else if(orders === undefined || orders.length === 0 ){
         return <NoDataFound />
     }else{
         return (

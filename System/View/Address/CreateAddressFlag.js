@@ -146,7 +146,7 @@ const CreateAddressFlag = ({navigation,route}) => {
         <View style={styles.addressContainer}>
           <View style={styles.nearLabelContainer}>
             <Text style={styles.nearLabel}>Door no / Landmark</Text>
-            {MyTextInput(landMark,setLandMark,'Enter Landmark',styles.landMarkInput)}
+            {MyTextInput(landMark,setLandMark,'Enter Door no/Landmark',styles.landMarkInput)}
           </View>
           <View style={styles.nearLabelContainer}>
             <Text style={styles.nearLabel}>Address</Text>

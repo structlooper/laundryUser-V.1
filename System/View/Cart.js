@@ -255,7 +255,7 @@ const addressFunctions = (navi,defaultAddress) => {
       <View style={{marginLeft:12,marginTop:15,flex:1}} >
 
         <View>
-          <Text style={{fontSize:17,color: 'black' ,maxHeight:40}}>{defaultAddress.address ?? defaultAddress}</Text>
+          <Text style={{fontSize:17,color: 'black' ,maxHeight:"100%"}}>{defaultAddress.address ?? defaultAddress}</Text>
         </View>
 
       </View>

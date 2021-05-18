@@ -256,8 +256,8 @@ export default class Home extends React.Component {
                 </View>
               </ScrollView>
               <Text style={styles.Heading}>Membership Offers</Text>
-              <View style={{ flexDirection: 'row' }}>
-                <ScrollView horizontal={true}>
+              <View >
+                <ScrollView horizontal={true} style={{ flexDirection: 'row' }}>
                   { ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>
                     MemberShipCard(mem, index)
                   ) : null }
@@ -267,13 +267,13 @@ export default class Home extends React.Component {
 
           </ScrollView>
           <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
-            <View style={[styles.PrimeMemberBannerContainer, { marginLeft: 35 }]}>
-              <TouchableOpacity  onPress={() => this.openCallApp()}>
+            <View style={[styles.PrimeMemberBannerContainer]}>
+              <TouchableOpacity  onPress={() => this.openCallApp()} style={{ flex:1}}>
                 <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'}
                                                                 style={{ marginRight: 10 }} /> Call </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.openWhatsapp()}>
-                <Text style={[styles.CallButton]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'}
+              <TouchableOpacity onPress={() => this.openWhatsapp()} style={{flex:1}}>
+                <Text style={[styles.CallButton,{backgroundColor:'green'}]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'}
                                                                 style={{ marginRight: 10 }} /> Whatsapp</Text>
               </TouchableOpacity>
             </View>
@@ -287,14 +287,16 @@ export default class Home extends React.Component {
 const styles = StyleSheet.create({
   ServiceCardContainer:{
     flexDirection:'row',
-    margin:5,
+    // margin:5,
   },
   ServiceCard:{
-    height:150,
-    width:130,
+    flex:1,
+    // height:'100%',
+    // minWidth:'40%',
     alignContent:'center',
     marginHorizontal: 5,
-    backgroundColor:'#fff',padding:20,
+    backgroundColor:'#fff',paddingHorizontal:30,
+    paddingVertical: 20,
     // paddingHorizontal:10,
     // paddingVertical:2,
     borderRadius:40/2,
@@ -373,9 +375,7 @@ const styles = StyleSheet.create({
   CallButton:{
     textAlign:'center',
     backgroundColor:mainColor,
-    width:140,
     fontSize:15,
-    marginHorizontal:5,
     color:'#fff',
     paddingHorizontal:18,
     paddingVertical: 12,
@@ -385,7 +385,8 @@ const styles = StyleSheet.create({
     marginVertical:5,
     marginLeft:5,
     // height:210,
-    width:140,
+    width:200,
+    flex:.5,
     backgroundColor:'#fff',
     padding:5,
   },
