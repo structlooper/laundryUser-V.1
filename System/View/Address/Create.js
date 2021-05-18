@@ -6,7 +6,7 @@ import {
   fetchAuthPostFunction,
   fetchGetFunction,
   mainColor,
-  MyButton,
+  MyButton, MyNumericInput,
   MyTextInput,
   MyToast,
 } from "../../Utility/MyLib";
@@ -40,9 +40,9 @@ function getAddressFromCoordinates({ latitude, longitude }) {
 }
 const GooglePlacesInput = (location, setLocation) => {
     return (
-  <View style={{ flexDirection:'row',paddingVertical:5 }}>
+  <View style={{ flexDirection:'row',paddingTop:5 }}>
     <View style={{backgroundColor:'#fff',justifyContent:'center',paddingLeft:15,height:44}}>
-      <Text>Search</Text>
+      <Text style={{ fontWeight:'bold' }}>Search: </Text>
     </View>
       <GooglePlacesAutocomplete
         onPress={(data, details = null) => {
@@ -64,6 +64,25 @@ const GooglePlacesInput = (location, setLocation) => {
         query={{
           key: HERE_API_KEY,
           language: 'en',
+        }}
+        styles={{
+          textInputContainer: {
+            backgroundColor: 'rgba(0,0,0,0)',
+            borderTopWidth: 0,
+            borderBottomWidth:0,
+          },
+          description: {
+            fontWeight: 'bold',
+          },
+          textInput: {
+            marginRight: 0,
+            // height: 38,
+            color: '#5d5d5d',
+            fontSize: 16,
+          },
+          predefinedPlacesDescription: {
+            color: '#1faadb'
+          }
         }}
       />
   </View>
@@ -100,6 +119,7 @@ const Create = ({navigation,route}) => {
   const [zipcode,setZipcode] = React.useState(null)
   const [addressId,setAddressId] = React.useState(null)
   useEffect(() => {
+    if (route.params === undefined) {
     Geolocation.getCurrentPosition(
         (position) => {
           setLocation({
@@ -120,7 +140,7 @@ const Create = ({navigation,route}) => {
           })
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
+      )}
     addressLoadFunction().then();
   },[])
   const addressLoadFunction = async () => {
@@ -167,11 +187,15 @@ const Create = ({navigation,route}) => {
       }
     })
   }
-  if (location === null){
-    return Loader();
-  }
+  // if (location === null){
+  //   return Loader();
+  // }
+
     return (
-      <View>
+      <View style={{ height:'100%' }}>
+        {GooglePlacesInput(location, setLocation) }
+
+        <ScrollView>
 
             <View style={styles.addressMainView}>
                 <MapView
@@ -197,16 +221,18 @@ const Create = ({navigation,route}) => {
                 <View style={{ top:'50%' ,left:'50%',marginLeft:-24,marginTop:-48,position:'absolute' }}>
                     <FontAwesome5 name={'map-marker-alt'} size={30} color={mainColor} />
                 </View>
-              {GooglePlacesInput(location, setLocation) }
 
             </View>
-          <ScrollView>
+            <View style={[styles.addressContainer,{marginTop:20}]}>
 
-            <View style={styles.addressContainer}>
-                <View style={styles.nearLabelContainer}>
-                    <Text style={styles.nearLabel}>Door no / Landmark</Text>
-                    {MyTextInput(landMark,setLandMark,'Enter Door no/Landmark',styles.landMarkInput)}
-                </View>
+              <View style={styles.nearLabelContainer}>
+                <Text style={styles.nearLabel}>Door no / Landmark</Text>
+                {MyTextInput(landMark,setLandMark,'Enter Door no/Landmark',styles.landMarkInput)}
+              </View>
+              <View style={[styles.nearLabelContainer,{marginVertical:0,marginTop:5}]}>
+                <Text style={styles.nearLabel}>Pin code</Text>
+                {MyNumericInput(zipcode,setZipcode,'Enter Pincode',styles.landMarkInput)}
+              </View>
                 <View style={styles.nearLabelContainer}>
                     <Text style={styles.nearLabel}>Address</Text>
                     <Text style={styles.address}>
@@ -223,8 +249,10 @@ const Create = ({navigation,route}) => {
                       (route.params !== undefined) ?'Update Address':'Save Address',
                       '','map-marker')}
                 </View>
+
             </View>
         </ScrollView>
+
       </View>
 
     )
@@ -236,14 +264,13 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     map: {
-        marginTop:30,
         ...StyleSheet.absoluteFillObject,
     },
     addressContainer:{
         padding:10,
     },
     nearLabelContainer:{
-        marginVertical:15,
+        marginTop:15,
     },
     nearLabel:{
         fontSize:17,
@@ -254,10 +281,10 @@ const styles = StyleSheet.create({
         marginVertical: 5
     },
     address:{
-        marginVertical:5
+        marginTop:5
     },
     bottomBtn:{
-        marginTop:40,
+        // marginTop:40,
         // position: 'absolute', left: 0, right: 0, bottom: 0
     }
 })

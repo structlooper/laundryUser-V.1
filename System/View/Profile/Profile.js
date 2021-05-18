@@ -81,13 +81,11 @@ const Profile =   ({ navigation }) => {
         <View style={styles.ProfileNameContainer}>
           <Text style={styles.ProfileName}>{userDetails.customer_name}</Text>
           { (userDetails.membership === undefined) ?null:(userDetails.membership === null) ? null :
-         <View style={{ flexDirection:'row'}}>
-          <View style={{borderWidth:.1,padding:2,borderRadius:100/2,backgroundColor:'#d75757',flex:.5 }}>
+          <View style={{borderWidth:.1,padding:2,borderRadius:100/2,backgroundColor:'#d75757' }}>
               <Text  style={{color:'#fff',fontSize:17,marginLeft:5}}>
                 {userDetails.membership.title}
               </Text>
             </View>
-          </View>
               }
           <TouchableOpacity>
             <Text style={styles.Btn}>{userDetails.phone_number}</Text>
@@ -200,8 +198,7 @@ const styles = StyleSheet.create({
     fontSize:18,
   },
   Btn:{
-    width: 200,
-    height:35,
+
     color:mainColor
   },
 })

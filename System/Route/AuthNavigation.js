@@ -452,7 +452,7 @@ const MainNavigator = () => {
       }}
       drawerStyle={{
         backgroundColor: '#eee',
-        width: 240,
+        width: "55%",
       }}
       drawerContent={(props) => <CustomSidebarMenu {...props} />}
     >

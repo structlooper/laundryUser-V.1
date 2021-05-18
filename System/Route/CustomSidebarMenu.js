@@ -16,7 +16,8 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { ImageUrl, mainColor, UserImagePlaceHolder } from "../Utility/MyLib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../Utility/AuthContext";
-import { Badge } from 'react-native-paper';
+
+
 const getUserDetails = async () => {
   return await AsyncStorage.getItem('userDetails')
 }
@@ -40,25 +41,24 @@ const CustomSidebarMenu = (props) => {
           source={dp}
           style={styles.sideMenuProfileIcon}
         />
-        <View style={{ justifyContent:'center',marginHorizontal:5,width:"40%"}}>
+        <View style={{ justifyContent:'center',marginHorizontal:5}}>
           <Text style={{color:'#fff'}}>
             {dataConverted.customer_name}
           </Text>
 
           {(dataConverted.membership === undefined) ? null : (dataConverted.membership === null) ? null : <View
             style={{
-              borderWidth: .1,
-              padding: 2,
               borderRadius: 100 / 2,
               marginVertical: 5,
-              backgroundColor: '#d75757'
+              paddingHorizontal:2,
+              backgroundColor: '#d75757',
             }}>
-            <Text style={{ color: '#fff', width: 100, fontSize: 12, marginLeft: 5 }}>
+            <Text style={{ color: '#fff',textAlign:'center' }}>
               {dataConverted.membership.title}
             </Text>
           </View>
           }
-          <Text  style={{color:'#fff',width:150,fontSize:12}}>
+          <Text  style={{color:'#fff'}}>
             {dataConverted.phone_number}
           </Text>
 
