@@ -35,7 +35,11 @@ const Notifications = ({navigation}) => {
   const orderCard = (notification,i) => {
 
     return (
-      <View style={styles.orderCart} key={i}>
+      <TouchableOpacity style={styles.orderCart} key={i}
+                        onPress={() => {
+                          navigation.navigate('HomeScreenStack',{screen:'orderDetails',params:{order_id:notification.id}})
+                        }}
+      >
         <View style={styles.statusImageContainer}>
           <Image source={{ uri:ImageUrl+notification.status_image}} style={styles.statusImage}/>
         </View>
@@ -68,7 +72,7 @@ const Notifications = ({navigation}) => {
           </Text>
 
         </View>
-      </View>
+      </TouchableOpacity>
 
     )
   }

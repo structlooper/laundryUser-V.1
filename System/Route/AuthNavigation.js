@@ -55,6 +55,21 @@ const NavigationDrawerStructure = (props) => {
   );
 };
 
+const getHeaderTopRight = (navigation) => {
+  return (
+    <View style={{ flexDirection:'row' }}>
+      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+        <FontAwesome5 name={'search'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+        <FontAwesome5 name={'cart-arrow-down'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+        <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+      </TouchableOpacity>
+    </View>
+  )
+}
 const getHeaderTitle = (route) => {
   const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
 
@@ -68,11 +83,13 @@ const getHeaderTitle = (route) => {
     case 'Offers':
       return 'Offers';
     case 'Service':
-      return 'Home';
+      return AppName;
     case 'Orders':
       return 'Orders';
     case 'TermsAndConditions':
-      return 'Terms & Conditions'
+      return 'Terms & Conditions';
+    default:
+      return AppName;
   }
 };
 
@@ -95,8 +112,7 @@ const BottomStack = () => {
         name="HomeTab"
         component={Home}
         options={{
-          tabBarLabel: 'Home',
-
+          tabBarLabel: AppName,
           tabBarIcon:({color , size}) => (
             <FontAwesome5 name={'home'} size={iconsSize} color={color} />
           ),
@@ -149,11 +165,7 @@ const HomeScreenStack = ({navigation}) => {
      screenOptions={({route}) => ({
       headerTitle: getHeaderTitle(route),
 
-      headerRight: () => (
-        <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-          <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-        </TouchableOpacity>
-      ),
+      headerRight: () => getHeaderTopRight(navigation),
       headerStyle: {
         backgroundColor: '#fff',
       },
@@ -279,11 +291,7 @@ const AddressScreenStack = ({navigation}) => {
     <Stack.Navigator
       initialRouteName="AddressList"
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-          </TouchableOpacity>
-        ),
+        headerRight: () =>getHeaderTopRight(navigation),
         headerStyle: {
           backgroundColor: '#fff',
         },
@@ -318,11 +326,7 @@ const FaqScreenStack = ({navigation}) => {
     <Stack.Navigator
       initialRouteName="Faqs"
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-          </TouchableOpacity>
-        ),
+        headerRight: () => getHeaderTopRight(navigation),
         headerStyle: {
           backgroundColor: '#fff',
         },
@@ -351,11 +355,7 @@ const AboutScreenStack = ({navigation}) => {
     <Stack.Navigator
       initialRouteName="AboutUs"
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-          </TouchableOpacity>
-        ),
+        headerRight: () => getHeaderTopRight(navigation),
         headerStyle: {
           backgroundColor: '#fff',
         },
@@ -383,11 +383,7 @@ const ContactScreenStack = ({navigation}) => {
     <Stack.Navigator
       initialRouteName="Contact"
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-          </TouchableOpacity>
-        ),
+        headerRight: () => getHeaderTopRight(navigation),
         headerStyle: {
           backgroundColor: '#fff',
         },
@@ -415,11 +411,7 @@ const TermsAndConditionsScreenStack = ({navigation}) => {
     <Stack.Navigator
       initialRouteName="TermsAndCondition"
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-            <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-          </TouchableOpacity>
-        ),
+        headerRight: () => getHeaderTopRight(navigation),
         headerStyle: {
           backgroundColor: '#fff',
         },
@@ -460,7 +452,7 @@ const MainNavigator = () => {
       <Drawer.Screen
         name="HomeScreenStack"
         options={{
-          drawerLabel: 'Home',
+          drawerLabel: AppName,
           drawerIcon:({color , size}) => (
             <FontAwesome5 name={'home'} size={iconsSize} color={color} style={{marginRight:-20}} />
           ),
