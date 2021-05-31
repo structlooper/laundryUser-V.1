@@ -17,7 +17,7 @@ const bill = (labelName,price,style) => {
                     {labelName}
                 </Text>
             </View>
-            <View style={{flex:1}}></View>
+            <View style={{flex:1}} />
             <View style={{flex:1}}>
                 <Text style={style}>
                     {price}
@@ -31,9 +31,7 @@ const homeBtn = (navigation,routeName) => {
     if (routeName === 'ViewCart'){
         return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'Home'})},'Go Home',{marginTop:10},'home')
     }else{
-        return (
-            <View></View>
-        )
+        return null
     }
 }
 
@@ -83,7 +81,7 @@ const OrderDetails = ({navigation,route}) => {
         return <NoDataFound />
     }else {
         return (
-          <View style={styles.mainContainer}>
+          <ScrollView style={styles.mainContainer}>
               <View style={styles.headerContainer}>
                   <Text style={styles.orderHeaderLabel}>
                       Order Id - {order.order_id}
@@ -161,7 +159,7 @@ const OrderDetails = ({navigation,route}) => {
                   {bill('Total', '₹ '+order.total, styles.priceLabelFinal)}
               </View>
               {homeBtn(navigation,routeName)}
-          </View>
+          </ScrollView>
         )
     }
 }
