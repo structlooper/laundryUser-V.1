@@ -5,7 +5,7 @@ const TestPage = () => {
   return (
     <View style={{textAlign:'center' ,justifyContent:'center'}}>
       <Text>
-        This page is under construction.........
+        This page is under construction...........
       </Text>
     </View>
   );
