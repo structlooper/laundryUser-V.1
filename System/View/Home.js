@@ -3,8 +3,16 @@ import {
   Linking,
   Text,
   View,
-  SafeAreaView , Image , StyleSheet,ScrollView,TouchableOpacity,Dimensions } from 'react-native';
-import Carousel from 'react-native-snap-carousel';
+  SafeAreaView , Image ,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  TouchableHighlight,
+  ImageBackground
+
+} from 'react-native';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 import {
   mainColor,
   MyButton,
@@ -18,7 +26,7 @@ import PaymentController from "../Controller/PaymentController";
 import RNRestart from 'react-native-restart';
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
-const iconSize = 18;
+const iconSize = 20;
 import Loader from "../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -31,11 +39,11 @@ const ServiceCard = (data,navi,index) => {
         <Text style={styles.ServiceHeading}>{data.name}</Text>
         <Text style={styles.ServiceDescription}>{data.description}</Text>
       </TouchableOpacity>
-      </View>
+    </View>
   )
 }
 
-const MemberShipCard = (data,index) => {
+const MemberShipCard = (data,index,image) => {
   const saveMembership = async () => {
     let userId = JSON.parse(await AsyncStorage.getItem('userDetails')).id;
     fetchAuthPostFunction('membership/save',{membership_id:data.id,user_id:userId}).then(response => {
@@ -47,30 +55,51 @@ const MemberShipCard = (data,index) => {
 
   }
   return (
-    <View style={[styles.pricingCardContainer,{alignItems: 'center'}]} key={index}>
-      <Text style={styles.pricingCardHeader}>{capitalizeFirstLetter(data.title)}</Text>
-      <View style={{flexDirection:'row'}}>
-        <Text style={styles.pricingCardPrice}>₹{data.price}</Text>
-        <Text style={{ marginVertical:15,fontSize:13}}>/{data.duration_name}</Text>
+    <View style={styles.membershipCardContainer} key={index}>
+      <View style={styles.imageWrapper}>
+        <ImageBackground style={styles.theImage} source={{uri : image}}>
+          <View style={{
+            marginTop:'10%',
+            marginLeft:'5%'
+          }}>
+            {MyButton(
+              () => {console.log('get start')},
+              'Get start',
+              {
+                width:'30%',
+              },
+              'lightbulb'
+            )}
+          </View>
+        </ImageBackground>
       </View>
-      <Text style={styles.pricingCardDetails}>{data.desc_1}</Text>
-      <Text style={styles.pricingCardDetails}>{data.desc_2}</Text>
-      <Text style={styles.pricingCardDetails}>{data.desc_3 ?? ''}</Text>
-
-      <TouchableOpacity onPress={() => {
-        let amount = (data.price * 100).toString();
-      PaymentController(amount,data.title+' membership').then(res => {
-        if (res == 'true'){
-          saveMembership().then()
-        }
-      })
-      }
-      }>
-        <Text style={styles.PriceButton}><FontAwesome5 name={'lightbulb'} size={iconSize-2} color={'#fff'}  />  GET STARTED</Text>
-      </TouchableOpacity>
-
     </View>
   )
+  // return (
+  //   <View style={[styles.pricingCardContainer,{alignItems: 'center'}]} key={index}>
+  //     <Text style={styles.pricingCardHeader}>{capitalizeFirstLetter(data.title)}</Text>
+  //     <View style={{flexDirection:'row'}}>
+  //       <Text style={styles.pricingCardPrice}>₹{data.price}</Text>
+  //       <Text style={{ marginVertical:15,fontSize:13}}>/{data.duration_name}</Text>
+  //     </View>
+  //     <Text style={styles.pricingCardDetails}>{data.desc_1}</Text>
+  //     <Text style={styles.pricingCardDetails}>{data.desc_2}</Text>
+  //     <Text style={styles.pricingCardDetails}>{data.desc_3 ?? ''}</Text>
+  //
+  //     <TouchableOpacity onPress={() => {
+  //       let amount = (data.price * 100).toString();
+  //     PaymentController(amount,data.title+' membership').then(res => {
+  //       if (res === 'true'){
+  //         saveMembership().then()
+  //       }
+  //     })
+  //     }
+  //     }>
+  //       <Text style={styles.PriceButton}><FontAwesome5 name={'lightbulb'} size={iconSize-2} color={'#fff'}  />  GET STARTED</Text>
+  //     </TouchableOpacity>
+  //
+  //   </View>
+  // )
 }
 
 
@@ -88,14 +117,15 @@ export default class Home extends React.Component {
       whatsAppNumber:null,
       callNumber:null,
       carouselItems: [],
+      activeSlide:0,
       services : [],
       members : [],
-
+      serviceScrollViewWidth:10,
+      serviceCurrentXOffset:0
     }
   }
 
   componentDidMount =  () =>{
-
     this.setState({
       didMount:true
     })
@@ -113,6 +143,28 @@ export default class Home extends React.Component {
       activeIndex:1
     })
   }
+  get pagination () {
+    const { carouselItems, activeSlide } = this.state;
+    return (
+      <Pagination
+        dotsLength={carouselItems.length}
+        activeDotIndex={activeSlide}
+        containerStyle={{ backgroundColor: '#eee' , paddingVertical: 0 }}
+        dotStyle={{
+          width: 10,
+          height: 10,
+          borderRadius: 5,
+          // marginHorizontal: 8,
+          backgroundColor: '#000'
+        }}
+        inactiveDotStyle={{
+          // Define styles for inactive dots here
+        }}
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.6}
+      />
+    );
+  }
   getAppSettings = async () => {
     await fetchGetFunction('app_setting').then(response => {
       this.setState({
@@ -121,9 +173,9 @@ export default class Home extends React.Component {
       })
     })
   }
-   getHomeBanners = async  () => {
-     await fetchGetFunction('servicesBanners').then(result => {
-       let final = [];
+  getHomeBanners = async  () => {
+    await fetchGetFunction('servicesBanners').then(result => {
+      let final = [];
       result.forEach(element => {
         element.banner_image =  ImageUrl + element.banner_image
         final.push(element)
@@ -134,7 +186,7 @@ export default class Home extends React.Component {
     })
   }
   getServices = async  () => {
-     await fetchGetFunction('service').then(result => {
+    await fetchGetFunction('service').then(result => {
 
       let final = [];
       result.forEach(element => {
@@ -151,7 +203,6 @@ export default class Home extends React.Component {
       loader:false,
     })
   }
-
   _renderItem({item,index}){
     return (
       <View style={{
@@ -161,7 +212,7 @@ export default class Home extends React.Component {
         paddingTop:20,
         marginVertical:5,
         height:180,
-        }} key={index}>
+      }} key={index}>
         <View style={{ flexDirection:'row'}}>
           <View style={{ flex:.9 }}>
             <Text style={{fontSize: 20}}>{item.title}</Text>
@@ -179,42 +230,56 @@ export default class Home extends React.Component {
 
     )
   }
-
- openWhatsapp = () =>{
-   let msg ="";
-   let mobile = this.state.whatsAppNumber;
-       let url =
-         "whatsapp://send?text=" +
-         msg +
-         "&phone=91" +
-         mobile;
-       Linking.openURL(url)
-         .then(data => {
-           console.log("WhatsApp Opened successfully " + data);
-         })
-         .catch(() => {
-           alert("Make sure WhatsApp installed on your device");
-         });
+  openWhatsapp = () =>{
+    let msg ="";
+    let mobile = this.state.whatsAppNumber;
+    let url =
+      "whatsapp://send?text=" +
+      msg +
+      "&phone=91" +
+      mobile;
+    Linking.openURL(url)
+      .then(data => {
+        console.log("WhatsApp Opened successfully " + data);
+      })
+      .catch(() => {
+        alert("Make sure WhatsApp installed on your device");
+      });
 
   }
   openCallApp = () =>{
-   let mobile = this.state.callNumber;
-        Linking.openURL(`tel:${mobile}`)
-         .then(data => {
-           console.log("Call Opened successfully " + data);
-         })
-         .catch(() => {
-           alert("Some error");
-         });
+    let mobile = this.state.callNumber;
+    Linking.openURL(`tel:${mobile}`)
+      .then(data => {
+        console.log("Call Opened successfully " + data);
+      })
+      .catch(() => {
+        alert("Some error");
+      });
 
   }
-
   getMembershipDetails = async () => {
     fetchGetFunction('membership').then(response => {
       this.setState({
         members:response
       })
     })
+  }
+  _handleScroll = (event) => {
+    let newXOffset = event.nativeEvent.contentOffset.x
+    this.setState({currentXOffset:newXOffset})
+  }
+
+  leftArrow = () => {
+    let eachItemOffset = this.state.serviceScrollViewWidth / (this.state.services).length; // Divide by 10 because I have 10 <View> items
+    let _serviceCurrentXOffset =  this.state.serviceCurrentXOffset - eachItemOffset;
+    this.refs.scrollView.scrollTo({x: _serviceCurrentXOffset, y: 0, animated: true})
+  }
+
+  rightArrow = () => {
+    let eachItemOffset = this.state.serviceScrollViewWidth /  (this.state.services).length; // Divide by 10 because I have 10 <View> items
+    let _serviceCurrentXOffset =  this.state.serviceCurrentXOffset + eachItemOffset;
+    this.refs.scrollView.scrollTo({x: _serviceCurrentXOffset, y: 0, animated: true})
   }
 
   render() {
@@ -227,55 +292,115 @@ export default class Home extends React.Component {
       return <Loader />
     } else {
       return (
-        <View style={{ flex: 1, width: '100%', backgroundColor: '#eee' }}>
-          <ScrollView style={{ marginBottom: 50 }}>
+        <View style={{ height:'100%' }}>
+          <View style={{ height:'90%', width: '100%', backgroundColor: '#eee' }}>
+            <ScrollView >
 
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#eee' }}>
+              <SafeAreaView style={{ flex: 1, backgroundColor: '#eee' }}>
 
-              <View style={{ flexDirection: 'row', justifyContent: 'center', }}>
-                <Carousel
-                  layout={"default"}
-
-                  data={this.state.carouselItems}
-                  sliderWidth={width}
-                  itemWidth={width}
-                  renderItem={this._renderItem.bind(this)}
-                  onSnapToItem={index => this.setState({ activeIndex: index })}
-                  loop={true}
-                  autoplay={true}
-                  autoplayInterval={5000}
-                />
-              </View>
-              <Text style={styles.Heading}>Services</Text>
-              <ScrollView horizontal={true} style={{ maxHeight: "50%" }}>
-
-                <View style={styles.ServiceCardContainer}>
-                  { ((this.state.services).length > 0) ? this.state.services.map((data, index) =>
-                    ServiceCard(data, navigation, index)
-                  ) : null}
+                <View style={{ justifyContent: 'center', }}>
+                  <Carousel
+                    layout={"default"}
+                    data={this.state.carouselItems}
+                    sliderWidth={width}
+                    itemWidth={width}
+                    renderItem={this._renderItem.bind(this)}
+                    onSnapToItem={index => this.setState({ activeSlide : index })}
+                    loop={true}
+                    autoplay={true}
+                    autoplayInterval={5000}
+                  />
+                  { this.pagination }
                 </View>
-              </ScrollView>
-              <Text style={styles.Heading}>Membership Offers</Text>
-              <View >
-                <ScrollView horizontal={true} style={{ flexDirection: 'row' }}>
-                  { ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>
-                    MemberShipCard(mem, index)
-                  ) : null }
-                </ScrollView>
-              </View>
-            </SafeAreaView>
+                <View style={{ flexDirection:'row'}}>
+                  <Text style={styles.Heading}>Select services</Text>
+                  <TouchableOpacity style={{
+                    marginRight:10,
+                  }} onPress={() => {console.log('show all')}}>
+                    <Text style={{
 
-          </ScrollView>
-          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
-            <View style={[styles.PrimeMemberBannerContainer]}>
-              <TouchableOpacity  onPress={() => this.openCallApp()} style={{ flex:1}}>
-                <Text style={[styles.CallButton]}><FontAwesome5 name={'phone-alt'} size={iconSize} color={'white'}
-                                                                style={{ marginRight: 10 }} /> Call </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.openWhatsapp()} style={{flex:1}}>
-                <Text style={[styles.CallButton,{backgroundColor:'green'}]}><FontAwesome5 name={'whatsapp'} size={iconSize} color={'white'}
-                                                                style={{ marginRight: 10 }} /> Whatsapp</Text>
-              </TouchableOpacity>
+                      fontSize:14,
+                      borderBottomWidth:1,
+                      borderBottomColor:mainColor,
+                      color:mainColor
+                    }}>
+                      See more
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={{ flexDirection:'row',width:'100%'}}>
+                  <TouchableHighlight
+                    style={{alignItems: 'flex-start',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2 }}
+                    onPress={this.leftArrow}>
+                    <Text> <FontAwesome5 name={'arrow-left'} size={30} /> </Text>
+                  </TouchableHighlight>
+                  <ScrollView   horizontal={true}
+                                pagingEnabled={true}
+                                ref="scrollView"
+                                onContentSizeChange={(w, h) => this.setState({serviceScrollViewWidth:w})}
+                    // scrollEventThrottle={16}
+                    // scrollEnabled={false} // remove if you want user to swipe
+                                onScroll={this._handleScroll}
+                  >
+
+                    <View style={styles.ServiceCardContainer}>
+                      { ((this.state.services).length > 0) ? this.state.services.map((data, index) =>
+                        ServiceCard(data, navigation, index)
+                      ) : null}
+
+                    </View>
+
+                  </ScrollView>
+                  <TouchableHighlight
+                    style={{alignItems: 'flex-end',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2}}
+                    onPress={this.rightArrow}>
+                    <Text>  <FontAwesome5 name={'arrow-right'} size={30} /> </Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={{
+                  alignItems:'center',
+                  marginVertical:10
+                }}>
+                  {MyButton(() => {console.log('log')},'Schedule pickup'
+                    ,{width:'60%'},'clock'
+                  )}
+
+                </View>
+                <Text style={styles.Heading}>Membership Offers</Text>
+                {/*{ ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>*/}
+                {/*  MemberShipCard(mem, index,'')*/}
+                {/*) : null }*/}
+                {                    MemberShipCard("mem", 3,
+                  'https://swapd.co/uploads/db6033/original/2X/0/00f7c5f0c80a5107cb072dada79cb4f5beb24ba5.jpg')}
+                {                    MemberShipCard("mem", 1,
+                  'https://lh3.googleusercontent.com/proxy/uxmRY9UHgOT7-YdauAlv03Pq8nEUtGz_85kCWp2z_jKZN2SMbk-bDGL9SqyfiOfw5fJNhy4KY6d55LaXKe8uEuiLMGhZKEjieN1abOkuW55tAEGu-wRi4Q-PLkaDBI1CEwBJuA')}
+                {                    MemberShipCard("mem", 2,
+                  'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
+
+
+              </SafeAreaView>
+
+            </ScrollView>
+
+          </View>
+          <View style={{ height:'10%',backgroundColor:'#fff',paddingHorizontal:30, justifyContent:'center'  }}>
+            <View style={styles.PrimeMemberBannerContainer}>
+              <View style={[styles.CallButton,{flex:1,marginLeft:10}]}>
+                <TouchableOpacity  onPress={() => this.openCallApp()} >
+                  <FontAwesome5 name={'phone-alt'} size={iconSize} color={'grey'}
+                  />
+                  <Text style={{ color:'grey' }}>Call </Text>
+                </TouchableOpacity>
+              </View>
+              <View  style={[styles.CallButton]}>
+                <TouchableOpacity onPress={() => this.openWhatsapp()} style={{alignItems:'center'}}>
+                  <FontAwesome5 name={'whatsapp'} size={iconSize} color={'green'}
+                  />
+                  <Text >Whatsapp</Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
           </View>
         </View>
@@ -308,7 +433,8 @@ const styles = StyleSheet.create({
   },
   Heading:{
     marginHorizontal:10,
-    fontSize:18
+    fontSize:18,
+    flex:1
   },
   ServiceHeading:{
     marginTop:5,
@@ -322,8 +448,9 @@ const styles = StyleSheet.create({
   },
   PrimeMemberBannerContainer:{
     // marginBottom:8,
-    padding:5,
-    borderRadius: 40/2,
+    // padding:5,
+    justifyContent:'center',
+    alignItems:'center',
     flexDirection:'row',
   },
   OrderCardContainer:{
@@ -373,12 +500,9 @@ const styles = StyleSheet.create({
   },
 
   CallButton:{
-    textAlign:'center',
-    backgroundColor:mainColor,
     fontSize:15,
     color:'#fff',
     paddingHorizontal:18,
-    paddingVertical: 12,
     borderRadius:100/2
   },
   pricingCardContainer:{
@@ -413,6 +537,22 @@ const styles = StyleSheet.create({
     backgroundColor:'#4f9deb',
     color:'#fff',
     borderRadius:10/2,
+  },
+  membershipCardContainer:{
+    width:'100%',
+    backgroundColor:'#fff',
+    marginVertical:'1%',
+    marginHorizontal:'.5%'
+  },
+  imageWrapper: {
+    height: 100,
+    width: '100%',
+    overflow : "hidden"
+  },
+  theImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   }
 })
 
