@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Picker } from "re
 import { mainColor, MyButton, MyOutlineButton } from "../../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import RNPickerSelect from "react-native-picker-select";
-const Process = () => {
+const Process = ({navigation}) => {
   const [ language, setLanguage ] = React.useState("");
   return (
     <View style={Styles.mainContainer}>
@@ -152,7 +152,7 @@ const Process = () => {
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
-          ()=>{console.log('proceed')},
+          ()=>{navigation.navigate('ProcessNext')},
           'Proceed',
           {width:'30%',
           }
