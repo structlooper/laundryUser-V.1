@@ -13,20 +13,22 @@ import {
 
 } from 'react-native';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 import {
   mainColor,
   MyButton,
   fetchGetFunction,
   ImageUrl,
   capitalizeFirstLetter,
-  fetchAuthPostFunction, MyToast,
+  fetchAuthPostFunction, MyToast, MyOutlineButton, MyTransButton,
 } from "../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import PaymentController from "../Controller/PaymentController";
 import RNRestart from 'react-native-restart';
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
-const iconSize = 20;
+const iconSize = 30;
 import Loader from "../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -62,13 +64,16 @@ const MemberShipCard = (data,index,image) => {
             marginTop:'10%',
             marginLeft:'5%'
           }}>
-            {MyButton(
+            {MyTransButton(
               () => {console.log('get start')},
               'Get start',
               {
                 width:'30%',
+                backgroundColor: 'rgba(52, 52, 52, 0.6)',
+                color:'#fff'
               },
-              'lightbulb'
+              'lightbulb',
+              '#fff'
             )}
           </View>
         </ImageBackground>
@@ -293,7 +298,7 @@ export default class Home extends React.Component {
     } else {
       return (
         <View style={{ height:'100%' }}>
-          <View style={{ height:'90%', width: '100%', backgroundColor: '#eee' }}>
+          <View style={{ height:'100%', width: '100%', backgroundColor: '#eee' }}>
             <ScrollView >
 
               <SafeAreaView style={{ flex: 1, backgroundColor: '#eee' }}>
@@ -301,6 +306,7 @@ export default class Home extends React.Component {
                 <View style={{ justifyContent: 'center', }}>
                   <Carousel
                     layout={"default"}
+                    ref={(carousel) => { this._carousel = carousel; }}
                     data={this.state.carouselItems}
                     sliderWidth={width}
                     itemWidth={width}
@@ -311,6 +317,25 @@ export default class Home extends React.Component {
                     autoplayInterval={5000}
                   />
                   { this.pagination }
+                  <View style={{
+                    left:0,top:80,right:0,position:'absolute'
+                  }}>
+                    <TouchableOpacity onPress={() => {
+                      this._carousel.snapToItem(this._carousel.currentIndex - 1)
+                    }}>
+                      <Text> <FontAwesome5 name={'arrow-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{
+                    top:80,right:0,position:'absolute'
+                  }}>
+                    <TouchableOpacity onPress={() => {
+                      this._carousel.snapToItem(this._carousel.currentIndex + 1)
+                    }}>
+                      <Text> <FontAwesome5 name={'arrow-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
+                    </TouchableOpacity>
+                  </View>
+
                 </View>
                 <View style={{ flexDirection:'row'}}>
                   <Text style={styles.Heading}>Select services</Text>
@@ -330,17 +355,15 @@ export default class Home extends React.Component {
                 </View>
 
                 <View style={{ flexDirection:'row',width:'100%'}}>
-                  <TouchableHighlight
+                  <TouchableOpacity
                     style={{alignItems: 'flex-start',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2 }}
                     onPress={this.leftArrow}>
-                    <Text> <FontAwesome5 name={'arrow-left'} size={30} /> </Text>
-                  </TouchableHighlight>
+                    <Text> <FontAwesome5 name={'arrow-left'} size={25} /> </Text>
+                  </TouchableOpacity>
                   <ScrollView   horizontal={true}
                                 pagingEnabled={true}
                                 ref="scrollView"
                                 onContentSizeChange={(w, h) => this.setState({serviceScrollViewWidth:w})}
-                    // scrollEventThrottle={16}
-                    // scrollEnabled={false} // remove if you want user to swipe
                                 onScroll={this._handleScroll}
                   >
 
@@ -352,11 +375,11 @@ export default class Home extends React.Component {
                     </View>
 
                   </ScrollView>
-                  <TouchableHighlight
+                  <TouchableOpacity
                     style={{alignItems: 'flex-end',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2}}
                     onPress={this.rightArrow}>
-                    <Text>  <FontAwesome5 name={'arrow-right'} size={30} /> </Text>
-                  </TouchableHighlight>
+                    <Text>  <FontAwesome5 name={'arrow-right'} size={25} /> </Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={{
                   alignItems:'center',
@@ -377,32 +400,34 @@ export default class Home extends React.Component {
                   'https://biochemistry.blob.core.windows.net/public/2019/12/ExistingMenbers.png')}
                 {                    MemberShipCard("mem", 2,
                   'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
+                {                    MemberShipCard("mem", 4,
+                  'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
 
 
               </SafeAreaView>
 
             </ScrollView>
+            <View style={{ height:'10%', left:0,right:0,bottom:0, position:"absolute" ,paddingHorizontal:30, justifyContent:'center'  }}>
+              <View style={styles.PrimeMemberBannerContainer}>
+                <View style={[styles.CallButton,{flex:1,marginLeft:10}]}>
+                  <TouchableOpacity  onPress={() => this.openCallApp()} >
+                    <FontAwesome5 name={'phone-alt'} size={iconSize} color={'rgba(125,106,239,0.9 )'}
+                    />
+                    {/*<Text style={{ color:'black' }}>Call </Text>*/}
+                  </TouchableOpacity>
+                </View>
+                <View  style={[styles.CallButton]}>
+                  <TouchableOpacity onPress={() => this.openWhatsapp()} style={{alignItems:'center'}}>
+                    <FontAwesome5 name={'whatsapp'} size={iconSize} color={'rgba(67,186,150,0.9)'}
+                    />
+                    {/*<Text >Whatsapp</Text>*/}
+                  </TouchableOpacity>
+                </View>
 
-          </View>
-          <View style={{ height:'10%',backgroundColor:'#fff',paddingHorizontal:30, justifyContent:'center'  }}>
-            <View style={styles.PrimeMemberBannerContainer}>
-              <View style={[styles.CallButton,{flex:1,marginLeft:10}]}>
-                <TouchableOpacity  onPress={() => this.openCallApp()} >
-                  <FontAwesome5 name={'phone-alt'} size={iconSize} color={'grey'}
-                  />
-                  <Text style={{ color:'grey' }}>Call </Text>
-                </TouchableOpacity>
               </View>
-              <View  style={[styles.CallButton]}>
-                <TouchableOpacity onPress={() => this.openWhatsapp()} style={{alignItems:'center'}}>
-                  <FontAwesome5 name={'whatsapp'} size={iconSize} color={'green'}
-                  />
-                  <Text >Whatsapp</Text>
-                </TouchableOpacity>
-              </View>
-
             </View>
           </View>
+
         </View>
 
       );
@@ -416,15 +441,15 @@ const styles = StyleSheet.create({
   },
   ServiceCard:{
     flex:1,
-    // height:'100%',
-    // minWidth:'40%',
+    height:hp('19'),
+    width:wp('25.8'),
     alignContent:'center',
-    marginHorizontal: 5,
-    backgroundColor:'#fff',paddingHorizontal:30,
-    paddingVertical: 20,
-    // paddingHorizontal:10,
-    // paddingVertical:2,
+    marginHorizontal: wp('1'),
+    backgroundColor:'#fff',
+    alignItems: 'center',
     borderRadius:40/2,
+    justifyContent:'center',
+    overflow: 'hidden'
   },
   ServiceImage:{
     width:90,
