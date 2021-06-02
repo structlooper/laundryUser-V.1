@@ -362,7 +362,7 @@ export default class Home extends React.Component {
                   alignItems:'center',
                   marginVertical:10
                 }}>
-                  {MyButton(() => {console.log('log')},'Schedule pickup'
+                  {MyButton(() => {navigation.navigate('process')},'Schedule pickup'
                     ,{width:'60%'},'clock'
                   )}
 

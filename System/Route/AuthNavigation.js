@@ -31,7 +31,7 @@ import TimeBar from "../View/TimeSlot/TimeBar";
 import AboutUs from "../View/AboutUs";
 import Contact from "../View/Contact";
 import TermsAndConditions from "../View/TermsAndConditions";
-
+import Process from "../View/Process/Process";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -71,8 +71,7 @@ const getHeaderTopRight = (navigation) => {
   )
 }
 const getHeaderTitle = (route) => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'Feed';
-
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'feed';
   switch (routeName) {
     case 'HomeTab':
       return AppName;
@@ -83,13 +82,11 @@ const getHeaderTitle = (route) => {
     case 'Offers':
       return 'Offers';
     case 'Service':
-      return AppName;
+      return 'Services';
     case 'Orders':
       return 'Orders';
     case 'TermsAndConditions':
       return 'Terms & Conditions';
-    default:
-      return AppName;
   }
 };
 
@@ -161,7 +158,7 @@ const BottomStack = () => {
 
 const HomeScreenStack = ({navigation}) => {
   return (
-    <Stack.Navigator initialRouteName="Home"
+    <Stack.Navigator initialRouteName={AppName}
      screenOptions={({route}) => ({
       headerTitle: getHeaderTitle(route),
 
@@ -176,7 +173,7 @@ const HomeScreenStack = ({navigation}) => {
     })}
     >
       <Stack.Screen
-        name="Home"
+        name= {AppName}
         component={BottomStack}
         options={{
           headerLeft: () => (
@@ -278,6 +275,17 @@ const HomeScreenStack = ({navigation}) => {
 
         options={({route}) => ({
           title: 'Time Slot',
+        })}
+
+
+      />
+      <Stack.Screen
+        name="process"
+        component={Process}
+
+        options={({route}) => ({
+          title: 'Schedule' +
+            ' +',
         })}
 
 
