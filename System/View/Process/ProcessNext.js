@@ -163,7 +163,7 @@ const Page = ({navigation}) => {
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
-          ()=>{navigation.navigate('ProcessNext')},
+          ()=>{navigation.navigate('OrderPlaced')},
           'Proceed',
           {width:'30%',
           }

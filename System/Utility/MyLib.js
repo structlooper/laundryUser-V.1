@@ -11,9 +11,9 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 export const mainColor = '#5414b3';
 export const AppName = 'KRYCHE';
-export const Url = 'http://covidvaccination.co.in/';
+// export const Url = 'http://covidvaccination.co.in/';
 //local//server//
-// export const Url ='http://192.168.43.39:8000/'
+export const Url ='http://192.168.43.39:8000/'
 export const ImageUrl = Url+'uploads/';
 export const BaseUrl = Url+'api/';
 export const HERE_API_KEY = 'AIzaSyAhJW0BL0uuVzXfhkhiQb3ZXF8f4pQ0vYQ';

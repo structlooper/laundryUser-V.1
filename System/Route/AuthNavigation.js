@@ -33,6 +33,7 @@ import Contact from "../View/Contact";
 import TermsAndConditions from "../View/TermsAndConditions";
 import Process from "../View/Process/Process";
 import ProcessNext from "../View/Process/ProcessNext";
+import OrderPlaced from "../View/Process/OrderPlaced";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -297,6 +298,17 @@ const HomeScreenStack = ({navigation}) => {
         options={({route}) => ({
           title: 'Schedule' +
             ' +',
+        })}
+
+
+      />
+      <Stack.Screen
+        name="OrderPlaced"
+        component={ OrderPlaced }
+
+        options={({route}) => ({
+          title: 'Order Placed',
+          headerShown: false,
         })}
 
 
