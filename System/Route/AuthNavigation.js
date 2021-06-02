@@ -32,6 +32,7 @@ import AboutUs from "../View/AboutUs";
 import Contact from "../View/Contact";
 import TermsAndConditions from "../View/TermsAndConditions";
 import Process from "../View/Process/Process";
+import ProcessNext from "../View/Process/ProcessNext";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -282,6 +283,16 @@ const HomeScreenStack = ({navigation}) => {
       <Stack.Screen
         name="process"
         component={Process}
+
+        options={({route}) => ({
+          title: 'Schedule',
+        })}
+
+
+      />
+      <Stack.Screen
+        name="ProcessNext"
+        component={ProcessNext}
 
         options={({route}) => ({
           title: 'Schedule' +
