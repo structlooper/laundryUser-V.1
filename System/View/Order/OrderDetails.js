@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import {View, Text, StyleSheet, Image, ScrollView} from 'react-native'
-import { fetchAuthPostFunction, mainColor, MyButton } from "../../Utility/MyLib";
+import { AppName, fetchAuthPostFunction, mainColor, MyButton } from "../../Utility/MyLib";
 import {useNavigationState} from '@react-navigation/native';
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
@@ -29,7 +29,7 @@ const bill = (labelName,price,style) => {
 
 const homeBtn = (navigation,routeName) => {
     if (routeName === 'ViewCart'){
-        return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:'Home'})},'Go Home',{marginTop:10},'home')
+        return MyButton(() => {navigation.navigate('HomeScreenStack',{screen:AppName})},'Go Home',{marginTop:10},'home')
     }else{
         return null
     }

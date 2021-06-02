@@ -89,6 +89,25 @@ export const MyOutlineButton = (onPress,TextOnIt,style,icon,loading) => {
     </Button>
   )
 }
+export const MyTransButton = (onPress,TextOnIt,style,icon,color,loading) => {
+  return (
+    <Button
+      mode="Outlined"
+      style={style}
+      onPress={onPress}
+      loading={loading?true:false}
+      uppercase={false}
+      contentStyle={{ height: 50 }}
+      icon={icon}
+      color={color}
+    >
+      <Text>
+        {TextOnIt}
+
+      </Text>
+    </Button>
+  )
+}
 export const MyOptField = (name,onChangeFunction,placeHolder,style,icon,autofocus) => {
   return (
     <View>
