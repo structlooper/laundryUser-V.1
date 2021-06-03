@@ -34,6 +34,7 @@ import TermsAndConditions from "../View/TermsAndConditions";
 import Process from "../View/Process/Process";
 import ProcessNext from "../View/Process/ProcessNext";
 import OrderPlaced from "../View/Process/OrderPlaced";
+import MembershipDetails from "../View/MembershipDetails";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -309,6 +310,16 @@ const HomeScreenStack = ({navigation}) => {
         options={({route}) => ({
           title: 'Order Placed',
           headerShown: false,
+        })}
+
+
+      />
+      <Stack.Screen
+        name="MembershipDetails"
+        component={ MembershipDetails }
+
+        options={({route}) => ({
+          title: 'Member offer',
         })}
 
 

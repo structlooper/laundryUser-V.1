@@ -45,7 +45,7 @@ const ServiceCard = (data,navi,index) => {
   )
 }
 
-const MemberShipCard = (data,index,image) => {
+const MemberShipCard = (navigation,data,index,image) => {
   const saveMembership = async () => {
     let userId = JSON.parse(await AsyncStorage.getItem('userDetails')).id;
     fetchAuthPostFunction('membership/save',{membership_id:data.id,user_id:userId}).then(response => {
@@ -65,7 +65,7 @@ const MemberShipCard = (data,index,image) => {
             marginLeft:'5%'
           }}>
             {MyTransButton(
-              () => {console.log('get start')},
+              () => {navigation.navigate('MembershipDetails')},
               'Get start',
               {
                 width:'30%',
@@ -394,13 +394,13 @@ export default class Home extends React.Component {
                 {/*{ ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>*/}
                 {/*  MemberShipCard(mem, index,'')*/}
                 {/*) : null }*/}
-                {                    MemberShipCard("mem", 3,
+                {                    MemberShipCard(navigation,"mem", 3,
                   'https://swapd.co/uploads/db6033/original/2X/0/00f7c5f0c80a5107cb072dada79cb4f5beb24ba5.jpg')}
-                {                    MemberShipCard("mem", 1,
+                {                    MemberShipCard(navigation,"mem", 1,
                   'https://biochemistry.blob.core.windows.net/public/2019/12/ExistingMenbers.png')}
-                {                    MemberShipCard("mem", 2,
+                {                    MemberShipCard(navigation,"mem", 2,
                   'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
-                {                    MemberShipCard("mem", 4,
+                {                    MemberShipCard(navigation,"mem", 4,
                   'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
 
 
