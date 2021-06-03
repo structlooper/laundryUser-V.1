@@ -32,20 +32,9 @@ const iconSize = 30;
 import Loader from "../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ServiceCard = (data,navi,index) => {
 
-  return (
-    <View style={styles.ServiceCard} key={index}>
-      <TouchableOpacity onPress={() => {navi.navigate('ServicesSlider',{serviceId:data.id,serviceName:data.name})}}>
-        <Image source={{uri:data.image}} style={styles.ServiceImage}/>
-        <Text style={styles.ServiceHeading}>{data.name}</Text>
-        <Text style={styles.ServiceDescription}>{data.description}</Text>
-      </TouchableOpacity>
-    </View>
-  )
-}
 
-const MemberShipCard = (data,index,image) => {
+const MemberShipCard = (navigation,data,index,image) => {
   const saveMembership = async () => {
     let userId = JSON.parse(await AsyncStorage.getItem('userDetails')).id;
     fetchAuthPostFunction('membership/save',{membership_id:data.id,user_id:userId}).then(response => {
@@ -65,7 +54,7 @@ const MemberShipCard = (data,index,image) => {
             marginLeft:'5%'
           }}>
             {MyTransButton(
-              () => {console.log('get start')},
+              () => {navigation.navigate('MembershipDetails')},
               'Get start',
               {
                 width:'30%',
@@ -125,8 +114,9 @@ export default class Home extends React.Component {
       activeSlide:0,
       services : [],
       members : [],
+      selectedServices:[],
       serviceScrollViewWidth:10,
-      serviceCurrentXOffset:0
+      serviceCurrentXOffset:0,
     }
   }
 
@@ -137,16 +127,28 @@ export default class Home extends React.Component {
     this.callFunctions()
     return () => {this.setState({didMount:false})}
   }
+
   callFunctions = () => {
-    if (this.state.activeIndex === 0){
+    // if (this.state.activeIndex === 0){
       this.getHomeBanners().then()
       this.getServices().then()
       this.getAppSettings().then()
       this.getMembershipDetails().then()
-    }
+    // }
     this.setState({
       activeIndex:1
     })
+  }
+
+  _handleServiceSelection = (serviceId) => {
+    const {selectedServices} = this.state;
+    const index = selectedServices.indexOf(serviceId);
+    if (index === -1){
+      selectedServices.push(serviceId)
+    }else{
+      selectedServices.splice(index, 1);
+    }
+    this.forceUpdate();
   }
   get pagination () {
     const { carouselItems, activeSlide } = this.state;
@@ -274,24 +276,44 @@ export default class Home extends React.Component {
     let newXOffset = event.nativeEvent.contentOffset.x
     this.setState({currentXOffset:newXOffset})
   }
-
   leftArrow = () => {
     let eachItemOffset = this.state.serviceScrollViewWidth / (this.state.services).length; // Divide by 10 because I have 10 <View> items
     let _serviceCurrentXOffset =  this.state.serviceCurrentXOffset - eachItemOffset;
     this.refs.scrollView.scrollTo({x: _serviceCurrentXOffset, y: 0, animated: true})
   }
-
   rightArrow = () => {
     let eachItemOffset = this.state.serviceScrollViewWidth /  (this.state.services).length; // Divide by 10 because I have 10 <View> items
     let _serviceCurrentXOffset =  this.state.serviceCurrentXOffset + eachItemOffset;
     this.refs.scrollView.scrollTo({x: _serviceCurrentXOffset, y: 0, animated: true})
   }
 
+  ServiceCard = (data,navi,index) => {
+    if (this.state.selectedServices.includes(data.id)){
+      return (
+        <View style={styles.ServiceCardActive} key={index}>
+          <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id)}}>
+            <Image source={{uri:data.image}} style={styles.ServiceImage}/>
+            <Text style={styles.ServiceHeadingActive}>{data.name}</Text>
+            <Text style={styles.ServiceDescriptionActive}>{data.description}</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+    return (
+      <View style={styles.ServiceCard} key={index}>
+        {/*<TouchableOpacity onPress={() => {navi.navigate('ServicesSlider',{serviceId:data.id,serviceName:data.name})}}>*/}
+        <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id)}}>
+          <Image source={{uri:data.image}} style={styles.ServiceImage}/>
+          <Text style={styles.ServiceHeading}>{data.name}</Text>
+          <Text style={styles.ServiceDescription}>{data.description}</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
   render() {
     if(!this.state.didMount) {
       return null;
     }
-
     const navigation = this.props.navigation;
     if (this.state.loader) {
       return <Loader />
@@ -303,16 +325,18 @@ export default class Home extends React.Component {
 
               <SafeAreaView style={{ flex: 1, backgroundColor: '#eee' }}>
 
-                <View style={{ justifyContent: 'center', }}>
+                <View style={{ justifyContent: 'center' }}>
                   <Carousel
                     layout={"default"}
-                    ref={(carousel) => { this._carousel = carousel; }}
+                    ref={(carousel) => { this._carousel = carousel }}
                     data={this.state.carouselItems}
                     sliderWidth={width}
                     itemWidth={width}
                     renderItem={this._renderItem.bind(this)}
-                    onSnapToItem={index => this.setState({ activeSlide : index })}
-                    loop={true}
+                    onSnapToItem={index => this.setState({
+                      activeSlide:index
+                    })}
+                    // loop={true}
                     autoplay={true}
                     autoplayInterval={5000}
                   />
@@ -326,9 +350,7 @@ export default class Home extends React.Component {
                       <Text> <FontAwesome5 name={'arrow-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
                     </TouchableOpacity>
                   </View>
-                  <View style={{
-                    top:80,right:0,position:'absolute'
-                  }}>
+                  <View style={{ top:80,right:0,position:'absolute' }}>
                     <TouchableOpacity onPress={() => {
                       this._carousel.snapToItem(this._carousel.currentIndex + 1)
                     }}>
@@ -369,7 +391,9 @@ export default class Home extends React.Component {
 
                     <View style={styles.ServiceCardContainer}>
                       { ((this.state.services).length > 0) ? this.state.services.map((data, index) =>
-                        ServiceCard(data, navigation, index)
+                        {
+                          return this.ServiceCard(data, navigation, index)
+                        }
                       ) : null}
 
                     </View>
@@ -385,7 +409,7 @@ export default class Home extends React.Component {
                   alignItems:'center',
                   marginVertical:10
                 }}>
-                  {MyButton(() => {navigation.navigate('process')},'Schedule pickup'
+                  {MyButton(() => {((this.state.selectedServices).length > 0) ?navigation.navigate('process',{selectedServices:this.state.selectedServices}):MyToast('Please select at least one service')},'Schedule pickup'
                     ,{width:'60%'},'clock'
                   )}
 
@@ -394,33 +418,29 @@ export default class Home extends React.Component {
                 {/*{ ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>*/}
                 {/*  MemberShipCard(mem, index,'')*/}
                 {/*) : null }*/}
-                {                    MemberShipCard("mem", 3,
+                {                    MemberShipCard(navigation,"mem", 3,
                   'https://swapd.co/uploads/db6033/original/2X/0/00f7c5f0c80a5107cb072dada79cb4f5beb24ba5.jpg')}
-                {                    MemberShipCard("mem", 1,
+                {                    MemberShipCard(navigation,"mem", 1,
                   'https://biochemistry.blob.core.windows.net/public/2019/12/ExistingMenbers.png')}
-                {                    MemberShipCard("mem", 2,
+                {                    MemberShipCard(navigation,"mem", 2,
                   'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
-                {                    MemberShipCard("mem", 4,
+                {                    MemberShipCard(navigation,"mem", 4,
                   'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
-
-
               </SafeAreaView>
 
             </ScrollView>
-            <View style={{ height:'10%', left:0,right:0,bottom:0, position:"absolute" ,paddingHorizontal:30, justifyContent:'center'  }}>
+            <View style={{ height:'10%' ,paddingHorizontal:30, justifyContent:'center',backgroundColor:'#fff'  }}>
               <View style={styles.PrimeMemberBannerContainer}>
                 <View style={[styles.CallButton,{flex:1,marginLeft:10}]}>
                   <TouchableOpacity  onPress={() => this.openCallApp()} >
-                    <FontAwesome5 name={'phone-alt'} size={iconSize} color={'rgba(125,106,239,0.9 )'}
-                    />
-                    {/*<Text style={{ color:'black' }}>Call </Text>*/}
+                    <FontAwesome5 name={'phone-alt'} size={iconSize} color={'rgba(125,106,239,1 )'} />
+                    <Text style={{ color:'black' }}>Call</Text>
                   </TouchableOpacity>
                 </View>
                 <View  style={[styles.CallButton]}>
                   <TouchableOpacity onPress={() => this.openWhatsapp()} style={{alignItems:'center'}}>
-                    <FontAwesome5 name={'whatsapp'} size={iconSize} color={'rgba(67,186,150,0.9)'}
-                    />
-                    {/*<Text >Whatsapp</Text>*/}
+                    <FontAwesome5 name={'whatsapp'} size={iconSize} color={'rgba(67,186,150,1)'} />
+                    <Text >Whatsapp</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -451,6 +471,18 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     overflow: 'hidden'
   },
+  ServiceCardActive:{
+    flex:1,
+    height:hp('19'),
+    width:wp('25.8'),
+    alignContent:'center',
+    marginHorizontal: wp('1'),
+    backgroundColor:mainColor,
+    alignItems: 'center',
+    borderRadius:40/2,
+    justifyContent:'center',
+    overflow: 'hidden'
+  },
   ServiceImage:{
     width:90,
     height:70,
@@ -459,17 +491,33 @@ const styles = StyleSheet.create({
   Heading:{
     marginHorizontal:10,
     fontSize:18,
-    flex:1
+    flex:1,
+    color:'#000'
+
   },
   ServiceHeading:{
     marginTop:5,
     fontSize: 15,
     fontWeight:'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    color:'#000'
+  },
+  ServiceHeadingActive:{
+    marginTop:5,
+    fontSize: 15,
+    fontWeight:'bold',
+    textAlign: 'center',
+    color:'#fff'
   },
   ServiceDescription:{
     fontSize:12,
-    textAlign:'center'
+    textAlign:'center',
+    color:'#000'
+  },
+  ServiceDescriptionActive:{
+    fontSize:12,
+    textAlign:'center',
+    color:'#fff'
   },
   PrimeMemberBannerContainer:{
     // marginBottom:8,
