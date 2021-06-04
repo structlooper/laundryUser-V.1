@@ -115,6 +115,7 @@ export default class Home extends React.Component {
       services : [],
       members : [],
       selectedServices:[],
+      selectedServicesNames:[],
       serviceScrollViewWidth:10,
       serviceCurrentXOffset:0,
     }
@@ -140,13 +141,17 @@ export default class Home extends React.Component {
     })
   }
 
-  _handleServiceSelection = (serviceId) => {
+  _handleServiceSelection = (serviceId,serviceName) => {
     const {selectedServices} = this.state;
+    const {selectedServicesNames} = this.state;
     const index = selectedServices.indexOf(serviceId);
+    const indexNames = selectedServicesNames.indexOf(serviceId);
     if (index === -1){
       selectedServices.push(serviceId)
+      selectedServicesNames.push(serviceName)
     }else{
       selectedServices.splice(index, 1);
+      selectedServicesNames.splice(indexNames, 1);
     }
     this.forceUpdate();
   }
@@ -291,7 +296,7 @@ export default class Home extends React.Component {
     if (this.state.selectedServices.includes(data.id)){
       return (
         <View style={styles.ServiceCardActive} key={index}>
-          <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id)}}>
+          <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id,data.name)}}>
             <Image source={{uri:data.image}} style={styles.ServiceImage}/>
             <Text style={styles.ServiceHeadingActive}>{data.name}</Text>
             <Text style={styles.ServiceDescriptionActive}>{data.description}</Text>
@@ -302,7 +307,7 @@ export default class Home extends React.Component {
     return (
       <View style={styles.ServiceCard} key={index}>
         {/*<TouchableOpacity onPress={() => {navi.navigate('ServicesSlider',{serviceId:data.id,serviceName:data.name})}}>*/}
-        <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id)}}>
+        <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id,data.name)}}>
           <Image source={{uri:data.image}} style={styles.ServiceImage}/>
           <Text style={styles.ServiceHeading}>{data.name}</Text>
           <Text style={styles.ServiceDescription}>{data.description}</Text>
@@ -409,7 +414,7 @@ export default class Home extends React.Component {
                   alignItems:'center',
                   marginVertical:10
                 }}>
-                  {MyButton(() => {((this.state.selectedServices).length > 0) ?navigation.navigate('process',{selectedServices:this.state.selectedServices}):MyToast('Please select at least one service')},'Schedule pickup'
+                  {MyButton(() => {((this.state.selectedServices).length > 0) ?navigation.navigate('process',{selectedServices:this.state.selectedServices, selectedServicesNames:this.state.selectedServicesNames}):MyToast('Please select at least one service')},'Schedule pickup'
                     ,{width:'60%'},'clock'
                   )}
 

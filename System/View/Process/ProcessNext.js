@@ -1,11 +1,58 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { MyButton, MyOutlineButton, MyTextInput } from "../../Utility/MyLib";
+import { MyButton, MyOutlineButton, MyTextInput, MyToast } from "../../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import { placeOrder } from "../../Controller/CartController";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Page = ({navigation}) => {
+const ProcessNext = ({navigation,route}) => {
   const [ promocode, setPromocode ] = React.useState("");
+  const [ selectedServiceIds, setSelectedServiceIds ] = React.useState(null);
+  const {pickupTimeSelected} = route.params;
+  const {pickupDateSelected} = route.params;
+  const {dropDateSelected} = route.params;
+  const {dropTimeSelected} = route.params;
+  const {pickupDate} = route.params;
+  const {pickupTime} = route.params;
+  const {dropDate} = route.params;
+  const {dropTime} = route.params;
+  const {selectedServices} = route.params;
+  const {selectedServicesNames} = route.params;
 
+  React.useEffect(() => {
+    callFunctions()
+  },[])
+  const getServicesIds = async () => {
+    let ids = '';
+    await selectedServices.map((serviceId,i) => {
+      if (i === 0){
+        ids = serviceId;
+      }else{
+        ids= ids+','+serviceId;
+      }
+    })
+    setSelectedServiceIds(ids)
+  }
+  const callFunctions = () => {
+    getServicesIds().then()
+  }
+  const PlaceOrder = async () => {
+    let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'))
+    placeOrder({
+      customer_id:userDetails.id,
+      pickup_time:pickupTimeSelected,
+      expected_pickup_date:pickupDateSelected,
+      drop_time:dropTimeSelected,
+      expected_delivery_date:dropDateSelected,
+      selected_service_ids:selectedServiceIds,
+
+    }).then(response => {
+      MyToast(response.message);
+      if(response.status === 1){
+        navigation.navigate('OrderPlaced',{orderId:response.order_id,pickupDate:pickupDate,pickupTime:pickupTime})
+      }
+    })
+  }
   return (
     <View style={Styles.mainContainer}>
       <View style={Styles.topContainer}>
@@ -19,13 +66,13 @@ const Page = ({navigation}) => {
           marginVertical:'1%',
           marginHorizontal:'1%'
         }}>
-          <Text>Pickup 27 May, | 09:00 am to 10:00 am</Text>
+          <Text>Pickup {pickupDate} | {pickupTime}</Text>
         </View>
         <View style={{
           marginVertical:'1%',
           marginHorizontal:'1%'
         }}>
-          <Text>Drop 28 May | 11:00 am to 12:00 pm</Text>
+          <Text>Drop {dropDate} | {dropTime}</Text>
         </View>
       </View>
       <View style={Styles.topContainerOne}>
@@ -35,12 +82,13 @@ const Page = ({navigation}) => {
           textAlign:'center'
         }}>Service Details</Text>
         <ScrollView>
-          <Text style={{
-            paddingVertical:4,
-          }}>Wash and fold</Text>
-          <Text style={{
-            paddingVertical:4,
-          }}>Dry cleaning</Text>
+          {selectedServicesNames.map((name,i)=>{
+            return (
+              <Text style={{
+                paddingVertical:4,
+              }} key={i}>{name}</Text>
+            )
+          })}
 
         </ScrollView>
         <View>
@@ -163,7 +211,7 @@ const Page = ({navigation}) => {
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
-          ()=>{navigation.navigate('OrderPlaced')},
+          ()=>{PlaceOrder()},
           'Proceed',
           {width:'30%',
           }
@@ -204,4 +252,4 @@ const Styles = StyleSheet.create({
     paddingBottom:10,
   }
 })
-export default Page;
+export default ProcessNext;

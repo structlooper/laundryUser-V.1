@@ -122,11 +122,23 @@ const CreateAddressFlag = ({navigation,route}) => {
   const [landMark,setLandMark] = React.useState(null)
 
   const saveUserEnteredAddress = async (navigation,location,landMark,formattedAddress) => {
-    let UserDetails= await AsyncStorage.getItem('userDetails')
-    let userId = JSON.parse(UserDetails).id
+    let UserDetails= JSON.parse(await AsyncStorage.getItem('userDetails'))
+    let userId = UserDetails.id
     await fetchAuthPostFunction('address/add',{user_id:userId,door_no:landMark,address:formattedAddress,lat:(location.latitude),lng:(location.longitude),pincode:zipcode}).then(response => {
       if (response.status === 1){
         MyToast(response.message)
+          fetchAuthPostFunction('select/address',{user_id:userId,address_id:response.address_id}).then(async response => {
+            if (response.status === 1){
+              MyToast(response.message)
+
+              UserDetails.default_address = formattedAddress;
+              console.log('after save',UserDetails)
+
+              await AsyncStorage.setItem('userDetails',JSON.stringify(UserDetails));
+            }else{
+              MyToast(response.message)
+            }
+          })
         navigation.goBack()
       }else{
         MyToast(response.message)
