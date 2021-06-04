@@ -127,10 +127,7 @@ export default class Home extends React.Component {
     this.callFunctions()
     return () => {this.setState({didMount:false})}
   }
-  componentDidUpdate = () => {
 
-    console.log('comonent updated',this.state.selectedServices)
-  }
   callFunctions = () => {
     // if (this.state.activeIndex === 0){
       this.getHomeBanners().then()
@@ -412,7 +409,7 @@ export default class Home extends React.Component {
                   alignItems:'center',
                   marginVertical:10
                 }}>
-                  {MyButton(() => {navigation.navigate('process')},'Schedule pickup'
+                  {MyButton(() => {((this.state.selectedServices).length > 0) ?navigation.navigate('process',{selectedServices:this.state.selectedServices}):MyToast('Please select at least one service')},'Schedule pickup'
                     ,{width:'60%'},'clock'
                   )}
 
