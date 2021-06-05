@@ -75,11 +75,11 @@ const OrderPlaced = ({ navigation,route }) => {
 
           {MyButton(
             ()=>{console.log('reschedule')},
-            'Reschedule',
+            'My Orders',
             {
               width:wp('40')
             },
-            'clock'
+            'cloth'
           )}
           {MyButton(
             ()=>{console.log('Cancel')},

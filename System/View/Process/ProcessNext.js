@@ -8,8 +8,11 @@ import Modal from "react-native-modal";
 import Loader from "../../Utility/Loader";
 import NoDataFound from "../NoDataFound";
 const ProcessNext = ({navigation,route}) => {
-  const [ promoCode, setPromoCode ] = React.useState("");
+  const [ promoCodeInput, setPromoCodeInput ] = React.useState("");
+  const [ promoCodeSelected, setPromoCodeSelected ] = React.useState(null);
+  const [ promoCodeSelectedShow, setPromoCodeSelectedShow ] = React.useState(null);
   const [ promoCodeGet, setPromoCodeGet ] = React.useState(null);
+  const [ promoCodeLoading, setPromoCodeLoading ] = React.useState(false);
   const [ selectedServiceIds, setSelectedServiceIds ] = React.useState(null);
   const [ selectedEsCloths, setSelectedEsCloths ] = React.useState(null);
   const [ selectedAdItems, setSelectedAdItems ] = React.useState([]);
@@ -51,21 +54,33 @@ const ProcessNext = ({navigation,route}) => {
     getPromoCodes().then()
   }
   const PlaceOrder = async () => {
-    let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'))
-    placeOrder({
-      customer_id:userDetails.id,
-      pickup_time:pickupTimeSelected,
-      expected_pickup_date:pickupDateSelected,
-      drop_time:dropTimeSelected,
-      expected_delivery_date:dropDateSelected,
-      selected_service_ids:selectedServiceIds,
-      estimated_cloths:selectedEsCloths
-    }).then(response => {
-      MyToast(response.message);
-      if(response.status === 1){
-        navigation.navigate('OrderPlaced',{orderId:response.order_id,pickupDate:pickupDate,pickupTime:pickupTime})
+    if (selectedEsCloths === null){
+      MyToast('Please select estimated cloths')
+    }else{
+      let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'))
+      let data = {
+        customer_id:userDetails.id,
+        selected_service_ids:selectedServiceIds,
+        pickup_time:pickupTimeSelected,
+        expected_pickup_date:pickupDateSelected,
+        drop_time:dropTimeSelected,
+        expected_delivery_date:dropDateSelected,
+        estimated_cloths:selectedEsCloths
       }
-    })
+      if (selectedAdItems && selectedAdItems != ''){
+        data.additional_item_ids=selectedAdItems.join(',')
+      }
+      if (promoCodeSelected){
+        data.promo_code_id=promoCodeSelected
+      }
+      placeOrder(data).then(response => {
+        MyToast(response.message);
+        if(response.status === 1){
+          navigation.navigate('OrderPlaced',{orderId:response.order_id,pickupDate:pickupDate,pickupTime:pickupTime})
+        }
+      })
+    }
+
   }
   const es_cloths = (text) => {
     return (
@@ -114,7 +129,15 @@ const ProcessNext = ({navigation,route}) => {
       </TouchableOpacity>
     )
   }
-
+  const checkPromoCode =  () => {
+    return new Promise(async resolve => {
+      await fetchAuthPostFunction('promo/check',{
+        promo_code:promoCodeInput
+      }).then(response => {
+        resolve(response)
+      })
+    })
+  }
   const promoCodeModal = () => {
     const promoCodeListRender = () => {
       const promoCard = (offer,i) => {
@@ -124,17 +147,21 @@ const ProcessNext = ({navigation,route}) => {
               <View style={{}}>
                 <View style={{
                   padding:10,paddingHorizontal:15,
-                  borderWidth:1,borderColor:'green',
+                  borderWidth:1,borderColor:'green',borderRadius:50/2
                 }}>
-                  <Text style={{ color: 'green', fontSize: 16 }}>{offer.promo_code}</Text>
+                  <Text style={{ color: 'green', fontSize: 16 }}><FontAwesome5 name={'tag'} color={'black'} size={15} />  {offer.promo_code}</Text>
 
                 </View>
               </View>
-              {/*apply btn here*/}
-              {/*{btn()}*/}
+
               <View style={{ flex:1,alignItems:'flex-end'}}>
                 {MyOutlineButton(
-                  () => {console.log('this')},
+                  () => {
+                    setPromoCodeSelected(offer.id)
+                    setPromoCodeSelectedShow(offer.promo_code)
+                    changeIsVisible(!isVisible)
+                    MyToast('Promo code applied successfully')
+                  },
                   'Apply'
                 )}
               </View>
@@ -182,6 +209,93 @@ const ProcessNext = ({navigation,route}) => {
           </View>
         </View>
       </Modal>
+    )
+  }
+  const applyPromoCode = () => {
+    return (
+      <View style={{
+        marginTop:'5%'
+      }}>
+        <TouchableOpacity onPress={() => {
+          changeIsVisible(!isVisible)}}>
+          <Text style={{color:mainColor}}>
+            <FontAwesome5 name={'percent'} color={'grey'} size={20} />   Select a promo code
+          </Text>
+        </TouchableOpacity>
+
+        <View style={{
+          flexDirection:'row',
+          marginTop: '2%'
+        }}>
+          { MyTextInput(
+            promoCodeInput,
+            setPromoCodeInput,
+            'enter promo code here',
+            {
+              width:'100%',
+              height:50,
+              backgroundColor: '#fff',
+            }
+          ) }
+          {
+            MyOutlineButton(
+              ()=>{
+                setPromoCodeLoading(true)
+                checkPromoCode().then(res => {
+                  setPromoCodeLoading(false)
+                  if (res.status === 1){
+                    setPromoCodeSelected(res.data.id)
+                    setPromoCodeSelectedShow(res.data.promo_code)
+                    setPromoCodeInput('')
+                  }
+                  MyToast(res.message)
+              })},
+              'Apply',
+              '',
+              '',
+              promoCodeLoading
+            )
+          }
+        </View>
+
+      </View>
+    )
+  }
+  const changePromoCode =()=> {
+    return (
+      <View style={{
+        marginTop:'5%'
+      }}>
+        <TouchableOpacity onPress={() => {
+          setPromoCodeSelected(null)
+          setPromoCodeSelectedShow(null)
+          setPromoCodeInput('')
+        }}>
+          <Text style={{color:'red'}}>
+            <FontAwesome5 name={'percent'} color={'grey'} size={20} />   Remove promo code
+          </Text>
+        </TouchableOpacity>
+
+        <View style={{
+          flexDirection:'row',
+          marginTop: '2%'
+        }}>
+          <Text style={{
+            padding:'4%',
+            color:'green',
+            borderColor:'green',
+            borderWidth:1,
+            borderRadius:50/2
+          }}> <FontAwesome5 name={'tag'} color={'black'} size={15} />  {promoCodeSelectedShow}</Text>
+          {
+            MyOutlineButton(
+              ()=>{changeIsVisible(!isVisible)},
+              'Change'
+            )
+          }
+        </View>
+
+      </View>
     )
   }
   return (
@@ -254,46 +368,14 @@ const ProcessNext = ({navigation,route}) => {
           fontSize:16,
           // textAlign:'center'
         }}>Offers</Text>
-        <View style={{
-          marginTop:'5%'
-        }}>
-          <TouchableOpacity onPress={() => {
-            changeIsVisible(!isVisible)}}>
-            <Text style={{color:mainColor}}>
-              <FontAwesome5 name={'percent'} color={'grey'} size={20} />   Select a promo code
-            </Text>
-          </TouchableOpacity>
-
-          <View style={{
-            flexDirection:'row',
-            marginTop: '2%'
-          }}>
-            { MyTextInput(
-              promoCode,
-              setPromoCode,
-              'enter promo code here',
-              {
-                width:'100%',
-                height:50,
-                backgroundColor: '#fff',
-              }
-            ) }
-            {
-              MyOutlineButton(
-                ()=>{console.log('apply')},
-                'Apply'
-              )
-            }
-          </View>
-
-        </View>
+        {(promoCodeSelected === null)? applyPromoCode() : changePromoCode()}
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
           ()=>{PlaceOrder().then()},
-          'Proceed',
-          {width:'30%',
-          }
+          'Place order',
+          {width:'30%', },
+          'cart'
         )}
       </View>
     </View>
@@ -310,6 +392,7 @@ const Styles = StyleSheet.create({
     padding:'3%',
     paddingHorizontal:'5%',
     borderBottomWidth:.5,
+    overflow:'hidden'
 
   },
   topContainerOne:{
@@ -317,6 +400,7 @@ const Styles = StyleSheet.create({
     padding:'3%',
     paddingHorizontal:'5%',
     borderBottomWidth:.5,
+    overflow: 'hidden'
 
   },
   middleContainer:{
