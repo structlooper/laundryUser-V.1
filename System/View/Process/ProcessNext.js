@@ -1,13 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { MyButton, MyOutlineButton, MyTextInput, MyToast } from "../../Utility/MyLib";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { mainColor, MyButton, MyOutlineButton, MyTextInput, MyToast, fetchAuthPostFunction } from "../../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { placeOrder } from "../../Controller/CartController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import Modal from "react-native-modal";
+import Loader from "../../Utility/Loader";
+import NoDataFound from "../NoDataFound";
 const ProcessNext = ({navigation,route}) => {
-  const [ promocode, setPromocode ] = React.useState("");
+  const [ promoCode, setPromoCode ] = React.useState("");
+  const [ promoCodeGet, setPromoCodeGet ] = React.useState(null);
   const [ selectedServiceIds, setSelectedServiceIds ] = React.useState(null);
+  const [ selectedEsCloths, setSelectedEsCloths ] = React.useState(null);
+  const [ selectedAdItems, setSelectedAdItems ] = React.useState([]);
+  const [ update, setUpdate ] = React.useState(null);
+  const [ isVisible, changeIsVisible ] = React.useState(false);
   const {pickupTimeSelected} = route.params;
   const {pickupDateSelected} = route.params;
   const {dropDateSelected} = route.params;
@@ -21,7 +28,7 @@ const ProcessNext = ({navigation,route}) => {
 
   React.useEffect(() => {
     callFunctions()
-  },[])
+  },[update])
   const getServicesIds = async () => {
     let ids = '';
     await selectedServices.map((serviceId,i) => {
@@ -33,8 +40,15 @@ const ProcessNext = ({navigation,route}) => {
     })
     setSelectedServiceIds(ids)
   }
+
+ const getPromoCodes = async () => {
+    await fetchAuthPostFunction('promo',{lang:'en'}).then(response => {
+      setPromoCodeGet(response.result)
+    })
+ }
   const callFunctions = () => {
     getServicesIds().then()
+    getPromoCodes().then()
   }
   const PlaceOrder = async () => {
     let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'))
@@ -45,7 +59,7 @@ const ProcessNext = ({navigation,route}) => {
       drop_time:dropTimeSelected,
       expected_delivery_date:dropDateSelected,
       selected_service_ids:selectedServiceIds,
-
+      estimated_cloths:selectedEsCloths
     }).then(response => {
       MyToast(response.message);
       if(response.status === 1){
@@ -53,8 +67,126 @@ const ProcessNext = ({navigation,route}) => {
       }
     })
   }
+  const es_cloths = (text) => {
+    return (
+      <TouchableOpacity onPress={()=>{setSelectedEsCloths(text)}} style={{
+        flex:1,
+        padding:5,
+        backgroundColor:(selectedEsCloths === text)?mainColor :'rgba(83,203,154,0.87)',marginHorizontal:5
+      }}>
+        {/*<TouchableOpacity onPress={() => {console.log('thia')}}>*/}
+        <Text style={{
+          color:'#fff',
+          textAlign:'center'
+        }}>{text}</Text>
+      </TouchableOpacity>
+    )
+  }
+  const ad_items = (text) => {
+    let ad_items = selectedAdItems;
+    return (
+      <TouchableOpacity style={{
+        flex:1,
+        padding:5,
+        borderRadius:100/2,
+        backgroundColor:(selectedAdItems.includes(text))? mainColor :'rgba(107,248,189,0.87)',marginHorizontal:5
+      }}
+                        onPress={() => {
+                          if (ad_items.includes(text)){
+                            const index = ad_items.indexOf(text);
+                            ad_items.splice(index, 1);
+                            setUpdate(text+'plus')
+                          }else{
+                            ad_items.push(text)
+                            setUpdate(text+'minus')
+
+                          }
+                          setSelectedAdItems(ad_items)
+
+                        }}
+      >
+
+        <Text style={{
+          color:(selectedAdItems.includes(text))? '#fff' :'#000',
+          textAlign:'center',
+
+        }}> {text}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  const promoCodeModal = () => {
+    const promoCodeListRender = () => {
+      const promoCard = (offer,i) => {
+        return (
+          <View style={{  padding: 20, marginBottom:'1%' , backgroundColor: '#fff' }} key={i} >
+            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+              <View style={{}}>
+                <View style={{
+                  padding:10,paddingHorizontal:15,
+                  borderWidth:1,borderColor:'green',
+                }}>
+                  <Text style={{ color: 'green', fontSize: 16 }}>{offer.promo_code}</Text>
+
+                </View>
+              </View>
+              {/*apply btn here*/}
+              {/*{btn()}*/}
+              <View style={{ flex:1,alignItems:'flex-end'}}>
+                {MyOutlineButton(
+                  () => {console.log('this')},
+                  'Apply'
+                )}
+              </View>
+            </View>
+
+            <View>
+              <Text style={{ fontSize: 19, fontWeight: "bold" }}>
+                {offer.promo_name}
+              </Text>
+              <Text style={{ textAlign: "justify"  }}>
+                {offer.description}
+              </Text>
+            </View>
+          </View>
+
+        )
+      }
+      if (promoCodeGet === null){
+        return Loader()
+      }else if(promoCodeGet.length > 0){
+        return (
+          <View>
+            {promoCodeGet.map((data,i)=>{
+              return promoCard(data,i)
+            })}
+
+          </View>
+        )
+      }else{
+        return NoDataFound();
+      }
+    }
+    return (
+      <Modal isVisible={isVisible} >
+        <View style={{flex: .7,borderWidth:.2,backgroundColor:'#eee',}}>
+          <View style={{borderBottomWidth:.5,paddingBottom:10,padding:10}}>
+            <View>
+              {MyButton(() => {changeIsVisible(!isVisible)},'Back','','arrow-left')}
+            </View>
+          </View>
+          <View style={{ backgroundColor:'#eee',height:'88%',alignItems:'center'}}>
+            <ScrollView style={{width:'100%',}} >
+              {promoCodeListRender()}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    )
+  }
   return (
     <View style={Styles.mainContainer}>
+      {promoCodeModal()}
       <View style={Styles.topContainer}>
         <Text style={{
           fontWeight:'bold',
@@ -101,77 +233,18 @@ const ProcessNext = ({navigation,route}) => {
           <View style={{
             flexDirection:'row'
           }}>
-            <View style={{
-              flex:1,
-              padding:5,
-              backgroundColor:'rgba(83,203,154,0.87)',marginHorizontal:5
-            }}>
-              <Text style={{
-                color:'#fff',
-                textAlign:'center'
-              }}> {"<"}20</Text>
-            </View>
-            <View style={{
-              flex:1,
-              padding:5,
-              backgroundColor:'rgba(83,203,154,0.87)',marginHorizontal:5
-            }}>
-              <Text style={{
-                color:'#fff',
-                textAlign:'center'
-              }}> 20-40</Text>
-            </View>
-            <View style={{
-              flex:1,
-              padding:5,
-              backgroundColor:'rgba(83,203,154,0.87)',marginHorizontal:5
-            }}>
-              <Text style={{
-                color:'#fff',
-                textAlign:'center'
-              }}> >40</Text>
-            </View>
+            {es_cloths('<20')}
+            {es_cloths('20-40')}
+            {es_cloths('>40')}
           </View>
           <View style={{
             flexDirection:'row',
             marginTop:10,
           }}>
-            <View style={{
-              flex:1,
-              padding:5,
-              borderRadius:100/2,
-              backgroundColor:'rgba(107,248,189,0.87)',marginHorizontal:5
-            }}>
-              <Text style={{
-                color:'#000',
-                textAlign:'center',
+            {ad_items('Carpet+')}
+            {ad_items('Blanket+')}
+            {ad_items('Curtains+')}
 
-              }}> Carpet+</Text>
-            </View>
-            <View style={{
-              flex:1,
-              padding:5,
-              borderRadius:100/2,
-              backgroundColor:'rgba(107,248,189,0.87)',marginHorizontal:5
-            }}>
-              <Text style={{
-                color:'#000',
-                textAlign:'center',
-
-              }}>Blanket+</Text>
-            </View>
-            <View style={{
-              flex:1,
-              padding:5,
-              borderRadius:100/2,
-              backgroundColor:'rgba(107,248,189,0.87)',marginHorizontal:5
-            }}>
-              <Text style={{
-                color:'#000',
-                textAlign:'center',
-
-              }}> Curtains+</Text>
-            </View>
           </View>
         </View>
       </View>
@@ -184,15 +257,21 @@ const ProcessNext = ({navigation,route}) => {
         <View style={{
           marginTop:'5%'
         }}>
-          <Text> <FontAwesome5 name={'percent'} color={'grey'} size={20} />   Select a promo code </Text>
+          <TouchableOpacity onPress={() => {
+            changeIsVisible(!isVisible)}}>
+            <Text style={{color:mainColor}}>
+              <FontAwesome5 name={'percent'} color={'grey'} size={20} />   Select a promo code
+            </Text>
+          </TouchableOpacity>
+
           <View style={{
             flexDirection:'row',
             marginTop: '2%'
           }}>
             { MyTextInput(
-              promocode,
-              setPromocode,
-              'enter promocode here',
+              promoCode,
+              setPromoCode,
+              'enter promo code here',
               {
                 width:'100%',
                 height:50,
@@ -211,7 +290,7 @@ const ProcessNext = ({navigation,route}) => {
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
-          ()=>{PlaceOrder()},
+          ()=>{PlaceOrder().then()},
           'Proceed',
           {width:'30%',
           }

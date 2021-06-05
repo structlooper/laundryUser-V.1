@@ -126,19 +126,32 @@ export default class Home extends React.Component {
       didMount:true
     })
     this.callFunctions()
-    return () => {this.setState({didMount:false})}
+    this.props.navigation.addListener('focus', this._onFocus);
+    this.props.navigation.addListener('blur', this._onBlur);
   }
 
+
+  componentWillUnmount() {
+    this.props.navigation.removeListener('blur', this._onBlur);
+    this.props.navigation.removeListener('focus', this._onFocus);
+  }
+
+
+  _onFocus = () => {
+    this.setState({
+      selectedServices: [],
+      selectedServicesNames:[]
+    }, () => { this.setState(this.state)});
+  };
+
+  _onBlur = () => {
+    this.setState({isFocused: false});
+  };
   callFunctions = () => {
-    // if (this.state.activeIndex === 0){
       this.getHomeBanners().then()
       this.getServices().then()
       this.getAppSettings().then()
       this.getMembershipDetails().then()
-    // }
-    this.setState({
-      activeIndex:1
-    })
   }
 
   _handleServiceSelection = (serviceId,serviceName) => {
@@ -166,7 +179,6 @@ export default class Home extends React.Component {
           width: 10,
           height: 10,
           borderRadius: 5,
-          // marginHorizontal: 8,
           backgroundColor: '#000'
         }}
         inactiveDotStyle={{
