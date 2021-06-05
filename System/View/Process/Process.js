@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Picker } from "react-native";
-import { mainColor, MyButton, MyOutlineButton, MyToast } from "../../Utility/MyLib";
+import {
+  fetchAuthPostFunction,
+  fetchGetFunction,
+  mainColor,
+  MyButton,
+  MyOutlineButton,
+  MyToast,
+} from "../../Utility/MyLib";
 import Modal from 'react-native-modal';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import RNPickerSelect from "react-native-picker-select";
 import { getDateSlots, getTimeSlot } from "../../Controller/getDateSlots";
+import NoDataFound from "../NoDataFound";
+import Loader from "../../Utility/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {addAddressFunctions, addressFunctions, loadAddressFunctions} from "../../Controller/addressController";
+import { useIsFocused } from "@react-navigation/native";
+
 const Process = ({navigation,route}) => {
+  const isFocused = useIsFocused();
   const {selectedServices} = route.params;
+  const {selectedServicesNames} = route.params;
   const [ pickupDate, setPickupDate ] = React.useState('---');
   const [ pickupTime, setPickupTime ] = React.useState('---');
   const [ dropDate, setDropDate] = React.useState('---');
@@ -19,30 +34,35 @@ const Process = ({navigation,route}) => {
   const [ pickupTimeGet, setPickupTimeGet ] = React.useState(null);
   const [ dropDateGet, setDropDateGet] = React.useState(null);
   const [ dropTimeGet, setDropTimeGet] = React.useState(null);
+  const [ selectedDay, setSelectedDay] = React.useState(null);
   const [ modalContent, setModalContent] = React.useState('');
-  const [isModalVisible, setModalVisible] = useState(false);
-
+  const [isModalVisible, setModalVisible] = React.useState(false);
+  const [isAddressModalVisible, setAddressModalVisible] = React.useState(false);
+  const [defaultAddress , setDefaultAddress] = React.useState(false)
+  const [addressList , setAddressList] = React.useState(null);
   React.useEffect(() => {
     callFunctionMethod().then()
-  },[])
+  },[isFocused])
 
   const callFunctionMethod = async () => {
     await getDateSlots('pickup').then(response => {
-      console.log('resasadad',response)
       setPickupDateGet(response)
     })
     await getDateSlots('drop').then(response => {
       setDropDateGet(response)
     })
-    await getTimeSlot().then(response => {
-      setPickupTimeGet(response)
+    let UserDetails = await AsyncStorage.getItem('userDetails')
+    let Address = JSON.parse(UserDetails).default_address;
+    setDefaultAddress(Address)
+
+    let userId = JSON.parse(UserDetails).id
+    await fetchGetFunction('address/' + userId).then(result => {
+      setAddressList(result);
     })
   }
   const modal = () => {
-    console.log('ceh',pickupDateGet)
-
     const modalContentHere =  () => {
-      const modelBtn = (content,index,showModule,saveModule) => {
+      const modelBtn = (content,index,showModule,saveModule,selectedUnit) => {
         return (
           <View style={Styles.btnContainer} key={index} >
             <TouchableOpacity style={Styles.DateBtn}
@@ -50,6 +70,8 @@ const Process = ({navigation,route}) => {
                                 showModule.method(showModule.data)
                                 saveModule.method(saveModule.data)
                                 setModalVisible(!isModalVisible)
+                                setSelectedDay(selectedUnit)
+
                               }}
             >
               <View><Text style={Styles.btnTextBlack}>{content}</Text></View>
@@ -62,28 +84,52 @@ const Process = ({navigation,route}) => {
         return (
           <View>
             {modelBtn(pickupDateGet.today, 1,{ method:setPickupDate, data:pickupDateGet.today },
-              { method:setPickupDateSelected, data:pickupDateGet.day1 })}
+              { method:setPickupDateSelected, data:pickupDateGet.day1 },'today')}
             {modelBtn(pickupDateGet.next_day, 2,{ method:setPickupDate, data:pickupDateGet.next_day },
-              { method:setPickupDateSelected, data:pickupDateGet.day2 })}
+              { method:setPickupDateSelected, data:pickupDateGet.day2 },'next_day')}
             {modelBtn(pickupDateGet.day_after_next, 3,{ method:setPickupDate, data:pickupDateGet.day_after_next },
-              { method:setPickupDateSelected, data:pickupDateGet.day2 })}
+              { method:setPickupDateSelected, data:pickupDateGet.day2 },'day_after_next_day')}
           </View>
         )
       }else if(modalContent === 'pickupTime'){
+        if (pickupTimeGet === null){
+          return Loader();
+        }else if(pickupTimeGet.length  === 0){
+          return NoDataFound();
+        }
         return (
           <View>
-            {
-              pickupTimeGet.map((data,i) =>{
+            {pickupTimeGet.map((data,i) =>{
                 let time = data.time_from + ' to '+data.time_to;
-                return modelBtn(time,i,{ method:setPickupTime, data:time},{ method:setPickupTimeSelected, data:time })
-              })
-              }
+                return modelBtn(time,i,{ method:setPickupTime, data:time},{ method:setPickupTimeSelected, data:time },'time')
+              })}
           </View>
         )
       }else if(modalContent === 'dropDate'){
-
-      }else if(modalContent === 'dropTime'){
-
+        return (
+          <View>
+            {modelBtn(dropDateGet.today, 4,{ method:setDropDate, data:dropDateGet.today },
+              { method:setDropDateSelected, data:dropDateGet.day1 },'tomorrow')}
+            {modelBtn(dropDateGet.next_day, 5,{ method:setDropDate, data:dropDateGet.next_day },
+              { method:setDropDateSelected, data:dropDateGet.day2 },'next_day')}
+            {modelBtn(dropDateGet.day_after_next, 6,{ method:setDropDate, data:dropDateGet.day_after_next },
+              { method:setDropDateSelected, data:dropDateGet.day2 },'day_after_next_day')}
+          </View>
+        )
+        }else if(modalContent === 'dropTime'){
+        if (dropTimeGet === null){
+          return Loader();
+        }else if(dropTimeGet.length  === 0){
+          return NoDataFound();
+        }
+        return (
+          <View>
+            {dropTimeGet.map((data,i) =>{
+              let time = data.time_from + ' to '+data.time_to;
+              return modelBtn(time,i,{ method:setDropTime, data:time},{ method:setDropTimeSelected, data:time },'time')
+            })}
+          </View>
+        )
       }else{
         console.log('drop time')
       }
@@ -105,9 +151,83 @@ const Process = ({navigation,route}) => {
       </Modal>
     )
   }
+
+  const addressModal = () => {
+    const addressListRender = () => {
+      const selectAddress = async (addressId,addressDesc ) => {
+        let UserDetails= JSON.parse(await AsyncStorage.getItem('userDetails'))
+        let userId = UserDetails.id
+         fetchAuthPostFunction('select/address',{user_id:userId,address_id:addressId}).then(async response => {
+          if (response.status === 1){
+            MyToast(response.message)
+            UserDetails.default_address = addressDesc;
+            setDefaultAddress(addressDesc)
+            await AsyncStorage.setItem('userDetails',JSON.stringify(UserDetails));
+            setAddressModalVisible(!isAddressModalVisible)
+          }else{
+            MyToast(response.message)
+          }
+        })
+      }
+      if (addressList === null){
+        return Loader();
+      }else if(addressList.length === 0){
+        return NoDataFound();
+      }
+      return(
+        addressList.map((data,i)=>{
+          return (
+            <TouchableOpacity onPress={() => {selectAddress(data.id,data.address)}} key={i}>
+              <View style={{ width:'100%',borderWidth:1,borderColor:mainColor,padding:'5%',borderRadius:100/2,marginBottom:'1%' }} key={i}>
+                <Text style={{ color:mainColor,fontSize:17 }}>{data.door_no}</Text>
+                <Text>{data.address}</Text>
+              </View>
+            </TouchableOpacity>
+          )
+        })
+      )
+    }
+    return (
+      <Modal isVisible={isAddressModalVisible} >
+        <View style={{flex: .7,borderWidth:.2,backgroundColor:'#eee',}}>
+          <View style={{borderBottomWidth:.5,paddingBottom:10,padding:10}}>
+            <View>
+              {MyButton(() => {setAddressModalVisible(!isAddressModalVisible)},'Back','','arrow-left')}
+            </View>
+          </View>
+          <View style={{ backgroundColor:'#fff',height:'88%',paddingVertical:20,alignItems:'center'}}>
+            <ScrollView style={{width:'80%',}} >
+                {addressListRender()}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    )
+  }
+  const NavigateToNextPage = () => {
+    if (pickupDateSelected !== '---' && pickupTimeSelected !== '---'&& dropDateSelected !== '---'&& dropTimeSelected !== '---' ){
+      if (defaultAddress !== false && defaultAddress !== null){
+        navigation.navigate('ProcessNext',{
+          pickupTimeSelected:pickupTimeSelected,
+          pickupDateSelected:pickupDateSelected,
+          dropDateSelected:dropDateSelected,
+          dropTimeSelected:dropTimeSelected,
+          pickupDate:pickupDate,
+          pickupTime:pickupTime,
+          dropDate:dropDate,
+          dropTime:dropTime,
+          selectedServices:selectedServices,
+          selectedServicesNames:selectedServicesNames
+        })
+      }else{
+        MyToast('Please select any address or add address')
+      }
+    }else{MyToast('Please fill all options')}
+  }
   return (
     <View style={Styles.mainContainer}>
       {modal()}
+      {addressModal()}
       <View style={Styles.topContainer}>
         <ScrollView>
           <View style={Styles.DateTimeContainer}>
@@ -126,9 +246,14 @@ const Process = ({navigation,route}) => {
                 color:'grey'
               }}>Time Slots</Text>
               <TouchableOpacity onPress={() => {
+                getTimeSlot(selectedDay).then(response => {
+                  setPickupTimeGet(response)
+                })
                 const callFunction  = () => {
-                  setModalContent('pickupTime')
-                  setModalVisible(true)
+                    if (dropDate === '---') {
+                      setModalContent('pickupTime')
+                      setModalVisible(true)
+                    }else{MyToast('To change pickup slot first clear drop slot')}
                 }
                 ((pickupDate !== '---')?(
                     callFunction()
@@ -158,8 +283,15 @@ const Process = ({navigation,route}) => {
                 marginVertical:'10%'
               }}
                                 onPress={() => {
-                                  setModalContent('pickupDate')
-                                  setModalVisible(true)}}
+                                  const openModal = () => {
+                                    if (dropDate === '---'){
+                                      setModalContent('pickupDate')
+                                      setModalVisible(true)}
+                                    else{MyToast('To change pickup slot first clear drop slot')}
+                                  }
+                                  openModal()
+                                }}
+
               >
                 <FontAwesome5 name={'calendar-alt'} color={mainColor} size={50} />
 
@@ -180,6 +312,20 @@ const Process = ({navigation,route}) => {
                 fontWeight:'bold',
                 color:'grey'
               }}>Drop Slot</Text>
+              {MyOutlineButton(
+                ()=>{
+                  setPickupDate('---')
+                  setPickupDateSelected('---')
+                  setPickupTime('---')
+                  setPickupTimeSelected('---')
+                  setDropDate('---')
+                  setDropDateSelected('---')
+                  setDropTime('---')
+                  setDropTimeSelected('---')
+                },
+                'clear slots',
+                {width:'100%',marginLeft:'-20%'}
+              )}
             </View>
             <View style={{flex:1,alignItems:'center'}}>
               <Text style={{
@@ -188,11 +334,14 @@ const Process = ({navigation,route}) => {
                 color:'grey'
               }}>Time Slots</Text>
               <TouchableOpacity onPress={() => {
+                getTimeSlot(selectedDay).then(response => {
+                  setDropTimeGet(response)
+                })
                 const callFunction  = () => {
                   setModalContent('dropTime')
                   setModalVisible(true)
                 }
-                ((pickupDate !== '---')?(
+                ((dropDate !== '---')?(
                     callFunction()
                   )
                   :MyToast('Select drop date first!'))
@@ -220,6 +369,7 @@ const Process = ({navigation,route}) => {
                 marginVertical:'10%'
               }}
                                 onPress={() => {
+
                                   const callFunction  = () => {
                                     if (pickupDate !== '---' && pickupTime !== '---'){
                                       setModalContent('dropDate')
@@ -263,24 +413,23 @@ const Process = ({navigation,route}) => {
               marginHorizontal:10,
               flex:1
             }}>
-              <Text>Flat 48 new street area, locality </Text>
-              <Text>Dwarka, New Delhi India </Text>
+              {
+                ((defaultAddress !== false) ? ((defaultAddress === null) ? addAddressFunctions() : addressFunctions(defaultAddress)) : loadAddressFunctions())
+              }
             </View>
             </View>
             <View style={Styles.container}>
-              <TouchableOpacity onPress={() => {console.log('select address')}} style={{
+              <TouchableOpacity onPress={() => {setAddressModalVisible(!isAddressModalVisible)}} style={{
                 borderWidth:.5,
                 padding:10,
                 width:'80%',
                 alignItems:'center'
-                // paddingHorizontal:20
-                // border
               }}>
                 <Text>-- Change address --   <FontAwesome5 name={'sort-down'} color={'grey'} size={20} /></Text>
               </TouchableOpacity>
             </View>
           <View style={{ padding:10,marginTop:'8%'}}>
-              <TouchableOpacity onPress={() => {console.log('select address')}} style={{marginLeft:'6%'}}>
+              <TouchableOpacity onPress={() => {navigation.navigate('HomeScreenStack',{screen:'CreateAddressFlag'})}} style={{marginLeft:'6%'}}>
                 <Text> <FontAwesome5 name={'plus-circle'} color={'grey'} size={14} /> Add address </Text>
               </TouchableOpacity>
             </View>
@@ -288,7 +437,7 @@ const Process = ({navigation,route}) => {
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
-          ()=>{navigation.navigate('ProcessNext')},
+          ()=>{NavigateToNextPage()},
           'Proceed',
           {width:'30%',
           }

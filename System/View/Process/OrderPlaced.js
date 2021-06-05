@@ -3,7 +3,10 @@ import { View, Text, StyleSheet } from "react-native";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { AppName, MyButton } from "../../Utility/MyLib";
-const OrderPlaced = ({ navigation }) => {
+const OrderPlaced = ({ navigation,route }) => {
+  const {pickupDate} = route.params;
+  const {pickupTime} = route.params;
+  const {orderId} = route.params;
   return (
     <View style={Styles.mainContainer}>
       <View style={{
@@ -25,7 +28,7 @@ const OrderPlaced = ({ navigation }) => {
         }}>
           <Text style={{
             marginVertical:hp('2')
-          }}>Order Id: ORD127628</Text>
+          }}>Order Id: {orderId}</Text>
           <Text style={{
             marginVertical:hp('2'),
             fontWeight:'bold'
@@ -56,12 +59,12 @@ const OrderPlaced = ({ navigation }) => {
           <Text style={{
             color:'grey',
           }}>
-            2, May 2021
+            {pickupDate}
           </Text>
           <Text style={{
             color:'grey',
           }}>
-            9:00 am to 10:00 am
+            {pickupTime}
           </Text>
         </View>
         <View style={{
