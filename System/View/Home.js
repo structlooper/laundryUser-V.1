@@ -20,12 +20,10 @@ import {
   MyButton,
   fetchGetFunction,
   ImageUrl,
-  capitalizeFirstLetter,
   fetchAuthPostFunction, MyToast, MyOutlineButton, MyTransButton,
 } from "../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import PaymentController from "../Controller/PaymentController";
-import RNRestart from 'react-native-restart';
 const height=Dimensions.get('window').height;
 const width=Dimensions.get('window').width;
 const iconSize = 30;
@@ -34,27 +32,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
-const MemberShipCard = (navigation,data,index,image) => {
-  const saveMembership = async () => {
-    let userId = JSON.parse(await AsyncStorage.getItem('userDetails')).id;
-    fetchAuthPostFunction('membership/save',{membership_id:data.id,user_id:userId}).then(response => {
-      MyToast(response.message)
-      if (response.status === 1){
-        RNRestart.Restart();
-      }
-    })
+const MemberShipCard = (navigation,data,index) => {
 
-  }
   return (
     <View style={styles.membershipCardContainer} key={index}>
       <View style={styles.imageWrapper}>
-        <ImageBackground style={styles.theImage} source={{uri : image}}>
+        <ImageBackground style={styles.theImage} source={{uri : ImageUrl+data.banner_image}}>
           <View style={{
             marginTop:'10%',
             marginLeft:'5%'
           }}>
             {MyTransButton(
-              () => {navigation.navigate('MembershipDetails')},
+              () => {navigation.navigate('MembershipDetails',{memberShipId:data.id})},
               'Get start',
               {
                 width:'30%',
@@ -240,7 +229,10 @@ export default class Home extends React.Component {
         <View style={{ flexDirection:'row'}}>
           <View style={{ flex:.9 }}>
             <Text style={{fontSize: 20}}>{item.title}</Text>
-            <TouchableOpacity onPress={() => {this.props.navigation.navigate('ServicesSlider',{serviceId:item.service_id,serviceName:item.service_name})}}>
+            <TouchableOpacity onPress={() => {
+              // this.props.navigation.navigate('ServicesSlider',{serviceId:item.service_id,serviceName:item.service_name })
+              console.log('where to redirect now')
+            }}>
               <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>
             </TouchableOpacity>
           </View>
@@ -283,7 +275,7 @@ export default class Home extends React.Component {
 
   }
   getMembershipDetails = async () => {
-    fetchGetFunction('membership').then(response => {
+    fetchGetFunction('membership/all').then(response => {
       this.setState({
         members:response
       })
@@ -435,14 +427,10 @@ export default class Home extends React.Component {
                 {/*{ ((this.state.members).length > 0) ? this.state.members.map((mem, index) =>*/}
                 {/*  MemberShipCard(mem, index,'')*/}
                 {/*) : null }*/}
-                {                    MemberShipCard(navigation,"mem", 3,
-                  'https://swapd.co/uploads/db6033/original/2X/0/00f7c5f0c80a5107cb072dada79cb4f5beb24ba5.jpg')}
-                {                    MemberShipCard(navigation,"mem", 1,
-                  'https://biochemistry.blob.core.windows.net/public/2019/12/ExistingMenbers.png')}
-                {                    MemberShipCard(navigation,"mem", 2,
-                  'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
-                {                    MemberShipCard(navigation,"mem", 4,
-                  'https://www.fpsa.org/wp-content/uploads/FPSAWC-Membership-Banner.png')}
+                {                    (this.state.members).map((data,i) =>
+                  MemberShipCard(navigation,data, i,)
+                  )}
+
               </SafeAreaView>
 
             </ScrollView>
