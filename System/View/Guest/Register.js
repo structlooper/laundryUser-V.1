@@ -60,19 +60,18 @@ const Register = ({navigation}) => {
   const [email, onChangeEmail] = React.useState(null);
   const [profileImage, setProfileImage] = React.useState(null);
   return (
-    <ScrollView>
-
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
+    <>
       <View style={{alignItems: 'center', borderBottomWidth: 0.5, padding: 10}}>
         <Text style={{fontSize: 17}}>Register</Text>
       </View>
-      <View style={{padding: 20}}>
+    <ScrollView style={{height:'90%', backgroundColor: '#fff'}} >
+      <View style={{padding: '5%'}}>
         <View
           style={{
             width: '100%',
             alignItems: 'center',
             justifyContent: 'center',
-            marginVertical: 30,
+            marginVertical: '5%',
           }}>
           <View
             style={{
@@ -109,7 +108,7 @@ const Register = ({navigation}) => {
             </Text>
           </View>
         </View>
-        <View style={{marginTop: 25}}>
+        <View style={{marginTop: '6%'}}>
           <SafeAreaView style={styles.signupForm}>
             {MyTextInput(
               username,
@@ -155,8 +154,8 @@ const Register = ({navigation}) => {
           </View>
         </View>
       </View>
-    </View>
     </ScrollView>
+    </>
 
   );
 };
@@ -166,10 +165,9 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     backgroundColor: '#fff',
   },
-
   signupForm: {},
   buttons: {
-    marginTop: 40,
+    marginTop: '10%',
   },
 });
 

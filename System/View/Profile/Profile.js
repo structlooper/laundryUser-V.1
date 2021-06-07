@@ -81,11 +81,14 @@ const Profile =   ({ navigation }) => {
         <View style={styles.ProfileNameContainer}>
           <Text style={styles.ProfileName}>{userDetails.customer_name}</Text>
           { (userDetails.membership === undefined) ?null:(userDetails.membership === null) ? null :
-          <View style={{borderWidth:.1,padding:2,borderRadius:100/2,backgroundColor:'#d75757' }}>
+
+            <TouchableOpacity style={{borderWidth:.1,padding:2,borderRadius:100/2,backgroundColor:'#d75757' }}
+            onPress={()=>{navigation.navigate('MembershipDetails',{memberShipId:userDetails.membership.membership_id})}}
+            >
               <Text  style={{color:'#fff',fontSize:17,marginLeft:5}}>
                 {userDetails.membership.title}
               </Text>
-            </View>
+            </TouchableOpacity>
               }
           <TouchableOpacity>
             <Text style={styles.Btn}>{userDetails.phone_number}</Text>

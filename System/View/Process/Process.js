@@ -285,8 +285,12 @@ const Process = ({navigation,route}) => {
                                 onPress={() => {
                                   const openModal = () => {
                                     if (dropDate === '---'){
-                                      setModalContent('pickupDate')
-                                      setModalVisible(true)}
+                                      if (pickupDateGet){
+                                        setModalContent('pickupDate')
+                                        setModalVisible(true)
+                                      }else{
+                                        MyToast('Please wait')
+                                      }}
                                     else{MyToast('To change pickup slot first clear drop slot')}
                                   }
                                   openModal()

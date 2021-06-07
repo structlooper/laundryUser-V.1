@@ -53,9 +53,9 @@ const CustomSidebarMenu = (props) => {
               paddingHorizontal:2,
               backgroundColor: '#d75757',
             }}>
-            <Text style={{ color: '#fff',textAlign:'center' }}>
-              {dataConverted.membership.title}
-            </Text>
+            <TouchableOpacity style={{ alignItems:'center' }} onPress={() => {props.navigation.navigate('MembershipDetails',{memberShipId:dataConverted.membership.membership_id})}}>
+              <Text style={{color: '#fff',}}>{dataConverted.membership.title}</Text>
+            </TouchableOpacity>
           </View>
           }
           <Text  style={{color:'#fff'}}>
