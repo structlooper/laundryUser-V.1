@@ -24,6 +24,7 @@ import AddressList from "../View/Address/AddressList";
 import CreateAddress from "../View/Address/Create";
 import CreateAddressFlag from "../View/Address/CreateAddressFlag";
 import TestPage from "../View/TestPage";
+import PriceList from "../View/PriceList/priceList";
 import Faq from "../View/Faq/Faq";
 import ServicesSlider from "../View/Services/ServicesSlider";
 import Cart from "../View/Cart";
@@ -476,6 +477,34 @@ const TermsAndConditionsScreenStack = ({navigation}) => {
     </Stack.Navigator>
   );
 };
+const PriceListScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="PriceList"
+      screenOptions={{
+        headerRight: () => getHeaderTopRight(navigation),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="PriceList"
+        component={PriceList}
+        options={{
+          title: AppName,
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
 const MainNavigator = () => {
   return (
     // <NavigationContainer>
@@ -501,6 +530,17 @@ const MainNavigator = () => {
         }}
 
         component={HomeScreenStack}
+      />
+      <Drawer.Screen
+        name="PriceListScreenStack"
+        options={{
+          drawerLabel: 'Price list',
+          drawerIcon:({color , size}) => (
+            <FontAwesome5 name={'tag'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />
+          )
+
+        }}
+        component={PriceListScreenStack}
       />
       <Drawer.Screen
         name="AddressScreenStack"
