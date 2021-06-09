@@ -372,7 +372,7 @@ export default class Home extends React.Component {
                   <Text style={styles.Heading}>Select services</Text>
                   <TouchableOpacity style={{
                     marginRight:10,
-                  }} onPress={() => {console.log('show all')}}>
+                  }} onPress={() => {navigation.navigate('AllServices')}} >
                     <Text style={{
 
                       fontSize:14,
