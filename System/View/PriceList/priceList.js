@@ -159,11 +159,11 @@ const PriceList = () => {
              search,
              (text)=>{
                onChangeSearch(text)
-               // if (text === ''){
-               //   getAllService().then()
-               // }else{
-               //   searchFunction(text).then()
-               // }
+               if (text === ''){
+                 getAllService().then()
+               }else{
+                 searchFunction(text).then()
+               }
              },
              'Search',
              {
