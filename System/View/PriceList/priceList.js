@@ -8,7 +8,6 @@ import {
   MyButton,
   MyTextInput,
 } from "../../Utility/MyLib";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import Loader from "../../Utility/Loader";
 import NoDataFound from "../NoDataFound";
 
@@ -17,7 +16,7 @@ import Modal from "react-native-modal";
 
 const PriceList = () => {
   const [search , onChangeSearch] = React.useState(null);
-  const [searchProduct , onChangeSearchProduct] = React.useState(null);
+  const [loader , setLoader] = React.useState(true);
   const [activeTab , setActiveTab] = React.useState('men');
   const [isModalVisible, setModalVisible] = React.useState(false);
   const [selectedService, setSelectedService] = React.useState(null)
@@ -55,6 +54,7 @@ const PriceList = () => {
       }else{
         setProductList([])
       }
+      setLoader(false)
     })
   }
   const renderProductList = () => {
@@ -144,44 +144,49 @@ const PriceList = () => {
       setProductList(res)
     })
   }
-  return (
-   <View style={{ height:'100%',backgroundColor:'#fff' }}>
-     {openSelectService()}
-     <View style={{ height:hp('30'),backgroundColor:mainColor }}>
-       <View style={{padding:'5%', height:'84%'}}>
-         <TouchableOpacity style={{ borderWidth:1, borderRadius:10/2,padding:'5%',backgroundColor:'#fff' }}
-            onPress={()=>{setModalVisible(!isModalVisible)}}
-         >
-           <Text>{(selectedService !== null)?selectedService.name:'select service'}</Text>
-         </TouchableOpacity>
-         <View style={{ borderWidth:1,marginTop:'2%' ,borderRadius:10/2,backgroundColor:'#fff' }}>
-           {MyTextInput(
-             search,
-             (text)=>{
-               onChangeSearch(text)
-               // if (text === ''){
-               //   getAllService().then()
-               // }else{
-               //   searchFunction(text).then()
-               // }
-             },
-             'Search',
-             {
-               backgroundColor:'#fff',
-             }
-             ,
-             'file-search'
-           )}
-         </View>
-       </View>
-       {renderBottomList()}
-     </View>
-     <ScrollView>
-       {(categoryTab.length > 0)?renderProductList():NoDataFound()}
-     </ScrollView>
-   </View>
-  );
-};
+  if (loader){
+    return Loader();
+  }else if (services.length > 0){
+    return (
+      <View style={{ height:'100%',backgroundColor:'#fff' }}>
+        {openSelectService()}
+        <View style={{ height:hp('30'),backgroundColor:mainColor }}>
+          <View style={{padding:'5%', height:'84%'}}>
+            <TouchableOpacity style={{ borderWidth:1, borderRadius:10/2,padding:'5%',backgroundColor:'#fff' }}
+                              onPress={()=>{setModalVisible(!isModalVisible)}}
+            >
+              <Text>{(selectedService !== null)?selectedService.name:'select service'}</Text>
+            </TouchableOpacity>
+            <View style={{ borderWidth:1,marginTop:'2%' ,borderRadius:10/2,backgroundColor:'#fff' }}>
+              {MyTextInput(
+                search,
+                (text)=>{
+                  onChangeSearch(text)
+                  if (text === ''){
+                    getAllService().then()
+                  }else{
+                    searchFunction(text).then()
+                  }
+                },
+                'Search',
+                {
+                  backgroundColor:'#fff',
+                }
+                ,
+                'file-search'
+              )}
+            </View>
+          </View>
+          {renderBottomList()}
+        </View>
+        <ScrollView>
+          {(categoryTab.length > 0)?renderProductList():NoDataFound()}
+        </ScrollView>
+      </View>
+    );
+  }
+  return NoDataFound();
+}
 
 const Styles = StyleSheet.create({
   activeTab:{ backgroundColor:'#fff',width:wp('34'),height:hp('5'),alignItems:'center',justifyContent:'center' },

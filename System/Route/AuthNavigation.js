@@ -36,6 +36,7 @@ import Process from "../View/Process/Process";
 import ProcessNext from "../View/Process/ProcessNext";
 import OrderPlaced from "../View/Process/OrderPlaced";
 import MembershipDetails from "../View/MembershipDetails";
+import AllServices from "../View/AllServices/AllServices";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -321,6 +322,16 @@ const HomeScreenStack = ({navigation}) => {
 
         options={({route}) => ({
           title: 'Member offer',
+        })}
+
+
+      />
+      <Stack.Screen
+        name="AllServices"
+        component={ AllServices }
+
+        options={({route}) => ({
+          title: 'All Services',
         })}
 
 
