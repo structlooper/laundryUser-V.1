@@ -418,7 +418,13 @@ export default class Home extends React.Component {
                   alignItems:'center',
                   marginVertical:10
                 }}>
-                  {MyButton(() => {((this.state.selectedServices).length > 0) ?navigation.navigate('process',{selectedServices:this.state.selectedServices, selectedServicesNames:this.state.selectedServicesNames}):MyToast('Please select at least one service')},'Schedule pickup'
+                  {MyButton(() => {
+                    ((this.state.selectedServices).length > 0) ?
+                      navigation.navigate('process',{
+                        selectedServices:this.state.selectedServices,
+                        selectedServicesNames:this.state.selectedServicesNames})
+                      :MyToast('Please select at least one service')
+                    },'Schedule pickup'
                     ,{width:'60%'},'clock'
                   )}
 
