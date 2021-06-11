@@ -7,6 +7,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 import Loader from "../../Utility/Loader";
 import NoDataFound from "../NoDataFound";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 const ProcessNext = ({navigation,route}) => {
   const [ promoCodeInput, setPromoCodeInput ] = React.useState("");
   const [ promoCodeSelected, setPromoCodeSelected ] = React.useState(null);
@@ -374,7 +376,7 @@ const ProcessNext = ({navigation,route}) => {
         {MyButton(
           ()=>{PlaceOrder().then()},
           'Place order',
-          {width:'30%', },
+          {width:wp('40'), },
           'cart'
         )}
       </View>

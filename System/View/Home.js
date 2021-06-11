@@ -42,17 +42,26 @@ const MemberShipCard = (navigation,data,index) => {
             marginTop:'10%',
             marginLeft:'5%'
           }}>
-            {MyTransButton(
-              () => {navigation.navigate('MembershipDetails',{memberShipId:data.id})},
-              'Get start',
-              {
-                width:'30%',
-                backgroundColor: 'rgba(52, 52, 52, 0.6)',
-                color:'#fff'
-              },
-              'lightbulb',
-              '#fff'
-            )}
+            <View style={{ alignItems:'center', }}>
+              {MyTransButton(
+                () => {navigation.navigate('MembershipDetails',{memberShipId:data.id})},
+                'Get start',
+                {
+                  width:wp('28'),
+                  backgroundColor: 'rgba(125,106,239,.3 )',
+                  color:'#fff',
+                  fontSize:12,
+                  borderRadius:50/2,
+                  paddingVertical:'1%',
+                  marginTop:'10%'
+                },
+                {
+                  color:'#fff',
+                  textAlign:'center'
+                }
+              )}
+            </View>
+
           </View>
         </ImageBackground>
       </View>
@@ -356,14 +365,14 @@ export default class Home extends React.Component {
                     <TouchableOpacity onPress={() => {
                       this._carousel.snapToItem(this._carousel.currentIndex - 1)
                     }}>
-                      <Text> <FontAwesome5 name={'arrow-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
+                      <Text> <FontAwesome5 name={'chevron-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
                     </TouchableOpacity>
                   </View>
                   <View style={{ top:80,right:0,position:'absolute' }}>
                     <TouchableOpacity onPress={() => {
                       this._carousel.snapToItem(this._carousel.currentIndex + 1)
                     }}>
-                      <Text> <FontAwesome5 name={'arrow-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
+                      <Text> <FontAwesome5 name={'chevron-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
                     </TouchableOpacity>
                   </View>
 
@@ -389,7 +398,7 @@ export default class Home extends React.Component {
                   <TouchableOpacity
                     style={{alignItems: 'flex-start',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2 }}
                     onPress={this.leftArrow}>
-                    <Text> <FontAwesome5 name={'arrow-left'} size={25} /> </Text>
+                    <Text> <FontAwesome5 name={'chevron-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
                   </TouchableOpacity>
                   <ScrollView   horizontal={true}
                                 pagingEnabled={true}
@@ -411,7 +420,7 @@ export default class Home extends React.Component {
                   <TouchableOpacity
                     style={{alignItems: 'flex-end',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2}}
                     onPress={this.rightArrow}>
-                    <Text>  <FontAwesome5 name={'arrow-right'} size={25} /> </Text>
+                    <Text>  <FontAwesome5 name={'chevron-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
                   </TouchableOpacity>
                 </View>
                 <View style={{
@@ -629,7 +638,7 @@ const styles = StyleSheet.create({
     marginHorizontal:'.5%'
   },
   imageWrapper: {
-    height: 100,
+    height: hp('15'),
     width: '100%',
     overflow : "hidden"
   },

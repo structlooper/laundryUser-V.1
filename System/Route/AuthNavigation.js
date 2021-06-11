@@ -12,6 +12,7 @@ import CustomSidebarMenu from "./CustomSidebarMenu";
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { mainColor, capitalizeFirstLetter, AppName } from "../Utility/MyLib";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import Home from '../View/Home';
 import Offers from "../View/Offers";
@@ -63,7 +64,7 @@ const NavigationDrawerStructure = (props) => {
 const getHeaderTopRight = (navigation) => {
   return (
     <View style={{ flexDirection:'row' }}>
-      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+      <TouchableOpacity onPress={() => {navigation.navigate('PriceListScreenStack')}}>
         <FontAwesome5 name={'search'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
@@ -522,7 +523,7 @@ const MainNavigator = () => {
     <Drawer.Navigator
       drawerContentOptions={{
         activeTintColor: mainColor,
-        itemStyle: {marginVertical: 5},
+        itemStyle: {marginVertical: hp('0.5')},
       }}
       drawerStyle={{
         backgroundColor: '#eee',

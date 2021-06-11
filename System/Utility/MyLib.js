@@ -4,6 +4,7 @@ import {
   View, TouchableOpacity, Text, ToastAndroid, Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
@@ -64,7 +65,7 @@ export const MyButton = (onPress,TextOnIt,style,icon,loading) => {
       onPress={onPress}
       loading={loading?true:false}
       uppercase={false}
-      contentStyle={{ height: 50 }}
+      contentStyle={{ height: hp('6') }}
       icon={icon}
     >
       {TextOnIt}
@@ -79,7 +80,7 @@ export const MyOutlineButton = (onPress,TextOnIt,style,icon,loading) => {
       onPress={onPress}
       loading={loading?true:false}
       uppercase={false}
-      contentStyle={{ height: 50 }}
+      contentStyle={{  height: hp('6') }}
       icon={icon}
     >
       <Text>
@@ -89,23 +90,14 @@ export const MyOutlineButton = (onPress,TextOnIt,style,icon,loading) => {
     </Button>
   )
 }
-export const MyTransButton = (onPress,TextOnIt,style,icon,color,loading) => {
+export const MyTransButton = (onPress,TextOnIt,style,btnStyle) => {
   return (
-    <Button
-      mode="Outlined"
-      style={style}
-      onPress={onPress}
-      loading={loading?true:false}
-      uppercase={false}
-      contentStyle={{ height: 50 }}
-      icon={icon}
-      color={color}
+    <TouchableOpacity
+    onPress={onPress}
+    style={style}
     >
-      <Text>
-        {TextOnIt}
-
-      </Text>
-    </Button>
+      <Text style={btnStyle}>{TextOnIt}</Text>
+    </TouchableOpacity>
   )
 }
 export const MyOptField = (name,onChangeFunction,placeHolder,style,icon,autofocus) => {

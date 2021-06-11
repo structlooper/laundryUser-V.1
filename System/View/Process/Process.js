@@ -6,7 +6,7 @@ import {
   mainColor,
   MyButton,
   MyOutlineButton,
-  MyToast,
+  MyToast, MyTransButton,
 } from "../../Utility/MyLib";
 import Modal from 'react-native-modal';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
@@ -17,6 +17,7 @@ import Loader from "../../Utility/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {addAddressFunctions, addressFunctions, loadAddressFunctions} from "../../Controller/addressController";
 import { useIsFocused } from "@react-navigation/native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 const Process = ({navigation,route}) => {
   const isFocused = useIsFocused();
@@ -40,6 +41,10 @@ const Process = ({navigation,route}) => {
   const [isAddressModalVisible, setAddressModalVisible] = React.useState(false);
   const [defaultAddress , setDefaultAddress] = React.useState(false)
   const [addressList , setAddressList] = React.useState(null);
+  const iconSize = 20;
+  const normalIconColor = mainColor;
+  const touchAbleIconColor= 'rgba(125,106,239,1 )';
+  const fontSizeLabel = hp('1.8');
   React.useEffect(() => {
     callFunctionMethod().then()
   },[isFocused])
@@ -179,7 +184,7 @@ const Process = ({navigation,route}) => {
           return (
             <TouchableOpacity onPress={() => {selectAddress(data.id,data.address)}} key={i}>
               <View style={{ width:'100%',borderWidth:1,borderColor:mainColor,padding:'5%',borderRadius:100/2,marginBottom:'1%' }} key={i}>
-                <Text style={{ color:mainColor,fontSize:17 }}>{data.door_no}</Text>
+                <Text style={{ color:mainColor,fontSize:fontSizeLabel }}>{data.door_no}</Text>
                 <Text>{data.address}</Text>
               </View>
             </TouchableOpacity>
@@ -232,16 +237,16 @@ const Process = ({navigation,route}) => {
         <ScrollView>
           <View style={Styles.DateTimeContainer}>
             <View style={{flex:1,justifyContent:'center'}}>
-              <FontAwesome5 name={'luggage-cart'} color={'grey'} size={50} />
+              <FontAwesome5 name={'luggage-cart'} color={normalIconColor} size={iconSize} />
               <Text style={{
-                fontSize:17,
+                fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
               }}>Pick-up Slot</Text>
             </View>
             <View style={{flex:1,alignItems:'center'}}>
               <Text style={{
-                fontSize:17,
+                fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
               }}>Time Slots</Text>
@@ -264,7 +269,7 @@ const Process = ({navigation,route}) => {
                   marginVertical:'10%'
                 }}
               >
-                <FontAwesome5 name={'clock'} color={mainColor} size={50} />
+                <FontAwesome5 name={'clock'} color={touchAbleIconColor} size={iconSize} />
               </TouchableOpacity>
               <Text style={{
                width:'60%',
@@ -275,7 +280,7 @@ const Process = ({navigation,route}) => {
             </View>
             <View style={{flex:1,alignItems:'center'}}>
               <Text style={{
-                fontSize:17,
+                fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
               }}>Date</Text>
@@ -297,7 +302,7 @@ const Process = ({navigation,route}) => {
                                 }}
 
               >
-                <FontAwesome5 name={'calendar-alt'} color={mainColor} size={50} />
+                <FontAwesome5 name={'calendar-alt'} color={touchAbleIconColor} size={iconSize} />
 
               </TouchableOpacity>
               <Text style={{
@@ -310,14 +315,15 @@ const Process = ({navigation,route}) => {
           </View>
           <View style={Styles.DateTimeContainer}>
             <View style={{flex:1,justifyContent:'center'}}>
-              <FontAwesome5 name={'luggage-cart'} color={'grey'} size={50} />
+              <FontAwesome5 name={'luggage-cart'} color={normalIconColor} size={iconSize} />
               <Text style={{
-                fontSize:17,
+                fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
               }}>Drop Slot</Text>
-              {MyOutlineButton(
-                ()=>{
+
+              {MyTransButton(
+                () => {
                   setPickupDate('---')
                   setPickupDateSelected('---')
                   setPickupTime('---')
@@ -328,12 +334,24 @@ const Process = ({navigation,route}) => {
                   setDropTimeSelected('---')
                 },
                 'clear slots',
-                {width:'100%',marginLeft:'-20%'}
+                {
+                  width:wp('28'),
+                  backgroundColor: 'rgba(125,106,239,.3 )',
+                  color:'#fff',
+                  fontSize:12,
+                  borderRadius:50/2,
+                  paddingVertical:hp('1.2%'),
+                  marginTop:'10%'
+                },
+                {
+                  color:'#fff',
+                  textAlign:'center'
+                }
               )}
             </View>
             <View style={{flex:1,alignItems:'center'}}>
               <Text style={{
-                fontSize:17,
+                fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
               }}>Time Slots</Text>
@@ -354,7 +372,7 @@ const Process = ({navigation,route}) => {
                   marginVertical:'10%'
                 }}
               >
-                <FontAwesome5 name={'clock'} color={mainColor} size={50} />
+                <FontAwesome5 name={'clock'} color={touchAbleIconColor} size={iconSize} />
               </TouchableOpacity>
               <Text style={{
                width:'60%',
@@ -365,7 +383,7 @@ const Process = ({navigation,route}) => {
             </View>
             <View style={{flex:1,alignItems:'center'}}>
               <Text style={{
-                fontSize:17,
+                fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
               }}>Date</Text>
@@ -386,7 +404,7 @@ const Process = ({navigation,route}) => {
 
                                 }}
               >
-                <FontAwesome5 name={'calendar-alt'} color={mainColor} size={50} />
+                <FontAwesome5 name={'calendar-alt'} color={touchAbleIconColor} size={iconSize} />
 
               </TouchableOpacity>
               <Text style={{
@@ -408,8 +426,8 @@ const Process = ({navigation,route}) => {
             <View style={{
               alignItems:'center',
             }}>
-              <FontAwesome5 name={'map-marker-alt'} color={'grey'} size={40} />
-              <Text>Address</Text>
+              <FontAwesome5 name={'map-marker-alt'} color={touchAbleIconColor} size={iconSize} />
+              <Text style={{ fontSize:fontSizeLabel }}>Address</Text>
             </View>
             <View style={{
               justifyContent:'center',
@@ -424,7 +442,8 @@ const Process = ({navigation,route}) => {
             </View>
             <View style={Styles.container}>
               <TouchableOpacity onPress={() => {setAddressModalVisible(!isAddressModalVisible)}} style={{
-                borderWidth:.5,
+                borderWidth:wp('.05'),
+                borderRadius:50/2,
                 padding:10,
                 width:'80%',
                 alignItems:'center'
@@ -434,7 +453,7 @@ const Process = ({navigation,route}) => {
             </View>
           <View style={{ padding:10,marginTop:'8%'}}>
               <TouchableOpacity onPress={() => {navigation.navigate('HomeScreenStack',{screen:'CreateAddressFlag'})}} style={{marginLeft:'6%'}}>
-                <Text> <FontAwesome5 name={'plus-circle'} color={'grey'} size={14} /> Add address </Text>
+                <Text> <FontAwesome5 name={'plus-circle'} color={touchAbleIconColor} size={iconSize} /> Add address </Text>
               </TouchableOpacity>
             </View>
         </ScrollView>
@@ -459,11 +478,11 @@ const Styles = StyleSheet.create({
     backgroundColor: '#fff'
   },
   topContainer:{
-    height: '45%',
+    height: '40%',
     borderBottomWidth:.5,
   },
   middleContainer:{
-    height:'45%'
+    height:'50%'
   },
   bottomContainer:{
     height:'10%',
