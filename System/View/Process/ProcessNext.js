@@ -1,6 +1,14 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { mainColor, MyButton, MyOutlineButton, MyTextInput, MyToast, fetchAuthPostFunction } from "../../Utility/MyLib";
+import {
+  mainColor,
+  MyButton,
+  MyOutlineButton,
+  MyTextInput,
+  MyToast,
+  fetchAuthPostFunction,
+  fetchGetFunction,
+} from "../../Utility/MyLib";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { placeOrder } from "../../Controller/CartController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,6 +26,7 @@ const ProcessNext = ({navigation,route}) => {
   const [ selectedServiceIds, setSelectedServiceIds ] = React.useState(null);
   const [ selectedEsCloths, setSelectedEsCloths ] = React.useState(null);
   const [ selectedAdItems, setSelectedAdItems ] = React.useState([]);
+  const [ additionalItems, setAdditionalItems ] = React.useState([]);
   const [ update, setUpdate ] = React.useState(null);
   const [ isVisible, changeIsVisible ] = React.useState(false);
   const {pickupTimeSelected} = route.params;
@@ -54,7 +63,14 @@ const ProcessNext = ({navigation,route}) => {
   const callFunctions = () => {
     getServicesIds().then()
     getPromoCodes().then()
+    getAdditionalItems().then()
   }
+  const getAdditionalItems =async () =>{
+    fetchGetFunction('additional-items').then(res => {
+      setAdditionalItems(res)
+    })
+  }
+
   const PlaceOrder = async () => {
     if (selectedEsCloths === null){
       MyToast('Please select estimated cloths')
@@ -89,7 +105,8 @@ const ProcessNext = ({navigation,route}) => {
       <TouchableOpacity onPress={()=>{setSelectedEsCloths(text)}} style={{
         flex:1,
         padding:5,
-        backgroundColor:(selectedEsCloths === text)?mainColor :'rgba(83,203,154,0.87)',marginHorizontal:5
+        backgroundColor:(selectedEsCloths === text)?mainColor :'rgba(83,203,154,0.87)',marginHorizontal:5,
+        borderRadius:10/2
       }}>
         {/*<TouchableOpacity onPress={() => {console.log('thia')}}>*/}
         <Text style={{
@@ -99,7 +116,7 @@ const ProcessNext = ({navigation,route}) => {
       </TouchableOpacity>
     )
   }
-  const ad_items = (text) => {
+  const ad_items = (text,i) => {
     let ad_items = selectedAdItems;
     return (
       <TouchableOpacity style={{
@@ -121,11 +138,13 @@ const ProcessNext = ({navigation,route}) => {
                           setSelectedAdItems(ad_items)
 
                         }}
+                        key={i}
       >
 
         <Text style={{
           color:(selectedAdItems.includes(text))? '#fff' :'#000',
           textAlign:'center',
+          width:wp('25')
 
         }}> {text}</Text>
       </TouchableOpacity>
@@ -357,9 +376,13 @@ const ProcessNext = ({navigation,route}) => {
             flexDirection:'row',
             marginTop:10,
           }}>
-            {ad_items('Carpet+')}
-            {ad_items('Blanket+')}
-            {ad_items('Curtains+')}
+            <ScrollView horizontal={true}>
+              {(additionalItems.length > 0)?
+                additionalItems.map((data,i) =>
+                  ad_items(data.item_name,i)
+                )
+              :null}
+            </ScrollView>
 
           </View>
         </View>

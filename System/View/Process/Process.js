@@ -209,20 +209,29 @@ const Process = ({navigation,route}) => {
       </Modal>
     )
   }
-  const NavigateToNextPage = () => {
+  const NavigateToNextPage = async () => {
+
     if (pickupDateSelected !== '---' && pickupTimeSelected !== '---'&& dropDateSelected !== '---'&& dropTimeSelected !== '---' ){
       if (defaultAddress !== false && defaultAddress !== null){
-        navigation.navigate('ProcessNext',{
-          pickupTimeSelected:pickupTimeSelected,
-          pickupDateSelected:pickupDateSelected,
-          dropDateSelected:dropDateSelected,
-          dropTimeSelected:dropTimeSelected,
-          pickupDate:pickupDate,
-          pickupTime:pickupTime,
-          dropDate:dropDate,
-          dropTime:dropTime,
-          selectedServices:selectedServices,
-          selectedServicesNames:selectedServicesNames
+        let UserDetails = await AsyncStorage.getItem('userDetails')
+        let userId = JSON.parse(UserDetails).id;
+        await fetchGetFunction('checkAddress/'+userId).then(check => {
+          if (check.status === 1){
+            navigation.navigate('ProcessNext',{
+              pickupTimeSelected:pickupTimeSelected,
+              pickupDateSelected:pickupDateSelected,
+              dropDateSelected:dropDateSelected,
+              dropTimeSelected:dropTimeSelected,
+              pickupDate:pickupDate,
+              pickupTime:pickupTime,
+              dropDate:dropDate,
+              dropTime:dropTime,
+              selectedServices:selectedServices,
+              selectedServicesNames:selectedServicesNames
+            })
+          }else{
+            MyToast(check.message)
+          }
         })
       }else{
         MyToast('Please select any address or add address')
