@@ -39,6 +39,7 @@ import OrderPlaced from "../View/Process/OrderPlaced";
 import MembershipDetails from "../View/MembershipDetails";
 import AllServices from "../View/AllServices/AllServices";
 import Feedback from "../View/Feedback";
+import ReferAndEarn from "../View/ReferEarn/Refer&earn";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -110,7 +111,7 @@ const BottomStack = () => {
           padding:4,
         },
         indicatorStyle: { backgroundColor: 'black'},
-        showLabel: false,
+        // showLabel: false,
       }}>
       <Tab.Screen
         name="HomeTab"
@@ -546,6 +547,34 @@ const FeedBackScreenStack = ({navigation}) => {
     </Stack.Navigator>
   );
 };
+const ReferAndEarnScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="ReferAndEarn"
+      screenOptions={{
+        headerRight: () => getHeaderTopRight(navigation),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="ReferAndEarn"
+        component={ ReferAndEarn }
+        options={{
+          title: 'Refer & Earn',
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
 const MainNavigator = () => {
   return (
     // <NavigationContainer>
@@ -594,6 +623,17 @@ const MainNavigator = () => {
         }}
         component={AddressScreenStack}
       />
+      {/*<Drawer.Screen*/}
+      {/*  name="ReferAndEarn"*/}
+      {/*  options={{*/}
+      {/*    drawerLabel: 'Refer & Earn',*/}
+      {/*    drawerIcon:({color , size}) => (*/}
+      {/*      <FontAwesome5 name={'share-alt'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />*/}
+      {/*    )*/}
+
+      {/*  }}*/}
+      {/*  component={ReferAndEarnScreenStack}*/}
+      {/*/>*/}
       <Drawer.Screen
         name="FeedBackScreenStack"
         options={{

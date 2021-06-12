@@ -40,8 +40,10 @@ const MemberShipCard = (navigation,data,index) => {
         <ImageBackground style={styles.theImage} source={{uri : ImageUrl+data.banner_image}}>
           <View style={{
             marginTop:'10%',
-            marginLeft:'5%'
+            marginLeft:'5%',
+            flex:1,
           }}>
+            <View style={{ flex:1 }} />
             <View style={{ alignItems:'center', }}>
               {MyTransButton(
                 () => {navigation.navigate('MembershipDetails',{memberShipId:data.id})},
@@ -53,7 +55,7 @@ const MemberShipCard = (navigation,data,index) => {
                   fontSize:12,
                   borderRadius:50/2,
                   paddingVertical:'1%',
-                  marginTop:'10%'
+                  marginBottom:'.5%'
                 },
                 {
                   color:'#fff',
@@ -67,31 +69,6 @@ const MemberShipCard = (navigation,data,index) => {
       </View>
     </View>
   )
-  // return (
-  //   <View style={[styles.pricingCardContainer,{alignItems: 'center'}]} key={index}>
-  //     <Text style={styles.pricingCardHeader}>{capitalizeFirstLetter(data.title)}</Text>
-  //     <View style={{flexDirection:'row'}}>
-  //       <Text style={styles.pricingCardPrice}>₹{data.price}</Text>
-  //       <Text style={{ marginVertical:15,fontSize:13}}>/{data.duration_name}</Text>
-  //     </View>
-  //     <Text style={styles.pricingCardDetails}>{data.desc_1}</Text>
-  //     <Text style={styles.pricingCardDetails}>{data.desc_2}</Text>
-  //     <Text style={styles.pricingCardDetails}>{data.desc_3 ?? ''}</Text>
-  //
-  //     <TouchableOpacity onPress={() => {
-  //       let amount = (data.price * 100).toString();
-  //     PaymentController(amount,data.title+' membership').then(res => {
-  //       if (res === 'true'){
-  //         saveMembership().then()
-  //       }
-  //     })
-  //     }
-  //     }>
-  //       <Text style={styles.PriceButton}><FontAwesome5 name={'lightbulb'} size={iconSize-2} color={'#fff'}  />  GET STARTED</Text>
-  //     </TouchableOpacity>
-  //
-  //   </View>
-  // )
 }
 
 
