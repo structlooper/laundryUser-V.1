@@ -12,6 +12,7 @@ import CustomSidebarMenu from "./CustomSidebarMenu";
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { mainColor, capitalizeFirstLetter, AppName } from "../Utility/MyLib";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import Home from '../View/Home';
 import Offers from "../View/Offers";
@@ -37,6 +38,7 @@ import ProcessNext from "../View/Process/ProcessNext";
 import OrderPlaced from "../View/Process/OrderPlaced";
 import MembershipDetails from "../View/MembershipDetails";
 import AllServices from "../View/AllServices/AllServices";
+import Feedback from "../View/Feedback";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -63,7 +65,7 @@ const NavigationDrawerStructure = (props) => {
 const getHeaderTopRight = (navigation) => {
   return (
     <View style={{ flexDirection:'row' }}>
-      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
+      <TouchableOpacity onPress={() => {navigation.navigate('PriceListScreenStack')}}>
         <FontAwesome5 name={'search'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
@@ -516,13 +518,41 @@ const PriceListScreenStack = ({navigation}) => {
     </Stack.Navigator>
   );
 };
+const FeedBackScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="Feedback"
+      screenOptions={{
+        headerRight: () => getHeaderTopRight(navigation),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="Feedback"
+        component={ Feedback }
+        options={{
+          title: AppName,
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
 const MainNavigator = () => {
   return (
     // <NavigationContainer>
     <Drawer.Navigator
       drawerContentOptions={{
         activeTintColor: mainColor,
-        itemStyle: {marginVertical: 5},
+        itemStyle: {marginVertical: hp('0.5')},
       }}
       drawerStyle={{
         backgroundColor: '#eee',
@@ -563,6 +593,17 @@ const MainNavigator = () => {
 
         }}
         component={AddressScreenStack}
+      />
+      <Drawer.Screen
+        name="FeedBackScreenStack"
+        options={{
+          drawerLabel: 'Feedback',
+          drawerIcon:({color , size}) => (
+            <FontAwesome5 name={'telegram-plane'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />
+          )
+
+        }}
+        component={FeedBackScreenStack}
       />
       <Drawer.Screen
         name="aboutUs"

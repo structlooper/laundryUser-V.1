@@ -53,15 +53,27 @@ const AllServices = ({navigation}) => {
     let subFinal=[];
     services.map((service, i) =>
       {
-        if (i%2!==0){
-          subFinal.push(service)
+        if (services.length%2===0){
+          if (i%2===0){
+            subFinal.push(service)
+          }else{
+            subFinal.push(service)
+            Final.push(subFinal)
+            subFinal=[]
+          }
         }else{
-          subFinal.push(service)
-          Final.push(subFinal)
-          subFinal=[]
+          if (i%2!==0){
+            subFinal.push(service)
+          }else{
+            subFinal.push(service)
+            Final.push(subFinal)
+            subFinal=[]
+          }
         }
+
       }
     )
+    console.log('serv',Final)
     return (Final.reverse()).map((data,i) => {
       if (data.length > 1){
         return serviceRow(data,i)
@@ -84,7 +96,7 @@ const AllServices = ({navigation}) => {
           <Text style={(selectedServices.includes(data[0].id))?Styles.ServiceTextActive:Styles.ServiceText} >
             {data[0].name}
           </Text>
-          <Text style={{ fontSize:wp('2'),color:colorDesc0 }}>{data[0].description}</Text>
+          <Text style={{ fontSize:wp('3'),color:colorDesc0 }}>{data[0].description}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={(selectedServices.includes(data[1].id))?Styles.innerContainerChildActive:Styles.innerContainerChild}
                           onPress={()=>{ handleServiceSelection(data[1].id,data[1].name) }}
@@ -96,7 +108,7 @@ const AllServices = ({navigation}) => {
           <Text style={(selectedServices.includes(data[1].id))?Styles.ServiceTextActive:Styles.ServiceText}>
             {data[1].name}
           </Text>
-          <Text style={{ fontSize:wp('2'),color:colorDesc1 }}>{data[1].description}</Text>
+          <Text style={{ fontSize:wp('3'),color:colorDesc1 }}>{data[1].description}</Text>
 
         </TouchableOpacity>
       </View>
@@ -117,7 +129,7 @@ const AllServices = ({navigation}) => {
           <Text style={(selectedServices.includes(data.id))?Styles.ServiceTextActive:Styles.ServiceText} >
             {data.name}
           </Text>
-          <Text style={{ fontSize:wp('2'),color:colorDesc }}>{data.description}</Text>
+          <Text style={{ fontSize:wp('3'),color:colorDesc }}>{data.description}</Text>
 
         </TouchableOpacity>
       </View>
