@@ -48,7 +48,7 @@ const MemberShipCard = (navigation,data,index) => {
                 'Get start',
                 {
                   width:wp('28'),
-                  backgroundColor: 'rgba(125,106,239,.3 )',
+                  backgroundColor: 'rgba(125,106,239,.7 )',
                   color:'#fff',
                   fontSize:12,
                   borderRadius:50/2,

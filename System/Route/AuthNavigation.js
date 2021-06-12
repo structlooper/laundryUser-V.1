@@ -38,6 +38,7 @@ import ProcessNext from "../View/Process/ProcessNext";
 import OrderPlaced from "../View/Process/OrderPlaced";
 import MembershipDetails from "../View/MembershipDetails";
 import AllServices from "../View/AllServices/AllServices";
+import Feedback from "../View/Feedback";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -517,6 +518,34 @@ const PriceListScreenStack = ({navigation}) => {
     </Stack.Navigator>
   );
 };
+const FeedBackScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="Feedback"
+      screenOptions={{
+        headerRight: () => getHeaderTopRight(navigation),
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+        headerLeft: () => (
+          <NavigationDrawerStructure
+            navigationProps={navigation}
+          />
+        ),
+      }}>
+      <Stack.Screen
+        name="Feedback"
+        component={ Feedback }
+        options={{
+          title: AppName,
+        }}
+      />
+
+
+    </Stack.Navigator>
+  );
+};
 const MainNavigator = () => {
   return (
     // <NavigationContainer>
@@ -564,6 +593,17 @@ const MainNavigator = () => {
 
         }}
         component={AddressScreenStack}
+      />
+      <Drawer.Screen
+        name="FeedBackScreenStack"
+        options={{
+          drawerLabel: 'Feedback',
+          drawerIcon:({color , size}) => (
+            <FontAwesome5 name={'telegram-plane'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />
+          )
+
+        }}
+        component={FeedBackScreenStack}
       />
       <Drawer.Screen
         name="aboutUs"
