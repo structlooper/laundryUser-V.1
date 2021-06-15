@@ -40,6 +40,7 @@ import MembershipDetails from "../View/MembershipDetails";
 import AllServices from "../View/AllServices/AllServices";
 import Feedback from "../View/Feedback";
 import ReferAndEarn from "../View/ReferEarn/Refer&earn";
+import EnterCode from "../View/ReferEarn/EnterCode";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -552,26 +553,32 @@ const ReferAndEarnScreenStack = ({navigation}) => {
     <Stack.Navigator
       initialRouteName="ReferAndEarn"
       screenOptions={{
-        headerRight: () => getHeaderTopRight(navigation),
         headerStyle: {
           backgroundColor: '#fff',
         },
         headerTintColor: '#000',
-        headerLeft: () => (
-          <NavigationDrawerStructure
-            navigationProps={navigation}
-          />
-        ),
+
       }}>
       <Stack.Screen
         name="ReferAndEarn"
         component={ ReferAndEarn }
         options={{
           title: 'Refer & Earn',
+          headerRight: () => getHeaderTopRight(navigation),
+          headerLeft: () => (
+            <NavigationDrawerStructure
+              navigationProps={navigation}
+            />
+          ),
         }}
       />
-
-
+      <Stack.Screen
+        name="EnterCode"
+        component={ EnterCode }
+        options={{
+          title: 'Redeem referral code',
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -623,17 +630,17 @@ const MainNavigator = () => {
         }}
         component={AddressScreenStack}
       />
-      {/*<Drawer.Screen*/}
-      {/*  name="ReferAndEarn"*/}
-      {/*  options={{*/}
-      {/*    drawerLabel: 'Refer & Earn',*/}
-      {/*    drawerIcon:({color , size}) => (*/}
-      {/*      <FontAwesome5 name={'share-alt'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />*/}
-      {/*    )*/}
+      <Drawer.Screen
+        name="ReferAndEarn"
+        options={{
+          drawerLabel: 'Refer & Earn',
+          drawerIcon:({color , size}) => (
+            <FontAwesome5 name={'share-alt'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />
+          )
 
-      {/*  }}*/}
-      {/*  component={ReferAndEarnScreenStack}*/}
-      {/*/>*/}
+        }}
+        component={ReferAndEarnScreenStack}
+      />
       <Drawer.Screen
         name="FeedBackScreenStack"
         options={{
