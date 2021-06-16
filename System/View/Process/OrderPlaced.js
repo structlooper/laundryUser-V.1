@@ -74,12 +74,12 @@ const OrderPlaced = ({ navigation,route }) => {
         }}>
 
           {MyButton(
-            ()=>{console.log('reschedule')},
+            ()=>{navigation.navigate('HomeScreenStack',{screen:AppName,params:{screen:'Orders'}})},
             'My Orders',
             {
               width:wp('40')
             },
-            'cloth'
+            'tshirt-crew'
           )}
           {MyButton(
             ()=>{console.log('Cancel')},
