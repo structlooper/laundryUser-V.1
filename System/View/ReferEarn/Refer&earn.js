@@ -2,11 +2,20 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { mainColor, MyOutlineButton } from "../../Utility/MyLib";
+import { fetchGetFunction, mainColor, MyOutlineButton } from "../../Utility/MyLib";
 
 const ReferAndEarn = ({ navigation })  => {
   const iconsSize = 25;
+  const [appSettings,setAppSettings] = React.useState({})
 
+  React.useEffect(() => {
+    getAppSettings().then()
+  },[]);
+  const getAppSettings = async () => {
+    await fetchGetFunction('app_setting').then(res => {
+      setAppSettings(res.result)
+    })
+  }
   const buttonDesign = (icon, name, redirect,amount) => {
     return (
       <TouchableOpacity
@@ -53,8 +62,16 @@ const ReferAndEarn = ({ navigation })  => {
           <Text style={{ marginTop:'5%',fontSize:16,fontWeight:'bold',color:'black' }}>Earn upto Rs 5000</Text>
         </View>
         <View style={{ alignItems:'center',justifyContent:'center',}}>
-          <Text>Get Rs 200 for every friend you invite</Text>
-          <Text>Your friend also earns Rs 100</Text>
+          {(appSettings.refer_earn_amt !== undefined)?
+            (appSettings.refer_earn_amt > 0) ?
+              <Text>Get Rs {appSettings.refer_earn_amt} for every friend you invite</Text>
+              :
+              <Text>Invite your friends</Text>
+            :
+            null
+
+          }
+          {/*<Text>Your friend also earns Rs 100</Text>*/}
           { MyOutlineButton(() => {},
             'T&C',
             {

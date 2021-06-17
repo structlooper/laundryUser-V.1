@@ -57,17 +57,17 @@ const OrderDetails = ({navigation,route}) => {
               <View style={{flexDirection:'row' ,paddingVertical:5 }}>
                   <View style={{flex:.5}}>
                       <Text style={{ fontSize:15,color: mainColor,fontWeight: 'bold'}}>
-                          {order_products.qty}
+                          {order_products.qty} {order_products.unit}
                       </Text>
                   </View>
                   <View style={{flex:2}}>
                       <Text style={{ fontSize:15,color: 'black'}}>
-                          {order_products.product_name} ({order_products.service_name})
+                          {order_products.product_name} ({order_products.item_count}) ({order_products.service_name})
                       </Text>
                   </View>
-                  <View style={{flex:1}}>
+                  <View style={{flex:.9}}>
                       <Text style={{ fontSize:15,color: 'black',marginLeft:40}}>
-                          {order_products.price}
+                      ₹ {order_products.price}
                       </Text>
                   </View>
               </View>

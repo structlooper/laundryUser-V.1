@@ -41,6 +41,7 @@ import AllServices from "../View/AllServices/AllServices";
 import Feedback from "../View/Feedback";
 import ReferAndEarn from "../View/ReferEarn/Refer&earn";
 import EnterCode from "../View/ReferEarn/EnterCode";
+import Wallet from '../View/Wallet/Wallet'
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -582,6 +583,34 @@ const ReferAndEarnScreenStack = ({navigation}) => {
     </Stack.Navigator>
   );
 };
+const WalletScreenStack = ({navigation}) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="ReferAndEarn"
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTintColor: '#000',
+
+      }}>
+      <Stack.Screen
+        name="Wallet"
+        component={ Wallet }
+        options={{
+          title: 'My Wallet',
+          headerRight: () => getHeaderTopRight(navigation),
+          headerLeft: () => (
+            <NavigationDrawerStructure
+              navigationProps={navigation}
+            />
+          ),
+        }}
+      />
+
+    </Stack.Navigator>
+  );
+};
 const MainNavigator = () => {
   return (
     // <NavigationContainer>
@@ -607,6 +636,17 @@ const MainNavigator = () => {
         }}
 
         component={HomeScreenStack}
+      />
+      <Drawer.Screen
+        name="walletStackScreen"
+        options={{
+          drawerLabel: 'Wallet',
+          drawerIcon:({color , size}) => (
+            <FontAwesome5 name={'wallet'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />
+          )
+
+        }}
+        component={WalletScreenStack}
       />
       <Drawer.Screen
         name="PriceListScreenStack"
