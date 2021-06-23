@@ -13,7 +13,7 @@ const OrderCountDownController = (order_label,delivery_duration) => {
             fontSize: 15,
             color: '#000',
           }}>
-            Till Drop -
+            Till Delivery -
           </Text>
           <CountDown
             until={delivery_duration}

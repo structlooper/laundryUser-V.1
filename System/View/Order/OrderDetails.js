@@ -7,7 +7,7 @@ import Loader from "../../Utility/Loader";
 import moment from "moment";
 import orderStatusImage from "../../Controller/OrderImageController";
 import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen";
-
+import { useIsFocused } from "@react-navigation/native";
 
 const bill = (labelName,price,style) => {
 
@@ -40,11 +40,12 @@ const OrderDetails = ({navigation,route}) => {
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
     const {order_id} = route.params;
+    const isFocused = useIsFocused();
     const [order,setOrder] = React.useState(null);
 
     useEffect(() => {
         getOrderDetails().then()
-    },[])
+    },[isFocused])
     const getOrderDetails = async () => {
         await fetchAuthPostFunction('order',{order_id:order_id}).then(response => {
             setOrder(response)
@@ -129,8 +130,8 @@ const OrderDetails = ({navigation,route}) => {
                               color:'#fff'
                           }
                        ):null}
-                          </View>  
-                      
+                          </View>
+
                       <Text style={styles.addressDesc}>
                           {order.payment_mode} ( {order.payment_status} )
                       </Text>

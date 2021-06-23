@@ -1,12 +1,18 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
-import { fetchAuthPostFunction, mainColor } from "../../Utility/MyLib";
+import { fetchAuthPostFunction, mainColor, MyButton, MyToast, MyTransButton } from "../../Utility/MyLib";
 import Loader from "../../Utility/Loader";
-const RequestPayment = ({ route }) => {
+import Modal from "react-native-modal";
+import PaymentMethodController from "../../Controller/PaymentMethodController";
+import PaymentController from "../../Controller/PaymentController";
+const RequestPayment = ({ navigation, route }) => {
   const {orderDetails} = route.params ?? null;
   const [paymentDetails,setPaymentDetails] = React.useState(null)
-
+  const [paymentMethod,setPaymentMethod] = React.useState(null)
+  const [isModalVisible,setModalVisible] = React.useState(false)
+  const [btnLoading,setBtnLoading] = React.useState(false)
+  const [loader,setLoader] = React.useState(false)
   React.useEffect(()=>{
     getPaymentMethod().then()
   },[]);
@@ -18,8 +24,64 @@ const RequestPayment = ({ route }) => {
   if (!orderDetails){
     return Loader();
   }
+  const functionModal = () => {
+    const modalContent = () => {
+      return (
+        <View style={{ alignItems:'center',marginTop:hp(5),paddingHorizontal:wp(10) }}>
+          <Text style={{ textAlign:'center' }}>Have you paid the cash to the delivery boy ?</Text>
+          {MyButton(
+            ()=>{
+              setBtnLoading(true)
+              PaymentMethodController({
+                order_id:orderDetails.id,
+                payment_status:'3',
+                payment_methods:paymentMethod
+              }).then(response => {
+                if (response.status === 1){
+                  navigation.navigate('orderDetails',{order_id:orderDetails.id})
+                }else{
+                  MyToast(response.message)
+                }
+                setBtnLoading(false)
+              })
+            },
+            'Yes, Paid',
+            {
+              borderWidth: 1,
+              borderRadius: 20/2,
+              backgroundColor:'rgb(60,141,188)',
+              marginVertical:hp(5),
+              width: wp(50)
+            },
+            '',
+            btnLoading
+          )}
+        </View>
+      )
+    }
+    return (
+      <Modal isVisible={isModalVisible} >
+        <View style={{flex: .4,borderWidth:.2,backgroundColor:'#eee',}}>
+          <View style={{borderBottomWidth:.5,paddingBottom:10,padding:10}}>
+            <View>
+              {MyButton(() => {setModalVisible(!isModalVisible)},'Back','','arrow-left')}
+            </View>
+          </View>
+          <View style={{ backgroundColor:'#fff',height:'88%',alignItems:'center'}}>
+            <ScrollView style={{width:wp('90'),}} >
+              {modalContent()}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    )
+  }
+  if (loader){
+    return Loader();
+  }
   return (
     <View style={{ flex:1,backgroundColor:'#eee' }}>
+      { functionModal() }
       <View style={{margin:hp('2'),padding:wp('3'),backgroundColor:'#fff',borderRadius:40/2 }}>
         <View style={{flexDirection:'row',paddingRight:'2%'}}>
           <Text style={Style.LabelTitle}>Subtotal</Text>
@@ -48,7 +110,12 @@ const RequestPayment = ({ route }) => {
         <ScrollView>
           <View style={{ flexDirection:'row',marginHorizontal:'3%' }}>
             <TouchableOpacity style={{ flex:1 , paddingHorizontal:wp('5') ,paddingVertical:hp('3'), margin:'1%' , borderRadius:40/2 ,
-              alignItems:'center' ,backgroundColor:'#fff'}}>
+              alignItems:'center' ,backgroundColor:'#fff'}}
+              onPress={() => {
+                setPaymentMethod(1)
+                setModalVisible(!isModalVisible)
+              }}
+            >
               <Image source={{ uri:'http://covidvaccination.co.in/uploads/images/8342ffc12c9bb743950331a337714210.png' }}
                      style={{ width:wp('40') , height:hp('11.5') , resizeMode:'center',marginBottom:hp(1.5) }}
               />
@@ -56,7 +123,32 @@ const RequestPayment = ({ route }) => {
               <Text style={{ fontSize:wp(3) }}>Get cash in hand</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex:1 , paddingHorizontal:wp('5') ,paddingVertical:hp('3'), margin:'1%' , borderRadius:40/2 ,
-              alignItems:'center' ,backgroundColor:'#fff'}}>
+              alignItems:'center' ,backgroundColor:'#fff'}}
+            onPress={
+              ()  => {
+                setPaymentMethod(2)
+                PaymentController((orderDetails.total * 100).toString(), 'order ' + orderDetails.order_id).then(res => {
+                  if (res == 'true'){
+                    setLoader(true)
+                    PaymentMethodController({
+                      order_id:orderDetails.id,
+                      payment_status:'2',
+                      payment_methods:2
+                    }).then(response =>{
+                      if (response.status === 1){
+                        navigation.navigate('orderDetails',{order_id:orderDetails.id})
+                      }else{
+                        MyToast(response.message)
+                        MyToast('Contact admin')
+                      }
+                    })
+                  }else{
+                    MyToast('Payment fail')
+                  }
+                })
+              }
+            }
+            >
               <Image source={{ uri:'https://img.freepik.com/free-vector/paid-by-credit-card_41910-370.jpg?size=626&ext=jpg' }}
                      style={{ width:wp('40') , height:hp('13')  , resizeMode:'center' }}
               />
@@ -73,14 +165,15 @@ const RequestPayment = ({ route }) => {
               <Text style={{ fontWeight:'bold',fontSize:wp(4.5) }} >Wallet</Text>
               <Text style={{ fontSize:wp(3),textAlign:'center' }}>Pay with wallet available amount: $50,20.00</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex:1 , paddingHorizontal:wp('5') ,paddingVertical:hp('3'), margin:'1%' , borderRadius:40/2 ,
-              alignItems:'center' ,backgroundColor:'#fff'}}>
-              <Image source={{ uri:'http://covidvaccination.co.in/uploads/images/37eabac2539aca54d47150a53d1ec36f.jpg' }}
-                     style={{ width:wp('40') , height:hp(12) , resizeMode:'center',marginBottom:hp(.5) }}
-              />
-              <Text style={{ fontWeight:'bold',fontSize:wp(4.5) }} >Other</Text>
-              <Text style={{ fontSize:wp(3) }}>Paid with Other method</Text>
-            </TouchableOpacity>
+
+            {/*<TouchableOpacity style={{ flex:1 , paddingHorizontal:wp('5') ,paddingVertical:hp('3'), margin:'1%' , borderRadius:40/2 ,*/}
+            {/*  alignItems:'center' ,backgroundColor:'#fff'}}>*/}
+            {/*  <Image source={{ uri:'http://covidvaccination.co.in/uploads/images/37eabac2539aca54d47150a53d1ec36f.jpg' }}*/}
+            {/*         style={{ width:wp('40') , height:hp(12) , resizeMode:'center',marginBottom:hp(.5) }}*/}
+            {/*  />*/}
+            {/*  <Text style={{ fontWeight:'bold',fontSize:wp(4.5) }} >Other</Text>*/}
+            {/*  <Text style={{ fontSize:wp(3) }}>Paid with Other method</Text>*/}
+            {/*</TouchableOpacity>*/}
 
           </View>
         </ScrollView>
