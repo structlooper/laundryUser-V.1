@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import {View, Text, StyleSheet, Image, ScrollView} from 'react-native'
-import { AppName, fetchAuthPostFunction, mainColor, MyButton } from "../../Utility/MyLib";
+import { AppName, fetchAuthPostFunction, mainColor, MyButton, MyToast, MyTransButton } from "../../Utility/MyLib";
 import {useNavigationState} from '@react-navigation/native';
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
 import moment from "moment";
 import orderStatusImage from "../../Controller/OrderImageController";
-
+import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen";
+import { useIsFocused } from "@react-navigation/native";
 
 const bill = (labelName,price,style) => {
 
@@ -39,11 +40,12 @@ const OrderDetails = ({navigation,route}) => {
     const state = useNavigationState(state => state);
     const routeName = (state.routeNames[state.index]);
     const {order_id} = route.params;
+    const isFocused = useIsFocused();
     const [order,setOrder] = React.useState(null);
 
     useEffect(() => {
         getOrderDetails().then()
-    },[])
+    },[isFocused])
     const getOrderDetails = async () => {
         await fetchAuthPostFunction('order',{order_id:order_id}).then(response => {
             setOrder(response)
@@ -62,7 +64,7 @@ const OrderDetails = ({navigation,route}) => {
                   </View>
                   <View style={{flex:2}}>
                       <Text style={{ fontSize:15,color: 'black'}}>
-                          {order_products.product_name} ({order_products.item_count}) ({order_products.service_name})
+                          {order_products.product_name} {order_products.item_count?'('+order_products.item_count+')':null } ({order_products.service_name})
                       </Text>
                   </View>
                   <View style={{flex:.9}}>
@@ -110,9 +112,29 @@ const OrderDetails = ({navigation,route}) => {
 
                   </View>
                   <View style={styles.middleContainerHeader}>
-                      <Text style={styles.addressHeader}>
+                      <View style={{ flexDirection:'row' }}>
+                      <Text style={[styles.addressHeader,{flex:1}]}>
                           Payment
                       </Text>
+                      {(order.payment_status === 'Requested')?MyTransButton(
+                          ()=>{
+                              (order.total > 0)? navigation.navigate('requestPayment',{orderDetails:order}):
+                                MyToast('Invalid amount')
+                          },
+                          'Pay now',
+                          {
+                              borderWidth:1,
+                              borderRadius:20/2,
+                              paddingHorizontal:widthPercentageToDP('10'),
+                              paddingVertical:heightPercentageToDP('.5'),
+                              backgroundColor:mainColor
+                          },
+                          {
+                              color:'#fff'
+                          }
+                       ):null}
+                          </View>
+
                       <Text style={styles.addressDesc}>
                           {order.payment_mode} ( {order.payment_status} )
                       </Text>

@@ -41,7 +41,8 @@ import AllServices from "../View/AllServices/AllServices";
 import Feedback from "../View/Feedback";
 import ReferAndEarn from "../View/ReferEarn/Refer&earn";
 import EnterCode from "../View/ReferEarn/EnterCode";
-import Wallet from '../View/Wallet/Wallet'
+import Wallet from '../View/Wallet/Wallet';
+import RequestPayment from "../View/Payment/RequestPayment";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -71,9 +72,9 @@ const getHeaderTopRight = (navigation) => {
       <TouchableOpacity onPress={() => {navigation.navigate('PriceListScreenStack')}}>
         <FontAwesome5 name={'search'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-        <FontAwesome5 name={'cart-arrow-down'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-      </TouchableOpacity>
+      {/*<TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>*/}
+      {/*  <FontAwesome5 name={'cart-arrow-down'} size={iconsSize} color={mainColor} style={{marginRight:15}} />*/}
+      {/*</TouchableOpacity>*/}
       <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
         <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
@@ -338,8 +339,14 @@ const HomeScreenStack = ({navigation}) => {
         options={({route}) => ({
           title: 'All Services',
         })}
+      />
+      <Stack.Screen
+        name="requestPayment"
+        component={ RequestPayment }
 
-
+        options={({route}) => ({
+          title: 'Payment',
+        })}
       />
     </Stack.Navigator>
   );
