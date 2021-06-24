@@ -3,7 +3,7 @@ import { View, Text, Image } from "react-native";
 import { MyButton, MyOutlineButton, MyTextInput } from "../../Utility/MyLib";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 
-const EnterCode = () => {
+const EnterCode = ({ navigation }) => {
   const [referCode, setReferCode] = React.useState(null)
   return (
     <View style={{ backgroundColor:'#fff',flex:1,marginTop:'1%' }}>
@@ -32,7 +32,9 @@ const EnterCode = () => {
         ) }
         {
           MyButton(
-            ()=>{},
+            ()=>{
+              navigation.goBack()
+            },
             'Redeem now',
             {
               marginVertical:'5%'

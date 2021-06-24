@@ -72,9 +72,9 @@ const getHeaderTopRight = (navigation) => {
       <TouchableOpacity onPress={() => {navigation.navigate('PriceListScreenStack')}}>
         <FontAwesome5 name={'search'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-        <FontAwesome5 name={'cart-arrow-down'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
-      </TouchableOpacity>
+      {/*<TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>*/}
+      {/*  <FontAwesome5 name={'cart-arrow-down'} size={iconsSize} color={mainColor} style={{marginRight:15}} />*/}
+      {/*</TouchableOpacity>*/}
       <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
         <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
