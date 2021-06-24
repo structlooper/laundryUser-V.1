@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import {View, Text, StyleSheet, Image, ScrollView} from 'react-native'
-import { AppName, fetchAuthPostFunction, mainColor, MyButton, MyTransButton } from "../../Utility/MyLib";
+import { AppName, fetchAuthPostFunction, mainColor, MyButton, MyToast, MyTransButton } from "../../Utility/MyLib";
 import {useNavigationState} from '@react-navigation/native';
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
@@ -117,7 +117,10 @@ const OrderDetails = ({navigation,route}) => {
                           Payment
                       </Text>
                       {(order.payment_status === 'Requested')?MyTransButton(
-                          ()=>{navigation.navigate('requestPayment',{orderDetails:order})},
+                          ()=>{
+                              (order.total > 0)? navigation.navigate('requestPayment',{orderDetails:order}):
+                                MyToast('Invalid amount')
+                          },
                           'Pay now',
                           {
                               borderWidth:1,

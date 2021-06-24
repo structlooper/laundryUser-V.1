@@ -17,11 +17,12 @@ const RequestPayment = ({ navigation, route }) => {
   const [wallet,setWallet] = React.useState(null)
   React.useEffect(()=>{
     getPaymentMethod().then()
+    getWalletDetails().then()
   },[]);
   const getPaymentMethod = async () =>{
     await fetchAuthPostFunction('payment',{lang:'en'}).then(response => {
       setPaymentDetails(response)
-      getWalletDetails()
+
     })
   }
   const getWalletDetails = async () => {
@@ -33,6 +34,7 @@ const RequestPayment = ({ navigation, route }) => {
       }
     })
   }
+
   if (!orderDetails){
     return Loader();
   }
@@ -222,19 +224,24 @@ const RequestPayment = ({ navigation, route }) => {
             <TouchableOpacity style={{ flex:1 , paddingHorizontal:wp('5') ,paddingVertical:hp('3'), margin:'1%' , borderRadius:40/2 ,
               alignItems:'center' ,backgroundColor:'#fff'}}
             onPress={() => {
-              if (wallet.wallet > orderDetails.total){
-                setPaymentMethod(6)
-                setModalVisible(!isModalVisible)
+              if (wallet){
+                if (wallet.wallet > orderDetails.total){
+                  setPaymentMethod(6)
+                  setModalVisible(!isModalVisible)
+                }else{
+                  MyToast('Sorry insufficient balance in your wallet!!')
+                }
               }else{
-                MyToast('Sorry insufficient balance in your wallet!!')
+                MyToast('Please wait')
               }
+
             }}
             >
               <Image source={{ uri:'http://covidvaccination.co.in/uploads/images/e4dda52778b4d10b4fb138f7ee3628f0.jpg' }}
                      style={{ width:wp('40') , height:hp('12')  , resizeMode:'center' }}
               />
               <Text style={{ fontWeight:'bold',fontSize:wp(4.5) }} >Wallet</Text>
-              <Text style={{ fontSize:wp(3),textAlign:'center' }}>Pay with wallet available amount: ₹ {wallet.wallet +( isFloat(wallet.wallet)?null:'.00')}</Text>
+              <Text style={{ fontSize:wp(3),textAlign:'center' }}>Pay with wallet available amount: ₹ {(wallet)?wallet.wallet +( isFloat(wallet.wallet)?null:'.00'):null}</Text>
             </TouchableOpacity>
 
             {/*<TouchableOpacity style={{ flex:1 , paddingHorizontal:wp('5') ,paddingVertical:hp('3'), margin:'1%' , borderRadius:40/2 ,*/}
