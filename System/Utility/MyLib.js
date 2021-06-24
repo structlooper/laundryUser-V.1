@@ -231,6 +231,9 @@ export const fetchGetFunction = async (route) => {
     });
   return res;
 }
+export function isFloat(n){
+  return Number(n) === n && n % 1 !== 0;
+}
 
 
 
