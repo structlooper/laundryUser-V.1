@@ -18,6 +18,8 @@ const orderStatusImage = (order) => {
       return image = require('../Public/Order_status/on_way_to deliver.png');
     case 'Completed':
       return image = require('../Public/Order_status/delivered.png');
+    case 'Canceled':
+      return image = require('../Public/Order_status/order_cancel.png');
     default:
       return image = require('../Public/Order_status/order_confirmed.png');
 

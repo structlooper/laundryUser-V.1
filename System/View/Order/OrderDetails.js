@@ -1,30 +1,40 @@
 import React, { useEffect } from "react";
-import {View, Text, StyleSheet, Image, ScrollView} from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, TextInput } from "react-native";
 import { AppName, fetchAuthPostFunction, mainColor, MyButton, MyToast, MyTransButton } from "../../Utility/MyLib";
 import {useNavigationState} from '@react-navigation/native';
 import NoDataFound from "../NoDataFound";
 import Loader from "../../Utility/Loader";
 import moment from "moment";
 import orderStatusImage from "../../Controller/OrderImageController";
-import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen";
+import {
+    heightPercentageToDP as hp,
+    heightPercentageToDP,
+    widthPercentageToDP as wp,
+    widthPercentageToDP,
+} from "react-native-responsive-screen";
 import { useIsFocused } from "@react-navigation/native";
+import { red } from "react-native-reanimated/src/reanimated2/Colors";
+import Modal from "react-native-modal";
+import PaymentMethodController from "../../Controller/PaymentMethodController";
+
+
 
 const bill = (labelName,price,style) => {
 
     return (
-        <View style={{flexDirection:'row',marginVertical:4,}}>
-            <View style={{flex:3.5 , paddingLeft:4}}>
-                <Text style={style}>
-                    {labelName}
-                </Text>
-            </View>
-            <View style={{flex:1}} />
-            <View style={{flex:1}}>
-                <Text style={style}>
-                    {price}
-                </Text>
-            </View>
-        </View>
+      <View style={{flexDirection:'row',marginVertical:4,}}>
+          <View style={{flex:3.5 , paddingLeft:4}}>
+              <Text style={style}>
+                  {labelName}
+              </Text>
+          </View>
+          <View style={{flex:1}} />
+          <View style={{flex:1}}>
+              <Text style={style}>
+                  {price}
+              </Text>
+          </View>
+      </View>
     )
 }
 
@@ -42,6 +52,9 @@ const OrderDetails = ({navigation,route}) => {
     const {order_id} = route.params;
     const isFocused = useIsFocused();
     const [order,setOrder] = React.useState(null);
+    const [isModalVisible,setModalVisible] = React.useState(false);
+    const [cancelReason,onChangeCancelReason] = React.useState('');
+    const [btnLoading,setBtnLoading] = React.useState(false)
 
     useEffect(() => {
         getOrderDetails().then()
@@ -69,13 +82,95 @@ const OrderDetails = ({navigation,route}) => {
                   </View>
                   <View style={{flex:.9}}>
                       <Text style={{ fontSize:15,color: 'black',marginLeft:40}}>
-                      ₹ {order_products.price}
+                          ₹ {order_products.price}
                       </Text>
                   </View>
               </View>
           </View>
         )
     }
+
+    const orderCancelModal = () => {
+        return (
+          <Modal isVisible={isModalVisible} >
+              <View style={{flex: .7,borderWidth:.2,backgroundColor:'#eee',}}>
+                  <View style={{borderBottomWidth:.5,paddingBottom:10,padding:10}}>
+                      <View>
+                          {MyButton(() => {setModalVisible(!isModalVisible)},'Back','','arrow-left')}
+                      </View>
+                  </View>
+                  <View style={{ backgroundColor:'#fff',height:'88%',paddingVertical:20,alignItems:'center'}}>
+                      <ScrollView style={{width:'80%',}} >
+                          <View style={{ alignItems: 'center', marginTop: hp(5), paddingHorizontal: wp(10) }}>
+                              <Text style={{ textAlign: 'center' }}>Please tell us why you want to cancel order?</Text>
+                              <View style={{ padding:'1%' }}>
+                                  <View style={styles.textAreaContainer} >
+                                      <TextInput
+                                        style={styles.textArea}
+                                        underlineColorAndroid="transparent"
+                                        placeholder="Order cancel reason . . . ."
+                                        placeholderTextColor="grey"
+                                        onChangeText={onChangeCancelReason}
+                                        value={cancelReason}
+                                        numberOfLines={6}
+                                        multiline={true}
+                                      />
+                                  </View>
+                              </View>
+                              {MyButton(
+                                () => {
+
+                                    setBtnLoading(true)
+                                    if (cancelReason){
+                                        fetchAuthPostFunction('order/cancel' , {
+                                            order_id:order.id,
+                                            status:8,
+                                            cance_reason:cancelReason
+                                        }).then(response => {
+                                            if (response.status === 1){
+
+                                                getOrderDetails().then()
+                                                onChangeCancelReason('')
+                                                setModalVisible(!isModalVisible)
+                                            }
+                                            MyToast(response.message)
+                                        })
+                                    }else{
+                                        MyToast('Please enter cancel reason.')
+                                    }
+                                    setBtnLoading(false)
+                                    // PaymentMethodController({
+                                    //     order_id: orderDetails.id,
+                                    //     payment_status: '3',
+                                    //     payment_methods: paymentMethod
+                                    // }).then(response => {
+                                    //     if (response.status === 1) {
+                                    //         navigation.navigate('orderDetails', { order_id: orderDetails.id })
+                                    //     } else {
+                                    //         MyToast(response.message)
+                                    //     }
+                                    //     setBtnLoading(false)
+                                    // })
+                                },
+                                'Yes, Cancel',
+                                {
+                                    borderWidth: 1,
+                                    borderRadius: 20 / 2,
+                                    backgroundColor: 'rgb(60,141,188)',
+                                    marginVertical: hp(5),
+                                    width: wp(50)
+                                },
+                                '',
+                                btnLoading
+                              )}
+                          </View>
+                      </ScrollView>
+                  </View>
+              </View>
+          </Modal>
+        )
+    }
+
     if (order === null){
         return <Loader />
     }
@@ -84,6 +179,7 @@ const OrderDetails = ({navigation,route}) => {
     }else {
         return (
           <ScrollView style={styles.mainContainer}>
+              {orderCancelModal()}
               <View style={styles.headerContainer}>
                   <Text style={styles.orderHeaderLabel}>
                       Order Id - {order.order_id}
@@ -113,27 +209,43 @@ const OrderDetails = ({navigation,route}) => {
                   </View>
                   <View style={styles.middleContainerHeader}>
                       <View style={{ flexDirection:'row' }}>
-                      <Text style={[styles.addressHeader,{flex:1}]}>
-                          Payment
-                      </Text>
-                      {(order.payment_status === 'Requested')?MyTransButton(
-                          ()=>{
-                              (order.total > 0)? navigation.navigate('requestPayment',{orderDetails:order}):
-                                MyToast('Invalid amount')
-                          },
-                          'Pay now',
-                          {
-                              borderWidth:1,
-                              borderRadius:20/2,
-                              paddingHorizontal:widthPercentageToDP('10'),
-                              paddingVertical:heightPercentageToDP('.5'),
-                              backgroundColor:mainColor
-                          },
-                          {
-                              color:'#fff'
-                          }
-                       ):null}
-                          </View>
+                          <Text style={[styles.addressHeader,{flex:1}]}>
+                              Payment
+                          </Text>
+                          {(order.status < 4)?MyTransButton(
+                            ()=>{
+                                setModalVisible(!isModalVisible)
+                            },
+                            'Cancel order',
+                            {
+                                borderWidth:1,
+                                borderRadius:20/2,
+                                paddingHorizontal:widthPercentageToDP('10'),
+                                paddingVertical:heightPercentageToDP('.5'),
+                                backgroundColor:'#aa1616'
+                            },
+                            {
+                                color:'#fff'
+                            }
+                          ):null}
+                          {(order.payment_status === 'Requested' && order.status > 3)?MyTransButton(
+                            ()=>{
+                                (order.total > 0)? navigation.navigate('requestPayment',{orderDetails:order}):
+                                  MyToast('Invalid amount')
+                            },
+                            'Pay now',
+                            {
+                                borderWidth:1,
+                                borderRadius:20/2,
+                                paddingHorizontal:widthPercentageToDP('10'),
+                                paddingVertical:heightPercentageToDP('.5'),
+                                backgroundColor:mainColor
+                            },
+                            {
+                                color:'#fff'
+                            }
+                          ):null}
+                      </View>
 
                       <Text style={styles.addressDesc}>
                           {order.payment_mode} ( {order.payment_status} )
@@ -178,6 +290,7 @@ const OrderDetails = ({navigation,route}) => {
                   {(order.discount > 0) ?bill('Discount', '₹ '+order.discount, styles.priceLabel):null}
                   {(order.mem_total_discount > 0)?bill('Membership Discount', '₹ '+order.mem_total_discount, styles.priceLabel):null}
                   {bill('Delivery Charges', '₹ '+order.delivery_changes, styles.priceLabel)}
+                  {(order.delivery_changes_discount > 0)?bill('Delivery free', '₹ -'+order.delivery_changes_discount, styles.priceLabel):null}
                   {bill('Total', '₹ '+order.total, styles.priceLabelFinal)}
               </View>
               {homeBtn(navigation,routeName)}
@@ -256,6 +369,20 @@ const styles = StyleSheet.create({
     },
     bottomContainer:{
         paddingHorizontal:10
+    },
+    textAreaContainer: {
+        borderColor: 'grey',
+        borderWidth: .5,
+        borderRadius:20/2,
+        padding: '1%'
+    },
+    textArea: {
+        height: hp(12),
+        width:wp(50),
+        justifyContent: "flex-start",
+        textAlignVertical: 'top',
+        color:'#000',
+        lineHeight:hp('2')
     }
 })
 export default OrderDetails;

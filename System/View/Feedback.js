@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     textAlignVertical: 'top',
     color:'#000',
-    lineHeight:hp('1')
+    lineHeight:hp('2')
   }
 })
 

@@ -7,6 +7,7 @@ const OrderPlaced = ({ navigation,route }) => {
   const {pickupDate} = route.params;
   const {pickupTime} = route.params;
   const {orderId} = route.params;
+  const {id} = route.params;
   return (
     <View style={Styles.mainContainer}>
       <View style={{
@@ -82,7 +83,7 @@ const OrderPlaced = ({ navigation,route }) => {
             'tshirt-crew'
           )}
           {MyButton(
-            ()=>{console.log('Cancel')},
+            ()=>{navigation.navigate('HomeScreenStack',{screen:'orderDetails',params:{order_id:id}})},
             'Cancel',
             {
               marginHorizontal:2,

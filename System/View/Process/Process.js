@@ -25,6 +25,7 @@ const Process = ({navigation,route}) => {
   const {selectedServicesNames} = route.params;
   const [ pickupDate, setPickupDate ] = React.useState('---');
   const [ pickupTime, setPickupTime ] = React.useState('---');
+  const [ expectedDropDate, setExpectedDropDate] = React.useState('---');
   const [ dropDate, setDropDate] = React.useState('---');
   const [ dropTime, setDropTime] = React.useState('---');
   const [ pickupDateSelected, setPickupDateSelected ] = React.useState('---');
@@ -33,18 +34,21 @@ const Process = ({navigation,route}) => {
   const [ dropTimeSelected, setDropTimeSelected] = React.useState('---');
   const [ pickupDateGet, setPickupDateGet ] = React.useState(null);
   const [ pickupTimeGet, setPickupTimeGet ] = React.useState(null);
-  const [ dropDateGet, setDropDateGet] = React.useState(null);
-  const [ dropTimeGet, setDropTimeGet] = React.useState(null);
+  // const [ dropDateGet, setDropDateGet] = React.useState(null);
+  // const [ dropTimeGet, setDropTimeGet] = React.useState(null);
   const [ selectedDay, setSelectedDay] = React.useState(null);
   const [ modalContent, setModalContent] = React.useState('');
   const [isModalVisible, setModalVisible] = React.useState(false);
   const [isAddressModalVisible, setAddressModalVisible] = React.useState(false);
   const [defaultAddress , setDefaultAddress] = React.useState(false)
   const [addressList , setAddressList] = React.useState(null);
-  const iconSize = 20;
+  const [btnLoader , setBtnLoader] = React.useState(false);
+
+  const iconSize = hp(4.5);
   const normalIconColor = mainColor;
   const touchAbleIconColor= 'rgba(125,106,239,1 )';
   const fontSizeLabel = hp('1.8');
+
   React.useEffect(() => {
     callFunctionMethod().then()
   },[isFocused])
@@ -53,9 +57,9 @@ const Process = ({navigation,route}) => {
     await getDateSlots('pickup').then(response => {
       setPickupDateGet(response)
     })
-    await getDateSlots('drop').then(response => {
-      setDropDateGet(response)
-    })
+    // await getDateSlots('drop').then(response => {
+    //   setDropDateGet(response)
+    // })
     let UserDetails = await AsyncStorage.getItem('userDetails')
     let Address = JSON.parse(UserDetails).default_address;
     setDefaultAddress(Address)
@@ -75,8 +79,27 @@ const Process = ({navigation,route}) => {
                                 showModule.method(showModule.data)
                                 saveModule.method(saveModule.data)
                                 setModalVisible(!isModalVisible)
-                                setSelectedDay(selectedUnit)
-
+                                if (selectedUnit === 'time') {
+                                  setExpectedDropDate('loading..')
+                                  fetchAuthPostFunction('getExpectedDropSlot',{pickup_date:pickupDateSelected , pickup_time:saveModule.data}).then(result => {
+                                    setExpectedDropDate(result.formatted_date)
+                                    setDropDate(result.formatted_date)
+                                    setDropTime(result.new_time)
+                                    setDropDateSelected(result.new_date)
+                                    setDropTimeSelected(result.new_time)
+                                  })
+                                }else{
+                                  setPickupTime('---')
+                                  setPickupTime('---')
+                                  setPickupTimeSelected(null)
+                                  setPickupTimeGet(null)
+                                  setExpectedDropDate('---')
+                                  setDropDate('---')
+                                  setDropTime('---')
+                                  setDropDateSelected('---')
+                                  setDropTimeSelected('---')
+                                  setSelectedDay(selectedUnit)
+                                }
                               }}
             >
               <View><Text style={Styles.btnTextBlack}>{content}</Text></View>
@@ -110,31 +133,31 @@ const Process = ({navigation,route}) => {
               })}
           </View>
         )
-      }else if(modalContent === 'dropDate'){
-        return (
-          <View>
-            {modelBtn(dropDateGet.today, 4,{ method:setDropDate, data:dropDateGet.today },
-              { method:setDropDateSelected, data:dropDateGet.day1 },'tomorrow')}
-            {modelBtn(dropDateGet.next_day, 5,{ method:setDropDate, data:dropDateGet.next_day },
-              { method:setDropDateSelected, data:dropDateGet.day2 },'next_day')}
-            {modelBtn(dropDateGet.day_after_next, 6,{ method:setDropDate, data:dropDateGet.day_after_next },
-              { method:setDropDateSelected, data:dropDateGet.day2 },'day_after_next_day')}
-          </View>
-        )
-        }else if(modalContent === 'dropTime'){
-        if (dropTimeGet === null){
-          return Loader();
-        }else if(dropTimeGet.length  === 0){
-          return NoDataFound();
-        }
-        return (
-          <View>
-            {dropTimeGet.map((data,i) =>{
-              let time = data.time_from + ' to '+data.time_to;
-              return modelBtn(time,i,{ method:setDropTime, data:time},{ method:setDropTimeSelected, data:time },'time')
-            })}
-          </View>
-        )
+      // }else if(modalContent === 'dropDate'){
+      //   return (
+      //     <View>
+      //       {modelBtn(dropDateGet.today, 4,{ method:setDropDate, data:dropDateGet.today },
+      //         { method:setDropDateSelected, data:dropDateGet.day1 },'tomorrow')}
+      //       {modelBtn(dropDateGet.next_day, 5,{ method:setDropDate, data:dropDateGet.next_day },
+      //         { method:setDropDateSelected, data:dropDateGet.day2 },'next_day')}
+      //       {modelBtn(dropDateGet.day_after_next, 6,{ method:setDropDate, data:dropDateGet.day_after_next },
+      //         { method:setDropDateSelected, data:dropDateGet.day2 },'day_after_next_day')}
+      //     </View>
+      //   )
+      //   }else if(modalContent === 'dropTime'){
+      //   if (dropTimeGet === null){
+      //     return Loader();
+      //   }else if(dropTimeGet.length  === 0){
+      //     return NoDataFound();
+      //   }
+      //   return (
+      //     <View>
+      //       {dropTimeGet.map((data,i) =>{
+      //         let time = data.time_from + ' to '+data.time_to;
+      //         return modelBtn(time,i,{ method:setDropTime, data:time},{ method:setDropTimeSelected, data:time },'time')
+      //       })}
+      //     </View>
+      //   )
       }else{
         console.log('drop time')
       }
@@ -211,7 +234,8 @@ const Process = ({navigation,route}) => {
   }
   const NavigateToNextPage = async () => {
 
-    if (pickupDateSelected !== '---' && pickupTimeSelected !== '---'&& dropDateSelected !== '---'&& dropTimeSelected !== '---' ){
+    // if (pickupDateSelected !== '---' && pickupTimeSelected !== '---'&& dropDateSelected !== '---'&& dropTimeSelected !== '---' ){
+    if (pickupDateSelected !== '---' && pickupTimeSelected !== '---'  ){
       if (defaultAddress !== false && defaultAddress !== null){
         let UserDetails = await AsyncStorage.getItem('userDetails')
         let userId = JSON.parse(UserDetails).id;
@@ -222,10 +246,10 @@ const Process = ({navigation,route}) => {
               pickupDateSelected:pickupDateSelected,
               dropDateSelected:dropDateSelected,
               dropTimeSelected:dropTimeSelected,
-              pickupDate:pickupDate,
-              pickupTime:pickupTime,
               dropDate:dropDate,
               dropTime:dropTime,
+              pickupDate:pickupDate,
+              pickupTime:pickupTime,
               selectedServices:selectedServices,
               selectedServicesNames:selectedServicesNames
             })
@@ -236,7 +260,8 @@ const Process = ({navigation,route}) => {
       }else{
         MyToast('Please select any address or add address')
       }
-    }else{MyToast('Please fill all options')}
+    }else{MyToast('Please select date and time slot')}
+    setBtnLoader(false)
   }
   return (
     <View style={Styles.mainContainer}>
@@ -264,10 +289,10 @@ const Process = ({navigation,route}) => {
                   setPickupTimeGet(response)
                 })
                 const callFunction  = () => {
-                    if (dropDate === '---') {
+                    // if (dropDate === '---') {
                       setModalContent('pickupTime')
                       setModalVisible(true)
-                    }else{MyToast('To change pickup slot first clear drop slot')}
+                    // }else{MyToast('To change pickup slot first clear drop slot')}
                 }
                 ((pickupDate !== '---')?(
                     callFunction()
@@ -298,14 +323,15 @@ const Process = ({navigation,route}) => {
               }}
                                 onPress={() => {
                                   const openModal = () => {
-                                    if (dropDate === '---'){
+                                    // if (dropDate === '---'){
                                       if (pickupDateGet){
                                         setModalContent('pickupDate')
                                         setModalVisible(true)
                                       }else{
                                         MyToast('Please wait')
-                                      }}
-                                    else{MyToast('To change pickup slot first clear drop slot')}
+                                      }
+                                    // }
+                                    // else{MyToast('To change pickup slot first clear drop slot')}
                                   }
                                   openModal()
                                 }}
@@ -329,7 +355,7 @@ const Process = ({navigation,route}) => {
                 fontSize:fontSizeLabel,
                 fontWeight:'bold',
                 color:'grey'
-              }}>Drop Slot</Text>
+              }}>Expected Drop Slot</Text>
 
               {MyTransButton(
                 () => {
@@ -337,10 +363,10 @@ const Process = ({navigation,route}) => {
                   setPickupDateSelected('---')
                   setPickupTime('---')
                   setPickupTimeSelected('---')
-                  setDropDate('---')
-                  setDropDateSelected('---')
-                  setDropTime('---')
-                  setDropTimeSelected('---')
+                  // setDropDate('---')
+                  // setDropDateSelected('---')
+                  // setDropTime('---')
+                  // setDropTimeSelected('---')
                 },
                 'clear slots',
                 {
@@ -358,70 +384,9 @@ const Process = ({navigation,route}) => {
                 }
               )}
             </View>
-            <View style={{flex:1,alignItems:'center'}}>
-              <Text style={{
-                fontSize:fontSizeLabel,
-                fontWeight:'bold',
-                color:'grey'
-              }}>Time Slots</Text>
-              <TouchableOpacity onPress={() => {
-                getTimeSlot(selectedDay).then(response => {
-                  setDropTimeGet(response)
-                })
-                const callFunction  = () => {
-                  setModalContent('dropTime')
-                  setModalVisible(true)
-                }
-                ((dropDate !== '---')?(
-                    callFunction()
-                  )
-                  :MyToast('Select drop date first!'))
-              }}
-                style={{
-                  marginVertical:'10%'
-                }}
-              >
-                <FontAwesome5 name={'clock'} color={touchAbleIconColor} size={iconSize} />
-              </TouchableOpacity>
-              <Text style={{
-               width:'60%',
-                textAlign:'center'
-             }}>
-                {dropTime}
-             </Text>
-            </View>
-            <View style={{flex:1,alignItems:'center'}}>
-              <Text style={{
-                fontSize:fontSizeLabel,
-                fontWeight:'bold',
-                color:'grey'
-              }}>Date</Text>
-              <TouchableOpacity style={{
-                marginVertical:'10%'
-              }}
-                                onPress={() => {
-
-                                  const callFunction  = () => {
-                                    if (pickupDate !== '---' && pickupTime !== '---'){
-                                      setModalContent('dropDate')
-                                      setModalVisible(true)
-                                    }else{
-                                      MyToast('Select pickup slot first!')
-                                    }
-                                  }
-                                  callFunction()
-
-                                }}
-              >
-                <FontAwesome5 name={'calendar-alt'} color={touchAbleIconColor} size={iconSize} />
-
-              </TouchableOpacity>
-              <Text style={{
-                width:'80%',
-                textAlign:'center'
-              }}>
-                {dropDate}
-              </Text>
+            <View style={{flex:2,alignItems:'center',marginTop:hp(2)}}>
+              <Text> {(expectedDropDate !== '---')?expectedDropDate:'------'} </Text>
+              {/*<Text> 04, Jul 2021 (Tomorrow)</Text>*/}
             </View>
           </View>
         </ScrollView>
@@ -469,10 +434,14 @@ const Process = ({navigation,route}) => {
       </View>
       <View style={Styles.bottomContainer}>
         {MyButton(
-          ()=>{NavigateToNextPage()},
+          ()=>{
+            setBtnLoader(true)
+            NavigateToNextPage()},
           'Proceed',
           {width:'30%',
           }
+          ,'',
+          btnLoader
         )}
       </View>
 
