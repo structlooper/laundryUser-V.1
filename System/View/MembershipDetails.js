@@ -43,12 +43,15 @@ const MembershipDetails = ({navigation,route}) => {
       marginTop:'1%',
       padding:'5%',
     }}>
-     <View style={{ height:'20%', }}>
+      <ScrollView >
+
+      <View style={{   height: hp('22.5'),
+       width: '100%', }}>
        <Image source={{uri: ImageUrl+memberShipDetails.banner_image}}
               style={{
-                width:wp('90'),
-                height:hp('15'),
-                resizeMode:'contain'
+                width:'100%',
+                height:'100%',
+                resizeMode:'cover'
               }}
        />
      </View>
@@ -124,7 +127,7 @@ const MembershipDetails = ({navigation,route}) => {
 
           </ScrollView>
         </View>
-        <ScrollView style={{ marginVertical:'2%' }} >
+        {/*<ScrollView style={{ marginVertical:'2%' }} >*/}
           <Text style={{ marginTop:'2%',lineHeight:20 }}>
             {memberShipDetails.desc_1}
           </Text>
@@ -136,8 +139,9 @@ const MembershipDetails = ({navigation,route}) => {
           </Text>
 
 
-        </ScrollView>
+        {/*</ScrollView>*/}
       </View>
+      </ScrollView>
       <View style={{
         justifyContent:'center',
         alignItems:'center'

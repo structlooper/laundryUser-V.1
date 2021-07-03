@@ -35,7 +35,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const MemberShipCard = (navigation,data,index) => {
 
   return (
-    <View style={styles.membershipCardContainer} key={index}>
+    <TouchableOpacity style={styles.membershipCardContainer} key={index} onPress={() => {
+      navigation.navigate('MembershipDetails',{memberShipId:data.id})
+    }}>
       <View style={styles.imageWrapper}>
         <ImageBackground style={styles.theImage} source={{uri : ImageUrl+data.banner_image}}>
           <View style={{
@@ -67,7 +69,7 @@ const MemberShipCard = (navigation,data,index) => {
           </View>
         </ImageBackground>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -215,12 +217,12 @@ export default class Home extends React.Component {
         <View style={{ flexDirection:'row'}}>
           <View style={{ flex:.9 }}>
             <Text style={{fontSize: 20}}>{item.title}</Text>
-            <TouchableOpacity onPress={() => {
-              // this.props.navigation.navigate('ServicesSlider',{serviceId:item.service_id,serviceName:item.service_name })
-              console.log('where to redirect now')
-            }}>
-              <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>
-            </TouchableOpacity>
+            {/*<TouchableOpacity onPress={() => {*/}
+            {/*  // this.props.navigation.navigate('ServicesSlider',{serviceId:item.service_id,serviceName:item.service_name })*/}
+            {/*  console.log('where to redirect now')*/}
+            {/*}}>*/}
+            {/*  <Text style={{ marginVertical:30,color:mainColor }}>{item.text}   <FontAwesome5 name={'arrow-right'} size={18} color={mainColor} /></Text>*/}
+            {/*</TouchableOpacity>*/}
           </View>
           <View style={{ alignItems:'center' }}>
             <Image source={{ uri:item.banner_image }} style={{ width:150,height:150,resizeMode:'contain' }} />
@@ -336,22 +338,22 @@ export default class Home extends React.Component {
                     autoplayInterval={5000}
                   />
                   { this.pagination }
-                  <View style={{
-                    left:0,top:80,right:0,position:'absolute'
-                  }}>
-                    <TouchableOpacity onPress={() => {
-                      this._carousel.snapToItem(this._carousel.currentIndex - 1)
-                    }}>
-                      <Text> <FontAwesome5 name={'chevron-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={{ top:80,right:0,position:'absolute' }}>
-                    <TouchableOpacity onPress={() => {
-                      this._carousel.snapToItem(this._carousel.currentIndex + 1)
-                    }}>
-                      <Text> <FontAwesome5 name={'chevron-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
-                    </TouchableOpacity>
-                  </View>
+                  {/*<View style={{*/}
+                  {/*  left:0,top:80,right:0,position:'absolute'*/}
+                  {/*}}>*/}
+                  {/*  <TouchableOpacity onPress={() => {*/}
+                  {/*    this._carousel.snapToItem(this._carousel.currentIndex - 1)*/}
+                  {/*  }}>*/}
+                  {/*    <Text> <FontAwesome5 name={'chevron-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>*/}
+                  {/*  </TouchableOpacity>*/}
+                  {/*</View>*/}
+                  {/*<View style={{ top:80,right:0,position:'absolute' }}>*/}
+                  {/*  <TouchableOpacity onPress={() => {*/}
+                  {/*    this._carousel.snapToItem(this._carousel.currentIndex + 1)*/}
+                  {/*  }}>*/}
+                  {/*    <Text> <FontAwesome5 name={'chevron-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>*/}
+                  {/*  </TouchableOpacity>*/}
+                  {/*</View>*/}
 
                 </View>
                 <View style={{ flexDirection:'row'}}>
@@ -372,13 +374,13 @@ export default class Home extends React.Component {
                 </View>
 
                 <View style={{ flexDirection:'row',width:'100%'}}>
-                  <TouchableOpacity
-                    style={{alignItems: 'flex-start',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2 }}
-                    onPress={this.leftArrow}>
-                    <Text> <FontAwesome5 name={'chevron-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
-                  </TouchableOpacity>
+                  {/*<TouchableOpacity*/}
+                  {/*  style={{alignItems: 'flex-start',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2 }}*/}
+                  {/*  onPress={this.leftArrow}>*/}
+                  {/*  <Text> <FontAwesome5 name={'chevron-left'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>*/}
+                  {/*</TouchableOpacity>*/}
                   <ScrollView   horizontal={true}
-                                pagingEnabled={true}
+                                // pagingEnabled={true}
                                 ref="scrollView"
                                 onContentSizeChange={(w, h) => this.setState({serviceScrollViewWidth:w})}
                                 onScroll={this._handleScroll}
@@ -391,14 +393,15 @@ export default class Home extends React.Component {
                         }
                       ) : null}
 
+
                     </View>
 
                   </ScrollView>
-                  <TouchableOpacity
-                    style={{alignItems: 'flex-end',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2}}
-                    onPress={this.rightArrow}>
-                    <Text>  <FontAwesome5 name={'chevron-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>
-                  </TouchableOpacity>
+                  {/*<TouchableOpacity*/}
+                  {/*  style={{alignItems: 'flex-end',justifyContent:'center',backgroundColor:'#fff',borderRadius:100/2}}*/}
+                  {/*  onPress={this.rightArrow}>*/}
+                  {/*  <Text>  <FontAwesome5 name={'chevron-right'} size={25} color={'rgba(23,29,46,0.3)'} /> </Text>*/}
+                  {/*</TouchableOpacity>*/}
                 </View>
                 <View style={{
                   alignItems:'center',
@@ -459,7 +462,7 @@ const styles = StyleSheet.create({
   ServiceCard:{
     flex:1,
     height:hp('19'),
-    width:wp('25.8'),
+    width:wp('31'),
     alignContent:'center',
     marginHorizontal: wp('1'),
     backgroundColor:'#fff',
@@ -471,7 +474,7 @@ const styles = StyleSheet.create({
   ServiceCardActive:{
     flex:1,
     height:hp('19'),
-    width:wp('25.8'),
+    width:wp('31'),
     alignContent:'center',
     marginHorizontal: wp('1'),
     backgroundColor:mainColor,
@@ -615,7 +618,7 @@ const styles = StyleSheet.create({
     marginHorizontal:'.5%'
   },
   imageWrapper: {
-    height: hp('15'),
+    height: hp('22.5'),
     width: '100%',
     overflow : "hidden"
   },
@@ -623,6 +626,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+
   }
 })
 

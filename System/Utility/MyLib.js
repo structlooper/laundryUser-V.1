@@ -25,8 +25,7 @@ export const MyTextInput = (name,onChangeFunction,placeHolder,style,icon) => {
     <View>
 
     <TextInput
-      left={ icon ? <TextInput.Icon name={icon} size={20} color={mainColor}  /> : ''
-      }
+      left={ icon ? <TextInput.Icon name={icon} size={20} color={mainColor}  /> : ''}
         name='IconSource'
         style={style}
         onChangeText={onChangeFunction}

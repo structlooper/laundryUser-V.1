@@ -157,7 +157,7 @@ const BottomStack = () => {
           tabBarLabel: 'Profile',
 
           tabBarIcon:({color , size}) => (
-            <FontAwesome5 name={'user-tie'} size={iconsSize} color={color} />
+            <FontAwesome5 name={'user-edit'} size={iconsSize} color={color} />
           )
         }}
       />
