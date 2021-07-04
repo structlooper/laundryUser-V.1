@@ -288,8 +288,10 @@ export default class Home extends React.Component {
     if (this.state.selectedServices.includes(data.id)){
       return (
         <View style={styles.ServiceCardActive} key={index}>
-          <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id,data.name)}}>
-            <Image source={{uri:data.image}} style={styles.ServiceImage}/>
+          <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id,data.name)}} style={{ alignItems:'center' }}>
+            <View style={styles.serviceImageWrapper}>
+              <Image source={{uri:data.image}} style={styles.ServiceImage}/>
+            </View>
             <Text style={styles.ServiceHeadingActive}>{data.name}</Text>
             <Text style={styles.ServiceDescriptionActive}>{data.description}</Text>
           </TouchableOpacity>
@@ -299,8 +301,10 @@ export default class Home extends React.Component {
     return (
       <View style={styles.ServiceCard} key={index}>
         {/*<TouchableOpacity onPress={() => {navi.navigate('ServicesSlider',{serviceId:data.id,serviceName:data.name})}}>*/}
-        <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id,data.name)}}>
-          <Image source={{uri:data.image}} style={styles.ServiceImage}/>
+        <TouchableOpacity onPress={() => {this._handleServiceSelection(data.id,data.name)}} style={{ alignItems:'center' }}>
+          <View style={styles.serviceImageWrapper}>
+            <Image source={{uri:data.image}} style={styles.ServiceImage}/>
+          </View>
           <Text style={styles.ServiceHeading}>{data.name}</Text>
           <Text style={styles.ServiceDescription}>{data.description}</Text>
         </TouchableOpacity>
@@ -483,9 +487,15 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     overflow: 'hidden'
   },
+  serviceImageWrapper:{
+    width:wp(20),
+    height:hp(10),
+    alignItems:'center',
+    justifyContent:'center',
+  },
   ServiceImage:{
-    width:90,
-    height:70,
+    width:'100%',
+    height:'100%',
     resizeMode:'contain'
   },
   Heading:{
@@ -497,25 +507,25 @@ const styles = StyleSheet.create({
   },
   ServiceHeading:{
     marginTop:5,
-    fontSize: 15,
+    fontSize: wp(3.5),
     fontWeight:'bold',
     textAlign: 'center',
     color:'#000'
   },
   ServiceHeadingActive:{
     marginTop:5,
-    fontSize: 15,
+    fontSize:  wp(3.5),
     fontWeight:'bold',
     textAlign: 'center',
     color:'#fff'
   },
   ServiceDescription:{
-    fontSize:12,
+    fontSize:wp(3),
     textAlign:'center',
     color:'#000'
   },
   ServiceDescriptionActive:{
-    fontSize:12,
+    fontSize:wp(3),
     textAlign:'center',
     color:'#fff'
   },

@@ -94,7 +94,7 @@ const ProcessNext = ({navigation,route}) => {
       placeOrder(data).then(response => {
         MyToast(response.message);
         if(response.status === 1){
-          navigation.navigate('OrderPlaced',{orderId:response.order_id,pickupDate:pickupDate,pickupTime:pickupTime})
+          navigation.navigate('OrderPlaced',{orderId:response.order_id,pickupDate:pickupDate,pickupTime:pickupTime,id:response.id})
         }
       })
     }
