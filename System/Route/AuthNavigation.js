@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text ,TouchableOpacity,Image} from "react-native";
+import { View, Text ,TouchableOpacity,Image,StyleSheet} from "react-native";
 
 import {
   NavigationContainer,
@@ -11,7 +11,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomSidebarMenu from "./CustomSidebarMenu";
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { mainColor, capitalizeFirstLetter, AppName } from "../Utility/MyLib";
+import { mainColor, capitalizeFirstLetter, AppName, fetchAuthPostFunction } from "../Utility/MyLib";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import Home from '../View/Home';
@@ -43,6 +43,8 @@ import ReferAndEarn from "../View/ReferEarn/Refer&earn";
 import EnterCode from "../View/ReferEarn/EnterCode";
 import Wallet from '../View/Wallet/Wallet';
 import RequestPayment from "../View/Payment/RequestPayment";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthContext } from "../Utility/AuthContext";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -51,7 +53,6 @@ const Drawer = createDrawerNavigator();
 const iconsSize = 20;
 
 const NavigationDrawerStructure = (props) => {
-
 
   return (
     <View style={{flexDirection: 'row'}}>
@@ -65,10 +66,16 @@ const NavigationDrawerStructure = (props) => {
     </View>
   );
 };
-
+const Badge = ({count})=>(
+  <View style ={styles.circle}>
+    <Text style={styles.count}>{count}</Text>
+  </View>
+);
 const getHeaderTopRight = (navigation) => {
+  const {notiCount} = React.useContext(AuthContext)
+  const notiCountHere = notiCount()
   return (
-    <View style={{ flexDirection:'row' }}>
+    <View style={{ flexDirection:'row',alignItems:'center' }}>
       <TouchableOpacity onPress={() => {navigation.navigate('PriceListScreenStack')}}>
         <FontAwesome5 name={'search'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
       </TouchableOpacity>
@@ -76,7 +83,13 @@ const getHeaderTopRight = (navigation) => {
       {/*  <FontAwesome5 name={'cart-arrow-down'} size={iconsSize} color={mainColor} style={{marginRight:15}} />*/}
       {/*</TouchableOpacity>*/}
       <TouchableOpacity onPress={() => {navigation.navigate('Notifications')}}>
-        <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={{marginRight:15}} />
+        <View style={{ flexDirection:'row' }}>
+          <FontAwesome5 name={'bell'} size={iconsSize} color={mainColor} style={[notiCountHere > 0 ? {} : {marginRight:20}]}  />
+          {notiCountHere > 0 ?
+            <Text style={{marginRight:15, fontSize:wp(2.5),fontWeight:'bold'}} >{notiCountHere}</Text>:null
+          }
+        </View>
+
       </TouchableOpacity>
     </View>
   )
@@ -593,7 +606,7 @@ const ReferAndEarnScreenStack = ({navigation}) => {
 const WalletScreenStack = ({navigation}) => {
   return (
     <Stack.Navigator
-      initialRouteName="ReferAndEarn"
+      initialRouteName="Wallet"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#fff',
@@ -605,7 +618,7 @@ const WalletScreenStack = ({navigation}) => {
         name="Wallet"
         component={ Wallet }
         options={{
-          title: 'My Wallet',
+          title: 'Balance',
           headerRight: () => getHeaderTopRight(navigation),
           headerLeft: () => (
             <NavigationDrawerStructure
@@ -647,7 +660,7 @@ const MainNavigator = () => {
       <Drawer.Screen
         name="walletStackScreen"
         options={{
-          drawerLabel: 'Wallet',
+          drawerLabel: 'Balance',
           drawerIcon:({color , size}) => (
             <FontAwesome5 name={'wallet'} size={size - 2} color={color} style={{marginRight:-20,marginLeft:4}} />
           )
@@ -754,4 +767,15 @@ const AuthNavigation = () => {
    <MainNavigator />
   );
 };
+
+const styles = StyleSheet.create({
+  circle:{
+    width:36,
+    height:36,
+    borderRadius:18  , //half radius will make it cirlce,
+    // backgroundColor:'red'
+    flexDirection:'row'
+  },
+  count:{color:'#000'}
+})
 export default AuthNavigation;

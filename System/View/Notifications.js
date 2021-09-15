@@ -30,6 +30,7 @@ const Notifications = ({navigation}) => {
     let userId = userDetails.id;
     fetchAuthPostFunction('notifications',{user_id:userId}).then(response => {
       setNotifications(response)
+
     })
   }
   const orderCard = (notification,i) => {

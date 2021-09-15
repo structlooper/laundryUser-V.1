@@ -16,6 +16,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { ImageUrl, mainColor, UserImagePlaceHolder } from "../Utility/MyLib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../Utility/AuthContext";
+import { widthPercentageToDP } from "react-native-responsive-screen";
 
 
 const getUserDetails = async () => {
@@ -54,7 +55,7 @@ const CustomSidebarMenu = (props) => {
               backgroundColor: '#d75757',
             }}>
             <TouchableOpacity style={{ alignItems:'center' }} onPress={() => {props.navigation.navigate('MembershipDetails',{memberShipId:dataConverted.membership.membership_id})}}>
-              <Text style={{color: '#fff',}}>{dataConverted.membership.title}</Text>
+              <Text style={{color: '#fff',fontSize:widthPercentageToDP(2)}}>{dataConverted.membership.title}</Text>
             </TouchableOpacity>
           </View>
           }

@@ -1,8 +1,9 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text,   View ,ScrollView} from "react-native";
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, Image } from "react-native";
 import TopLogo from "../../Utility/TopLogo";
 import { MyNumericInput, MyButton, MyOutlineButton, mainColor, fetchPostFunction, MyToast } from "../../Utility/MyLib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen";
 
 const submitLoginFrom = async (number,navi,onLoginLoading) => {
   let dom = {};
@@ -33,7 +34,10 @@ const Login = ({ navigation }) => {
       >
         Login
       </Text></View>
-      <TopLogo />
+      {/*<TopLogo />*/}
+      <View style={{ flex:.5 }}>
+        <Image source={require('../../Public/cleaning.gif')} style={{ width:widthPercentageToDP(100),height:heightPercentageToDP(50),resizeMode:'cover' }} />
+      </View>
       <View style={{ flex:.6 }}>
         <ScrollView>
 
