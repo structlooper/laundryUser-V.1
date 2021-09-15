@@ -4,7 +4,7 @@ import GuestNavigation from "./System/Route/GuestNavigation";
 import {NavigationContainer} from "@react-navigation/native";
 import AuthNavigation from "./System/Route/AuthNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchPostFunction, mainColor } from "./System/Utility/MyLib";
+import { fetchAuthPostFunction, fetchPostFunction, mainColor } from "./System/Utility/MyLib";
 import {AuthContext} from "./System/Utility/AuthContext";
 
 const CheckStack =  () =>
@@ -12,6 +12,7 @@ const CheckStack =  () =>
 
   const [userToken,setUserToken] = React.useState(null)
   const [isLoading,setIsLoading] = React.useState(true)
+  const [notificationCount, setNotificationCount] = React.useState(0);
 
   const authContext = React.useMemo(() => ({
     logIn:async  () => {
@@ -25,6 +26,9 @@ const CheckStack =  () =>
     register:async () => {
       setUserToken(await AsyncStorage.getItem('token'))
       setIsLoading(false)
+    },
+    notiCount: () => {
+      return notificationCount;
     }
   }));
 
@@ -39,6 +43,17 @@ const CheckStack =  () =>
    }
    setIsLoading(false)
  }
+
+  React.useEffect(() => {
+    getNotifications().then()
+  },[]);
+  const getNotifications = async () => {
+    let userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'));
+    let userId = userDetails.id;
+    fetchAuthPostFunction('notifications',{user_id:userId}).then(response => {
+      setNotificationCount(response.data.length)
+    })
+  }
 
   useEffect(() => {
     setRetrieveUserToken().then()

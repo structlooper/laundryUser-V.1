@@ -110,7 +110,7 @@ const ReferAndEarn = ({ navigation })  => {
         </View>
       </View>
       <View style={{ flex:.2,alignItems:'center',justifyContent:'center' }}>
-        { buttonDesign({name:'wallet',style:{color:'rgba(125,106,239,1 )'}},' Wallet amount :',()=>{navigation.navigate('walletStackScreen')}, (wallet)?'₹'+wallet.wallet:'0')}
+        { buttonDesign({name:'wallet',style:{color:'rgba(125,106,239,1 )'}},' Balance amount :',()=>{navigation.navigate('walletStackScreen')}, (wallet)?'₹'+wallet.wallet:'0')}
       </View>
      </View>
   );

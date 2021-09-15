@@ -29,6 +29,7 @@ const ProcessNext = ({navigation,route}) => {
   const [ additionalItems, setAdditionalItems ] = React.useState([]);
   const [ update, setUpdate ] = React.useState(null);
   const [ isVisible, changeIsVisible ] = React.useState(false);
+  const [ userDetails, setUserDetails ] = React.useState([]);
   const {pickupTimeSelected} = route.params;
   const {pickupDateSelected} = route.params;
   const {dropDateSelected} = route.params;
@@ -56,6 +57,8 @@ const ProcessNext = ({navigation,route}) => {
   }
 
  const getPromoCodes = async () => {
+    let userDetail = JSON.parse(await AsyncStorage.getItem('userDetails'));
+    setUserDetails(userDetail)
     await fetchAuthPostFunction('promo',{lang:'en'}).then(response => {
       setPromoCodeGet(response.result)
     })
@@ -100,6 +103,7 @@ const ProcessNext = ({navigation,route}) => {
     }
 
   }
+
   const es_cloths = (text) => {
     return (
       <TouchableOpacity onPress={()=>{setSelectedEsCloths(text)}} style={{
@@ -388,13 +392,18 @@ const ProcessNext = ({navigation,route}) => {
         </View>
       </View>
       <View style={Styles.middleContainer}>
-        <Text style={{
-          fontWeight:'bold',
-          fontSize:16,
-          // textAlign:'center'
-        }}>Offers</Text>
-        {(promoCodeSelected === null)? applyPromoCode() : changePromoCode()}
-      </View>
+        {(typeof (userDetails.membership) ==  null)?
+          <View>
+            <Text style={{
+              fontWeight:'bold',
+              fontSize:16,
+              // textAlign:'center'
+            }}>Offers</Text>
+            {(promoCodeSelected === null)? applyPromoCode() : changePromoCode()}
+          </View>:null
+        }
+        </View>
+
       <View style={Styles.bottomContainer}>
         {MyButton(
           ()=>{PlaceOrder().then()},

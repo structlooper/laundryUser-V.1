@@ -68,8 +68,6 @@ const AboutUs = () => {
         </Text>
         {/*<Text style={styles.AppDescriptionText}>*/}
         {/*  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.*/}
-
-
         {/*</Text>*/}
       </ScrollView>
       <View style={{borderTopColor:'#eee',marginTop:5,borderTopWidth:5,paddingHorizontal:20,paddingVertical:30}}>
@@ -105,7 +103,6 @@ const styles = StyleSheet.create({
     // marginLeft:60,
     justifyContent:'center',
     flexDirection:'row',
-
   },
   AppImage:{
     width:150,
