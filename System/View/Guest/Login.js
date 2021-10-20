@@ -13,10 +13,10 @@ const submitLoginFrom = async (number,navi,onLoginLoading) => {
   onLoginLoading(false)
   if (result.status == 0) {
     MyToast(result.message);
-  } else if (result.status == 1) {
+  }else if (result.status == 1) {
     MyToast(result.message);
     navi.navigate('Otp', {mobile: number});
-  } else {
+  }else {
     MyToast('Server error please contact admin');
     console.log(result);
   }

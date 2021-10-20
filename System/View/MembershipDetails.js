@@ -84,12 +84,12 @@ const MembershipDetails = ({navigation,route}) => {
           marginVertical:'5%',
           alignItems:'center'
         }} >
-          <Text style={{
-            width:wp('80'),
-            color:mainColor,
-            fontSize:15,
-            textAlign:'center'
-          }}>{memberShipDetails.discount}% discount in premium membership for {memberShipDetails.duration_name}.</Text>
+          {/*<Text style={{*/}
+          {/*  width:wp('80'),*/}
+          {/*  color:mainColor,*/}
+          {/*  fontSize:15,*/}
+          {/*  textAlign:'center'*/}
+          {/*}}>{memberShipDetails.discount}% discount in premium membership for {memberShipDetails.duration_name}.</Text>*/}
         </View>
         <View style={{
           marginVertical:10,
