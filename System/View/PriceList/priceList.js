@@ -66,7 +66,7 @@ const PriceList = () => {
           {
             productList.map((data,i)=>
               <View style={{flexDirection:'row',borderBottomWidth:1,borderBottomColor:'grey',padding:'5%'}} key={i}>
-                <Text style={{flex:1}}>{data.product_name} ({data.service_name})</Text>
+                <Text style={{flex:1}}>{data.product_name} </Text>
                 <Text style={{}}>₹ {data.price}/{data.unit}</Text>
               </View>
             )
